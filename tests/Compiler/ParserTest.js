@@ -1,0 +1,927 @@
+const Parser = Kumis.Compiler.Parser;
+const AbstractExtension = Kumis.Extension.AbstractExtension;
+const TagInterface = Kumis.Extension.TagInterface;
+const Node = Kumis.Node;
+const { expect } = require('chai');
+
+describe('Parser', function() {
+    it('should parse basic types', () => {
+        expect(Parser.parse('{{ 1 }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [new Node.Literal(0, 3, 1)])]));
+
+        expect(Parser.parse('{{ 4.567 }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [new Node.Literal(0, 3, 4.567)])]));
+
+        expect(Parser.parse('{{ "foo" }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [new Node.Literal(0, 3, 'foo')])]));
+
+        expect(Parser.parse('{{ \'foo\' }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [new Node.Literal(0, 3, 'foo')])]));
+
+        expect(Parser.parse('{{ true }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [new Node.Literal(0, 3, true)])]));
+
+        expect(Parser.parse('{{ false }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [new Node.Literal(0, 3, false)])]));
+
+        expect(Parser.parse('{{ none }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [new Node.Literal(0, 3, null)])]));
+
+        expect(Parser.parse('{{ foo }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [new Node.SymbolNode(0, 3, 'foo')])]));
+
+        expect(Parser.parse('{{ r/23/gi }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [new Node.Literal(0, 3, /23/gi)])]));
+    });
+
+    it('should parse aggregate types', () => {
+        expect(Parser.parse('{{ [1,2,3] }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [
+                new Node.Array(0, 3, [
+                    new Node.Literal(0, 4, 1),
+                    new Node.Literal(0, 6, 2),
+                    new Node.Literal(0, 8, 3),
+                ])
+            ])]));
+
+        expect(Parser.parse('{{ (1,2,3) }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [
+                new Node.Group(0, 3, [
+                    new Node.Literal(0, 4, 1),
+                    new Node.Literal(0, 6, 2),
+                    new Node.Literal(0, 8, 3),
+                ])
+            ])]));
+
+        expect(Parser.parse('{{ {foo: 1, \'two\': 2} }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [
+                new Node.Dict(0, 3, [
+                    new Node.Pair(0, 4, new Node.SymbolNode(0, 4, 'foo'), new Node.Literal(0, 9, 1)),
+                    new Node.Pair(0, 12, new Node.Literal(0, 12, 'two'), new Node.Literal(0, 19, 2)),
+                ])
+            ])]));
+    });
+
+    it('should parse variables', () => {
+        expect(Parser.parse('hello {{ foo }}, how are you'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.Output(0, 0, [ new Node.TemplateData(0, 0, 'hello ') ]),
+                new Node.Output(0, 6, [ new Node.SymbolNode(0, 9, 'foo') ]),
+                new Node.Output(0, 15, [ new Node.TemplateData(0, 15, ', how are you') ]),
+            ]));
+    });
+
+    it('should parse operators', () => {
+        expect(Parser.parse('{{ x == y }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [
+                new Node.Compare(0, 5,
+                    new Node.SymbolNode(0, 3, 'x'),
+                    [ new Node.CompareOperand(0, 5, new Node.SymbolNode(0, 8, 'y'), '==') ]
+                )
+            ])]));
+
+        expect(Parser.parse('{{ x or y }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [
+                new Node.Or(0, 3,
+                    new Node.SymbolNode(0, 3, 'x'),
+                    new Node.SymbolNode(0, 8, 'y')
+                )
+            ])]));
+
+        expect(Parser.parse('{{ x in y }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [
+                new Node.In(0, 3,
+                    new Node.SymbolNode(0, 3, 'x'),
+                    new Node.SymbolNode(0, 8, 'y')
+                )
+            ])]));
+
+        expect(Parser.parse('{{ x not in y }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [
+                new Node.Not(0, 3,
+                    new Node.In(0, 3,
+                        new Node.SymbolNode(0, 3, 'x'),
+                        new Node.SymbolNode(0, 12, 'y')
+                    )
+                )
+            ])]));
+
+        expect(Parser.parse('{{ x is callable }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [
+                new Node.Is(0, 3,
+                    new Node.SymbolNode(0, 3, 'x'),
+                    new Node.SymbolNode(0, 8, 'callable')
+                )
+            ])]));
+
+        expect(Parser.parse('{{ x is not callable }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [
+                new Node.Not(0, 3,
+                    new Node.Is(0, 3,
+                        new Node.SymbolNode(0, 3, 'x'),
+                        new Node.SymbolNode(0, 12, 'callable')
+                    )
+                )
+            ])]));
+    });
+
+    it('should parse tilde', () => {
+        expect(Parser.parse('{{ 2 ~ 3 }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [
+                new Node.Concat(0, 3,
+                    new Node.Literal(0, 3, 2),
+                    new Node.Literal(0, 7, 3)
+                )
+            ])]));
+    });
+
+    it('should parse operators with correct precedence', () => {
+        expect(Parser.parse('{{ x in y and z }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [
+                new Node.And(0, 3,
+                    new Node.In(0, 3,
+                        new Node.SymbolNode(0, 3, 'x'),
+                        new Node.SymbolNode(0, 8, 'y')
+                    ),
+                    new Node.SymbolNode(0, 14, 'z')
+                )
+            ])]));
+
+        expect(Parser.parse('{{ x not in y or z }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [
+                new Node.Or(0, 3,
+                    new Node.Not(0, 3,
+                        new Node.In(0, 3,
+                            new Node.SymbolNode(0, 3, 'x'),
+                            new Node.SymbolNode(0, 12, 'y')
+                        ),
+                    ),
+                    new Node.SymbolNode(0, 17, 'z')
+                )
+            ])]));
+
+        expect(Parser.parse('{{ x or y and z }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [
+                new Node.Or(0, 3,
+                    new Node.SymbolNode(0, 3, 'x'),
+                    new Node.And(0, 8,
+                        new Node.SymbolNode(0, 8, 'y'),
+                        new Node.SymbolNode(0, 14, 'z')
+                    ),
+                )
+            ])]));
+    });
+
+    it('should parse blocks', () => {
+        let n = Parser.parse('want some {% if hungry %}pizza{% else %}water{% endif %}?');
+        expect(n.children[1].typename).to.be.equal('If');
+
+        n = Parser.parse('{% block foo %}stuff{% endblock %}');
+        expect(n.children[0].typename).to.be.equal('Block');
+
+        n = Parser.parse('{% block foo %}stuff{% endblock foo %}');
+        expect(n.children[0].typename).to.be.equal('Block');
+
+        n = Parser.parse('{% extends "test.njk" %}stuff');
+        expect(n.children[0].typename).to.be.equal('Extends');
+
+        n = Parser.parse('{% include "test.njk" %}');
+        expect(n.children[0].typename).to.be.equal('Include');
+    });
+
+    it('should accept attributes and methods of static arrays, objects and primitives', () => {
+        expect(function() {
+            Parser.parse('{{ ([1, 2, 3]).indexOf(1) }}');
+        }).to.not.throw();
+
+        expect(function() {
+            Parser.parse('{{ [1, 2, 3].length }}');
+        }).to.not.throw();
+
+        expect(function() {
+            Parser.parse('{{ "Some String".replace("S", "$") }}');
+        }).to.not.throw();
+
+        expect(function() {
+            Parser.parse('{{ ({ name : "Khalid" }).name }}');
+        }).to.not.throw();
+
+        expect(function() {
+            Parser.parse('{{ 1.618.toFixed(2) }}');
+        }).to.not.throw();
+    });
+
+    it('should parse include tags', () => {
+        let n = Parser.parse('{% include "test.njk" %}');
+        expect(n.children[0].typename).to.be.equal('Include');
+
+        n = Parser.parse('{% include "test.html"|replace("html","j2") %}');
+        expect(n.children[0].typename).to.be.equal('Include');
+
+        n = Parser.parse('{% include ""|default("test.njk") %}');
+        expect(n.children[0].typename).to.be.equal('Include');
+    });
+
+    it('should parse for loops', () => {
+        expect(Parser.parse('{% for x in [1, 2] %}{{ x }}{% endfor %}'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.For(0, 3,
+                    new Node.Array(0, 12, [
+                        new Node.Literal(0, 13, 1),
+                        new Node.Literal(0, 16, 2),
+                    ]),
+                    new Node.SymbolNode(0, 7, 'x'),
+                    new Node.NodeList(0, 0, [
+                        new Node.Output(0, 21, [
+                            new Node.SymbolNode(0, 24, 'x')
+                        ])
+                    ])
+                )
+            ]));
+    });
+
+    it('should parse for loops with else', () => {
+        expect(Parser.parse('{% for x in [] %}{{ x }}{% else %}empty{% endfor %}'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.For(0, 3,
+                    new Node.Array(0, 12),
+                    new Node.SymbolNode(0, 7, 'x'),
+                    new Node.NodeList(0, 0, [
+                        new Node.Output(0, 17, [
+                            new Node.SymbolNode(0, 20, 'x')
+                        ])
+                    ]),
+                    new Node.NodeList(0, 0, [
+                        new Node.Output(0, 34, [
+                            new Node.TemplateData(0, 34, 'empty')
+                        ])
+                    ])
+                )
+            ]));
+    });
+
+    it('should parse filters', () => {
+        expect(Parser.parse('{{ foo | bar }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [
+                new Node.Filter(0, 9,
+                    new Node.SymbolNode(0, 9, 'bar'),
+                    new Node.NodeList(0, 9, [
+                        new Node.SymbolNode(0, 3, 'foo')
+                    ])
+                )
+            ])]));
+
+        expect(Parser.parse('{{ foo | bar | baz }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [
+                new Node.Filter(0, 15,
+                    new Node.SymbolNode(0, 15, 'baz'),
+                    new Node.NodeList(0, 15, [
+                        new Node.Filter(0, 9,
+                            new Node.SymbolNode(0, 9, 'bar'),
+                            new Node.NodeList(0, 9, [
+                                new Node.SymbolNode(0, 3, 'foo')
+                            ])
+                        )
+                    ])
+                )
+            ])]));
+
+        expect(Parser.parse('{{ foo | bar(3) }}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 0, [
+                new Node.Filter(0, 9,
+                    new Node.SymbolNode(0, 9, 'bar'),
+                    new Node.NodeList(0, 9, [
+                        new Node.SymbolNode(0, 3, 'foo'),
+                        new Node.Literal(0, 13, 3)
+                    ])
+                )
+            ])]));
+    });
+
+    it('should parse macro definitions', () => {
+        const ast = Parser.parse('{% macro foo(bar, baz="foobar") %}' +
+            'This is a macro' +
+            '{% endmacro %}');
+
+        expect(ast).dumpsAs(new Node.Root(0, 0, [
+            new Node.Macro(0, 3,
+                new Node.SymbolNode(0, 9, 'foo'),
+                new Node.NodeList(0, 12, [
+                    new Node.SymbolNode(0, 13, 'bar'),
+                    new Node.KeywordArgs(0, 12,
+                        [ new Node.Pair(0, 18, new Node.SymbolNode(0, 18, 'baz'), new Node.Literal(0, 22, 'foobar')) ]
+                    )
+                ]),
+                new Node.NodeList(0, 0,
+                    [ new Node.Output(0, 34, [ new Node.TemplateData(0, 34, 'This is a macro') ]) ]
+                )
+            )
+        ]));
+    });
+
+    it('should parse call blocks', () => {
+        const ast = Parser.parse('{% call foo("bar") %}' +
+            'This is the caller' +
+            '{% endcall %}');
+
+        const sym = new Node.SymbolNode(0, 3, 'caller');
+        expect(ast).dumpsAs(new Node.Root(0, 0, [
+            new Node.Output(0, 3, [
+                new Node.FunCall(0, 11,
+                    new Node.SymbolNode(0, 8, 'foo'),
+                    new Node.NodeList(0, 11, [
+                        new Node.Literal(0, 12, 'bar'),
+                        new Node.KeywordArgs(undefined, undefined,
+                            [ new Node.Pair(0, 3,
+                                sym,
+                                new Node.Caller(0, 3,
+                                    sym,
+                                    new Node.NodeList(undefined, undefined, []),
+                                    new Node.NodeList(0, 0, [
+                                        new Node.Output(0, 21, [ new Node.TemplateData(0, 21, 'This is the caller') ])
+                                    ]),
+                            )) ]
+                        )
+                    ])
+                )
+            ])
+        ]));
+    });
+
+    it('should parse call blocks with args', () => {
+        const ast = Parser.parse('{% call(i) foo("bar", baz="foobar") %}' +
+            'This is {{ i }}' +
+            '{% endcall %}');
+
+        const sym = new Node.SymbolNode(0, 3, 'caller');
+        expect(ast).dumpsAs(new Node.Root(0, 0, [
+            new Node.Output(0, 3, [
+                new Node.FunCall(0, 14,
+                    new Node.SymbolNode(0, 11, 'foo'),
+                    new Node.NodeList(0, 14, [
+                        new Node.Literal(0, 15, 'bar'),
+                        new Node.KeywordArgs(0, 14,
+                            [
+                                new Node.Pair(0, 22,
+                                    new Node.SymbolNode(0, 22, 'baz'),
+                                    new Node.Literal(0, 26, 'foobar')),
+                                new Node.Pair(0, 3,
+                                    sym,
+                                    new Node.Caller(0, 3,
+                                        sym,
+                                        new Node.NodeList(0, 7, [ new Node.SymbolNode(0, 8, 'i') ]),
+                                        new Node.NodeList(0, 0, [
+                                            new Node.Output(0, 38, [ new Node.TemplateData(0, 38, 'This is ') ]),
+                                            new Node.Output(0, 46, [ new Node.SymbolNode(0, 49, 'i') ])
+                                        ]),
+                                    ))
+                            ]
+                        )
+                    ])
+                )
+            ])
+        ]));
+    });
+
+    it('should parse raw', () => {
+        expect(Parser.parse('{% raw %}hello {{ {% %} }}{% endraw %}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 7, [
+                new Node.TemplateData(0, 7, 'hello {{ {% %} }}'),
+            ])]));
+    });
+
+    it('should parse raw with broken variables', () => {
+        expect(Parser.parse('{% raw %}{{ x }}{% endraw %}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 7, [
+                new Node.TemplateData(0, 7, '{{ x }}'),
+            ])]));
+    });
+
+    it('should parse raw with broken blocks', () => {
+        expect(Parser.parse('{% raw %}{% if i_am_stupid }Still do your job well{% endraw %}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 7, [
+                new Node.TemplateData(0, 7, '{% if i_am_stupid }Still do your job well'),
+            ])]));
+    });
+
+    it('should parse raw with pure text', () => {
+        expect(Parser.parse('{% raw %}abc{% endraw %}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 7, [
+                new Node.TemplateData(0, 7, 'abc'),
+            ])]));
+    });
+
+
+    it('should parse raw with raw blocks', () => {
+        expect(Parser.parse('{% raw %}{% raw %}{{ x }{% endraw %}{% endraw %}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 7, [
+                new Node.TemplateData(0, 7, '{% raw %}{{ x }{% endraw %}'),
+            ])]));
+    });
+
+    it('should parse raw with comment blocks', () => {
+        expect(Parser.parse('{% raw %}{# test {% endraw %}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 7, [
+                new Node.TemplateData(0, 7, '{# test '),
+            ])]));
+    });
+
+    it('should parse multiple raw blocks', () => {
+        expect(Parser.parse('{% raw %}{{ var }}{% endraw %}{{ var }}{% raw %}{{ var }}{% endraw %}'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.Output(0, 7, [new Node.TemplateData(0, 7, '{{ var }}')]),
+                new Node.Output(0, 30, [new Node.SymbolNode(0, 33, 'var')]),
+                new Node.Output(0, 46, [new Node.TemplateData(0, 46, '{{ var }}')]),
+            ]));
+    });
+
+    it('should parse multiline multiple raw blocks', () => {
+        expect(Parser.parse('\n{% raw %}{{ var }}{% endraw %}\n{{ var }}\n{% raw %}{{ var }}{% endraw %}\n'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.Output(0, 0, [new Node.TemplateData(0, 0, '\n')]),
+                new Node.Output(1, 7, [new Node.TemplateData(1, 7, '{{ var }}')]),
+                new Node.Output(1, 30, [new Node.TemplateData(1, 30, '\n')]),
+                new Node.Output(2, 0, [new Node.SymbolNode(2, 3, 'var')]),
+                new Node.Output(2, 9, [new Node.TemplateData(2, 9, '\n')]),
+                new Node.Output(3, 7, [new Node.TemplateData(3, 7, '{{ var }}')]),
+                new Node.Output(3, 30, [new Node.TemplateData(3, 30, '\n')]),
+            ]));
+    });
+
+    it('should parse verbatim', () => {
+        expect(Parser.parse('{% verbatim %}hello {{ {% %} }}{% endverbatim %}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 12, [
+                new Node.TemplateData(0, 12, 'hello {{ {% %} }}'),
+            ])]));
+    });
+
+    it('should parse verbatim with broken variables', () => {
+        expect(Parser.parse('{% verbatim %}{{ x }{% endverbatim %}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 12, [
+                new Node.TemplateData(0, 12, '{{ x }'),
+            ])]));
+    });
+
+    it('should parse verbatim with broken blocks', () => {
+        expect(Parser.parse('{% verbatim %}{% if i_am_stupid }Still do your job well{% endverbatim %}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 12, [
+                new Node.TemplateData(0, 12, '{% if i_am_stupid }Still do your job well'),
+            ])]));
+    });
+
+    it('should parse verbatim with pure text', () => {
+        expect(Parser.parse('{% verbatim %}abc{% endverbatim %}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 12, [
+                new Node.TemplateData(0, 12, 'abc'),
+            ])]));
+    });
+
+
+    it('should parse verbatim with verbatim blocks', () => {
+        expect(Parser.parse('{% verbatim %}{% verbatim %}{{ x }{% endverbatim %}{% endverbatim %}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 12, [
+                new Node.TemplateData(0, 12, '{% verbatim %}{{ x }{% endverbatim %}'),
+            ])]));
+    });
+
+    it('should parse verbatim with comment blocks', () => {
+        expect(Parser.parse('{% verbatim %}{# test {% endverbatim %}'))
+            .dumpsAs(new Node.Root(0, 0, [new Node.Output(0, 12, [
+                new Node.TemplateData(0, 12, '{# test '),
+            ])]));
+    });
+
+    it('should parse multiple verbatim blocks', () => {
+        expect(Parser.parse('{% verbatim %}{{ var }}{% endverbatim %}{{ var }}{% verbatim %}{{ var }}{% endverbatim %}'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.Output(0, 12, [new Node.TemplateData(0, 12, '{{ var }}')]),
+                new Node.Output(0, 40, [new Node.SymbolNode(0, 43, 'var')]),
+                new Node.Output(0, 61, [new Node.TemplateData(0, 61, '{{ var }}')]),
+            ]));
+    });
+
+    it('should parse multiline multiple verbatim blocks', () => {
+        expect(Parser.parse('\n{% verbatim %}{{ var }}{% endverbatim %}\n{{ var }}\n{% verbatim %}{{ var }}{% endverbatim %}\n'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.Output(0, 0, [new Node.TemplateData(0, 0, '\n')]),
+                new Node.Output(1, 12, [new Node.TemplateData(1, 12, '{{ var }}')]),
+                new Node.Output(1, 40, [new Node.TemplateData(1, 40, '\n')]),
+                new Node.Output(2, 0, [new Node.SymbolNode(2, 3, 'var')]),
+                new Node.Output(2, 9, [new Node.TemplateData(2, 9, '\n')]),
+                new Node.Output(3, 12, [new Node.TemplateData(3, 12, '{{ var }}')]),
+                new Node.Output(3, 40, [new Node.TemplateData(3, 40, '\n')]),
+            ]));
+    });
+
+    it('should parse switch statements', () => {
+        const tpl = '{% switch foo %}{% case "bar" %}BAR{% case "baz" %}BAZ{% default %}NEITHER FOO NOR BAR{% endswitch %}';
+        expect(Parser.parse(tpl))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.Switch(0, 3,
+                    new Node.SymbolNode(0, 10, 'foo'),
+                    [
+                        new Node.Case(undefined, undefined,
+                            new Node.Literal(0, 24, 'bar'),
+                            new Node.NodeList(0, 0, [ new Node.Output(0, 32, [ new Node.TemplateData(0, 32, 'BAR') ]) ])
+                        ),
+                        new Node.Case(undefined, undefined,
+                            new Node.Literal(0, 43, 'baz'),
+                            new Node.NodeList(0, 0, [ new Node.Output(0, 51, [ new Node.TemplateData(0, 51, 'BAZ') ]) ])
+                        ),
+                    ],
+                    new Node.NodeList(0, 0, [ new Node.Output(0, 67, [ new Node.TemplateData(0, 67, 'NEITHER FOO NOR BAR') ]) ])
+                )
+            ]));
+    });
+
+    it('should parse keyword and non-keyword arguments', () => {
+        expect(Parser.parse('{{ foo("bar", falalalala, baz="foobar") }}'))
+            .dumpsAs(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+                new Node.FunCall(0, 6,
+                    new Node.SymbolNode(0, 3, 'foo'),
+                    new Node.NodeList(0, 6, [
+                        new Node.Literal(0, 7, 'bar'),
+                        new Node.SymbolNode(0, 14, 'falalalala'),
+                        new Node.KeywordArgs(0, 6, [
+                            new Node.Pair(0, 26, new Node.SymbolNode(0, 26, 'baz'), new Node.Literal(0, 30, 'foobar'))
+                        ])
+                    ])
+                )
+            ])]));
+    });
+
+    it('should parse imports', () => {
+        expect(Parser.parse('{% import "foo/bar.njk" as baz %}'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.Import(0, 3,
+                    new Node.Literal(0, 10, 'foo/bar.njk'),
+                    new Node.SymbolNode(0, 27, 'baz'),
+                )
+            ]));
+
+        expect(Parser.parse('{% from "foo/bar.njk" import baz, foobar as foobarbaz %}'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.FromImport(0, 3,
+                    new Node.Literal(0, 8, 'foo/bar.njk'),
+                    new Node.NodeList(undefined, undefined, [
+                        new Node.SymbolNode(0, 29, 'baz'),
+                        new Node.Pair(0, 34, new Node.SymbolNode(0, 34, 'foobar'), new Node.SymbolNode(0, 44, 'foobarbaz')),
+                    ])
+                )
+            ]));
+
+        expect(Parser.parse('{% import "foo/bar.html"|replace("html", "j2") as baz %}'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.Import(0, 3,
+                    new Node.Filter(0, 25,
+                        new Node.SymbolNode(0, 25, 'replace'),
+                        new Node.NodeList(0, 25, [
+                            new Node.Literal(0, 10, 'foo/bar.html'),
+                            new Node.Literal(0, 33, 'html'),
+                            new Node.Literal(0, 41, 'j2'),
+                        ])
+                    ),
+                    new Node.SymbolNode(0, 50, 'baz')
+                )
+            ]));
+
+        expect(Parser.parse('{% from ""|default("foo/bar.njk") import baz, foobar as foobarbaz %}'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.FromImport(0, 3,
+                    new Node.Filter(0, 11,
+                        new Node.SymbolNode(0, 11, 'default'),
+                        new Node.NodeList(0, 11, [
+                            new Node.Literal(0, 8, ''),
+                            new Node.Literal(0, 19, 'foo/bar.njk'),
+                        ])
+                    ),
+                    new Node.NodeList(undefined, undefined, [
+                        new Node.SymbolNode(0, 41, 'baz'),
+                        new Node.Pair(0, 46, new Node.SymbolNode(0, 46, 'foobar'), new Node.SymbolNode(0, 56, 'foobarbaz')),
+                    ])
+                )
+            ]));
+    });
+
+    it('should parse whitespace control', () => {
+        // Every start/end tag with "-" should trim the whitespace
+        // Before or after it
+
+        expect(Parser.parse('{% if x %}\n  hi \n{% endif %}'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.If(0, 3,
+                    new Node.SymbolNode(0, 6, 'x'),
+                    new Node.NodeList(0, 0, [
+                        new Node.Output(0, 10, [ new Node.TemplateData(0, 10, '\n  hi \n') ])
+                    ])
+                )
+            ]));
+
+        expect(Parser.parse('{% if x -%}\n  hi \n{% endif %}'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.If(0, 3,
+                    new Node.SymbolNode(0, 6, 'x'),
+                    new Node.NodeList(0, 0, [
+                        new Node.Output(0, 11, [ new Node.TemplateData(0, 11, 'hi \n') ])
+                    ])
+                )
+            ]));
+
+        expect(Parser.parse('{% if x %}\n  hi \n{%- endif %}'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.If(0, 3,
+                    new Node.SymbolNode(0, 6, 'x'),
+                    new Node.NodeList(0, 0, [
+                        new Node.Output(0, 10, [ new Node.TemplateData(0, 10, '\n  hi') ])
+                    ])
+                )
+            ]));
+
+        expect(Parser.parse('{% if x -%}\n  hi \n{%- endif %}'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.If(0, 3,
+                    new Node.SymbolNode(0, 6, 'x'),
+                    new Node.NodeList(0, 0, [
+                        new Node.Output(0, 11, [ new Node.TemplateData(0, 11, 'hi') ])
+                    ])
+                )
+            ]));
+
+        expect(Parser.parse('poop  \n{%- if x -%}\n  hi \n{%- endif %}'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.Output(0, 0, [ new Node.TemplateData(0, 0, 'poop') ]),
+                new Node.If(1, 4,
+                    new Node.SymbolNode(1, 7, 'x'),
+                    new Node.NodeList(0, 0, [
+                        new Node.Output(1, 12, [ new Node.TemplateData(1, 12, 'hi') ])
+                    ])
+                )
+            ]));
+
+        expect(Parser.parse('hello \n{#- comment #}'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.Output(0, 0, [ new Node.TemplateData(0, 0, 'hello') ]),
+            ]));
+
+        expect(Parser.parse('{# comment -#} \n world'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.Output(0, 14, [ new Node.TemplateData(0, 14, 'world') ]),
+            ]));
+
+        expect(Parser.parse('hello \n{#- comment -#} \n world'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.Output(0, 0, [ new Node.TemplateData(0, 0, 'hello') ]),
+                new Node.Output(1, 15, [ new Node.TemplateData(1, 15, 'world') ]),
+            ]));
+
+        expect(Parser.parse('hello \n{# - comment - #} \n world'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.Output(0, 0, [ new Node.TemplateData(0, 0, 'hello \n') ]),
+                new Node.Output(1, 17, [ new Node.TemplateData(1, 17, ' \n world') ]),
+            ]));
+
+        // The from statement required a special case so make sure to test it
+        expect(Parser.parse('{% from x import y %}\n  hi \n'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.FromImport(0, 3,
+                    new Node.SymbolNode(0, 8, 'x'),
+                    new Node.NodeList(undefined, undefined, [ new Node.SymbolNode(0, 17, 'y') ])
+                ),
+                new Node.Output(0, 21, [ new Node.TemplateData(0, 21, '\n  hi \n') ]),
+            ]));
+
+        expect(Parser.parse('{% from x import y -%}\n  hi \n'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.FromImport(0, 3,
+                    new Node.SymbolNode(0, 8, 'x'),
+                    new Node.NodeList(undefined, undefined, [ new Node.SymbolNode(0, 17, 'y') ])
+                ),
+                new Node.Output(0, 22, [ new Node.TemplateData(0, 22, 'hi \n') ]),
+            ]));
+
+        expect(Parser.parse('{% if x -%}{{y}} {{z}}{% endif %}'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.If(0, 3,
+                    new Node.SymbolNode(0, 6, 'x'),
+                    new Node.NodeList(0, 0, [
+                        new Node.Output(0, 11, [ new Node.SymbolNode(0, 13, 'y') ]),
+                        // The value of TemplateData should be ' ' instead of ''
+                        new Node.Output(0, 16, [ new Node.TemplateData(0, 16, ' ') ]),
+                        new Node.Output(0, 17, [ new Node.SymbolNode(0, 19, 'z') ]),
+                    ])
+                )
+            ]));
+
+        expect(Parser.parse('{% if x -%}{% if y %} {{z}}{% endif %}{% endif %}'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.If(0, 3,
+                    new Node.SymbolNode(0, 6, 'x'),
+                    new Node.NodeList(0, 0, [
+                        new Node.If(0, 14,
+                            new Node.SymbolNode(0, 17, 'y'),
+                            new Node.NodeList(0, 0, [
+                                // The value of TemplateData should be ' ' instead of ''
+                                new Node.Output(0, 21, [ new Node.TemplateData(0, 21, ' ') ]),
+                                new Node.Output(0, 22, [ new Node.SymbolNode(0, 24, 'z') ]),
+                            ])
+                        )
+                    ])
+                )
+            ]));
+
+        expect(Parser.parse('{% if x -%}{# comment #} {{z}}{% endif %}'))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.If(0, 3,
+                    new Node.SymbolNode(0, 6, 'x'),
+                    new Node.NodeList(0, 0, [
+                        // The value of TemplateData should be ' ' instead of ''
+                        new Node.Output(0, 24, [ new Node.TemplateData(0, 24, ' ') ]),
+                        new Node.Output(0, 25, [ new Node.SymbolNode(0, 27, 'z') ]),
+                    ])
+                )
+            ]));
+    });
+
+    it('should throw errors', () => {
+        expect(function() {
+            Parser.parse('hello {{ foo');
+        }).to.throw(/expected variable end/);
+
+        expect(function() {
+            Parser.parse('hello {% if');
+        }).to.throw(/expected expression/);
+
+        expect(function() {
+            Parser.parse('hello {% if sdf zxc');
+        }).to.throw(/expected block end/);
+
+        expect(function() {
+            Parser.parse('{% include "foo %}');
+        }).to.throw(/expected block end/);
+
+        expect(function() {
+            Parser.parse('hello {% if sdf %} data');
+        }).to.throw(/expected elif, else, or endif/);
+
+        expect(function() {
+            Parser.parse('hello {% block sdf %} data');
+        }).to.throw(/expected endblock/);
+
+        expect(function() {
+            Parser.parse('hello {% block sdf %} data{% endblock foo %}');
+        }).to.throw(/expected block end/);
+
+        expect(function() {
+            Parser.parse('hello {% bar %} dsfsdf');
+        }).to.throw(/Unknown block tag/);
+
+        expect(function() {
+            Parser.parse('{{ foo(bar baz) }}');
+        }).to.throw(/expected comma after expression/);
+
+        expect(function() {
+            Parser.parse('{% import "foo" %}');
+        }).to.throw(/expected "as" keyword/);
+
+        expect(function() {
+            Parser.parse('{% from "foo" %}');
+        }).to.throw(/expected import/);
+
+        expect(function() {
+            Parser.parse('{% from "foo" import bar baz %}');
+        }).to.throw(/expected comma/);
+
+        expect(function() {
+            Parser.parse('{% from "foo" import _bar %}');
+        }).to.throw(/names starting with an underscore cannot be imported/);
+    });
+
+    it('should parse custom tags', () => {
+        class TestTagExtension extends AbstractExtension {
+            get tags() {
+                return [
+                    new class extends implementationOf(TagInterface) {
+                        get name() {
+                            return 'testtag';
+                        }
+
+                        parse(parser, extension) {
+                            parser.peekToken();
+                            parser.advanceAfterBlockEnd();
+
+                            return new Node.CallExtension(extension, 'foo');
+                        }
+                    }(),
+                ];
+            }
+
+            /* Normally this is automatically done by Environment */
+            get name() {
+                return 'testtagExtension';
+            }
+        }
+
+        class TestBlockTagExtension extends AbstractExtension {
+            get tags() {
+                return [
+                    new class extends implementationOf(TagInterface) {
+                        get name() {
+                            return 'testblocktag';
+                        }
+
+                        parse(parser, extension) {
+                            parser.peekToken();
+                            parser.advanceAfterBlockEnd();
+
+                            const content = parser.parseUntilBlocks('endtestblocktag');
+                            const tag = new Node.CallExtension(extension, 'bar', null, [ 1, content ]);
+                            parser.advanceAfterBlockEnd();
+
+                            return tag;
+                        }
+                    }(),
+                ];
+            }
+
+            get name() {
+                return 'testblocktagExtension';
+            }
+        }
+
+        class TestArgsExtension extends AbstractExtension {
+            /* eslint-disable no-shadow */
+            get tags() {
+                return [
+                    new class extends implementationOf(TagInterface) {
+                        get name() {
+                            return 'testargs';
+                        }
+
+                        parse(parser, extension) {
+                            const begun = parser.peekToken();
+
+                            // Skip the name
+                            parser.nextToken();
+
+                            const args = parser.parseSignature(true);
+                            parser.advanceAfterBlockEnd(begun.value);
+
+                            return new Node.CallExtension(extension, 'biz', args);
+                        }
+                    }(),
+                ];
+            }
+
+            get name() {
+                return 'testargsExtension';
+            }
+        }
+
+        const extensions = [ new TestTagExtension(),
+            new TestBlockTagExtension(),
+            new TestArgsExtension() ];
+
+        expect(Parser.parse('{% testtag %}', extensions))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.CallExtension(extensions[0], 'foo')
+            ]));
+
+        expect(Parser.parse('{% testblocktag %}sdfd{% endtestblocktag %}', extensions))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.CallExtension(extensions[1], 'bar', null, [
+                    1,
+                    new Node.NodeList(0, 0, [
+                        new Node.Output(0, 18, [ new Node.TemplateData(0, 18, 'sdfd') ]),
+                    ]),
+                ]),
+            ]));
+
+        expect(Parser.parse('{% testblocktag %}{{ 123 }}{% endtestblocktag %}', extensions))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.CallExtension(extensions[1], 'bar', null, [
+                    1,
+                    new Node.NodeList(0, 0, [
+                        new Node.Output(0, 18, [ new Node.Literal(0, 21, 123) ]),
+                    ]),
+                ]),
+            ]));
+
+        expect(Parser.parse('{% testargs(123, "abc", foo="bar") %}', extensions))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.CallExtension(extensions[2], 'biz',
+                    new Node.NodeList(0, 11, [
+                        new Node.Literal(0, 12, 123),
+                        new Node.Literal(0, 17, 'abc'),
+                        new Node.KeywordArgs(0, 11, [
+                            new Node.Pair(0, 24, new Node.SymbolNode(0, 24, 'foo'), new Node.Literal(0, 28, 'bar'))
+                        ]),
+                    ])
+                ),
+            ]));
+
+        expect(Parser.parse('{% testargs %}', extensions))
+            .dumpsAs(new Node.Root(0, 0, [
+                new Node.CallExtension(extensions[2], 'biz', null),
+            ]));
+    });
+});
