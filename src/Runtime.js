@@ -106,7 +106,7 @@ class Runtime {
     static callWrap(obj, name, context, args) {
         if (! obj) {
             throw new Error('Unable to call `' + name + '`, which is undefined or falsey');
-        } else if ('function' !== typeof obj) {
+        } else if (! isFunction(obj)) {
             throw new Error('Unable to call `' + name + '`, which is not a function');
         }
 

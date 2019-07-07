@@ -287,35 +287,31 @@ function selectattr(arr, attr) {
 
 exports.selectattr = selectattr;
 
-function replace(str, old, new_, maxCount) {
+function replace(str, old, new_, maxCount = -1) {
     const originalStr = str;
 
     if (old instanceof RegExp) {
         return str.replace(old, new_);
     }
 
-    if ('undefined' === typeof maxCount) {
-        maxCount = -1;
-    }
-
     let res = ''; // Output
 
     // Cast Numbers in the search term to string
-    if ('number' === typeof old) {
+    if (isNumber(old)) {
         old = '' + old;
-    } else if ('string' !== typeof old) {
-    // If it is something other than number or string,
-    // Return the original string
+    } else if (! isString(old)) {
+        // If it is something other than number or string,
+        // Return the original string
         return str;
     }
 
     // Cast numbers in the replacement to string
-    if ('number' === typeof str) {
+    if (isNumber(str)) {
         str = '' + str;
     }
 
     // If by now, we don't have a string, throw it back
-    if ('string' !== typeof str && !(str instanceof SafeString)) {
+    if (! isString(str) && !(str instanceof SafeString)) {
         return str;
     }
 

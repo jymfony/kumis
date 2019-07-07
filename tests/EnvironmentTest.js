@@ -1,11 +1,26 @@
+const Prophet = Jymfony.Component.Testing.Prophet;
 const FilesystemLoader = Kumis.Loader.FilesystemLoader;
+const LoaderInterface = Kumis.Loader.LoaderInterface;
 const Environment = Kumis.Environment;
 const { expect } = require('chai');
 const util = require('./util');
 const templatesPath = 'tests/templates';
 const path = require('path');
 
-describe('api', function() {
+describe('Environment', function () {
+    beforeEach(() => {
+        /**
+         * @type {Jymfony.Component.Testing.Prophet}
+         *
+         * @private
+         */
+        this._prophet = new Prophet();
+    });
+
+    afterEach(() => {
+        this._prophet.checkPredictions();
+    });
+
     it('should always force compilation of parent template', async () => {
         const env = new Environment(new FilesystemLoader(templatesPath));
 
@@ -38,5 +53,16 @@ describe('api', function() {
         expect(await env.renderString('{% extends "./relative/test1.kumis" %}{% block block1 %}Test3{% endblock %}', {}, {
             path: path.resolve(templatesPath, 'string.kumis'),
         })).to.be.equal('FooTest3BazFizzle');
+    });
+
+    it('should invalidate loaders cache', () => {
+        const loader1 = this._prophet.prophesize(LoaderInterface);
+        const loader2 = this._prophet.prophesize(LoaderInterface);
+
+        loader1.invalidateCache().shouldBeCalled();
+        loader2.invalidateCache().shouldBeCalled();
+
+        const env = new Environment([ loader1.reveal(), loader2.reveal() ]);
+        env.invalidateCache();
     });
 });

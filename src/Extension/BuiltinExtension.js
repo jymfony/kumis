@@ -14,13 +14,10 @@ class BuiltinExtension extends AbstractExtension {
      */
     get globals() {
         return {
-            range(start, stop, step) {
-                if ('undefined' === typeof stop) {
+            range(start, stop = undefined, step = 1) {
+                if (undefined === stop) {
                     stop = start;
                     start = 0;
-                    step = 1;
-                } else if (!step) {
-                    step = 1;
                 }
 
                 const arr = [];

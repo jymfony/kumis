@@ -24,6 +24,7 @@
   "typings": "types/index.d.ts",
   "devDependencies": {
     "@jymfony/debug": "^0.1.0-alpha.16",
+    "@jymfony/testing": "^0.1.0-alpha.16",
     "@jymfony/var-dumper": "^0.1.0-alpha.16",
     "chai": "^4.2.0",
     "mocha": "*",
@@ -58,11 +59,10 @@
       "src/*.js"
     ],
     "exclude": [
-      "**/tests.js",
       "**/*Interface.js",
       "**/namespace-stub.js",
-      "**/fixtures/**",
-      "**/tests/**"
+      "**/tests/**",
+      "tests.js"
     ],
     "reporter": [
       "clover",

@@ -10,7 +10,7 @@ const SafeString = Kumis.Util.SafeString;
  * @returns {boolean}
  */
 function callable(value) {
-    return 'function' === typeof value;
+    return isFunction(value);
 }
 
 exports.callable = callable;
@@ -213,7 +213,7 @@ exports.null = nullTest;
  * @returns {boolean}
  */
 function number(value) {
-    return 'number' === typeof value;
+    return isNumber(value);
 }
 
 exports.number = number;
@@ -239,7 +239,7 @@ exports.odd = odd;
  * @returns {boolean}
  */
 function string(value) {
-    return 'string' === typeof value;
+    return isString(value);
 }
 
 exports.string = string;

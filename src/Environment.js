@@ -76,16 +76,18 @@ class Environment {
     }
 
     getFilter(name) {
-        if (!this.filters[name]) {
+        if (! this.filters[name]) {
             throw new Error('filter not found: ' + name);
         }
+
         return this.filters[name];
     }
 
     getTest(name) {
-        if (!this.tests[name]) {
+        if (! this.tests[name]) {
             throw new Error('test not found: ' + name);
         }
+
         return this.tests[name];
     }
 
@@ -110,7 +112,7 @@ class Environment {
             }
 
             return name;
-        } else if ('string' !== typeof name) {
+        } else if (! isString(name)) {
             throw new Error('template names must be a string: ' + name);
         }
 

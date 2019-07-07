@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const { render } = require('./util');
 
-describe('runtime', function() {
+describe('Runtime', function() {
     it('should report the failed function calls to symbols', async () => {
         try {
             await render('{{ foo("cvan") }}', { foo: undefined });

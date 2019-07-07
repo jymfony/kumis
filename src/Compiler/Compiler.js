@@ -328,7 +328,7 @@ class Compiler {
     compileCallExtension(node, frame) {
         const args = node.args;
         const contentArgs = node.contentArgs;
-        const autoescape = 'boolean' === typeof node.autoescape ? node.autoescape : true;
+        const autoescape = !! node.autoescape;
 
         this._emit(`${this._buffer} += suppressValue(`);
         this._emit(`await env.getExtension("${node.extName}")["${node.prop}"](`);
@@ -479,7 +479,7 @@ class Compiler {
 
         if (key instanceof Node.SymbolNode) {
             key = new Node.Literal(key.lineno, key.colno, key.value);
-        } else if (!(key instanceof Node.Literal && 'string' === typeof key.value)) {
+        } else if (! (key instanceof Node.Literal && isString(key.value))) {
             this._fail('compilePair: Dict keys must be strings or names', key.lineno, key.colno);
         }
 
@@ -1475,7 +1475,7 @@ class Compiler {
 
         blocks.forEach((block) => {
             const blockName = `b_${block.name.value}`;
-            this._emitLine(`${blockName}: ${blockName},`);
+            this._emitLine(`    ${blockName}: ${blockName},`);
         });
 
         this._emitLine('    root: root\n};');
