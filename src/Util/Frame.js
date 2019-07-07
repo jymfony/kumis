@@ -1,3 +1,6 @@
+const Storage = function () {};
+Storage.prototype = {};
+
 /**
  * Frames keep track of scoping both at compile-time and run-time so
  * we know how to access variables. Block tags can introduce special
@@ -13,8 +16,13 @@ class Frame {
      * @param {boolean} isolateWrites
      */
     __construct(parent, isolateWrites) {
-        this.variables = {};
+        this.variables = new Storage();
+
+        /**
+         * @type {Kumis.Util.Frame}
+         */
         this.parent = parent;
+
         this.topLevel = false;
         // If this is true, writes (set) should never propagate upwards past
         // This frame to its parent (though reads may).
@@ -70,6 +78,21 @@ class Frame {
         }
 
         return null;
+    }
+
+    /**
+     * Whether the frame has defined the given variable.
+     *
+     * @param {string} name
+     *
+     * @returns {boolean}
+     */
+    has(name) {
+        if (name in this.variables) {
+            return true;
+        }
+
+        return this.parent ? this.parent.has(name) : false;
     }
 
     /**

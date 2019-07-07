@@ -24,9 +24,8 @@ class Compiler {
      * Constructor.
      *
      * @param {string} templateName
-     * @param {boolean} throwOnUndefined
      */
-    __construct(templateName, throwOnUndefined) {
+    __construct(templateName) {
         /**
          * The template name.
          *
@@ -87,6 +86,15 @@ class Compiler {
         this._inBlock = false;
 
         /**
+         * Whether to suppress the undefined variable error.
+         *
+         * @type {boolean}
+         *
+         * @private
+         */
+        this._suppressUndefinedError = false;
+
+        /**
          * Indentation level.
          *
          * @type {string}
@@ -94,15 +102,6 @@ class Compiler {
          * @private
          */
         this._indent = '';
-
-        /**
-         * Whether to throw on undefined variable.
-         *
-         * @type {boolean}
-         *
-         * @private
-         */
-        this._throwOnUndefined = throwOnUndefined;
     }
 
     /**
@@ -430,7 +429,11 @@ class Compiler {
         if (v) {
             this._emit(v);
         } else {
-            this._emit('await contextOrFrameLookup(context, frame, "' + name + '")');
+            this._emit(__jymfony.sprintf(
+                'await contextOrFrameLookup(context, frame, "%s", %s)',
+                name,
+                this._suppressUndefinedError ? 'true' : 'false'
+            ));
         }
     }
 
@@ -530,6 +533,12 @@ class Compiler {
         // Callable (i.e., has args) and not a symbol.
         // Otherwise go with the symbol value
         const right = node.right.name ? node.right.name.value : node.right.value;
+
+        let oldSuppress = this._suppressUndefinedError;
+        if ('defined' === right || 'undefined' === right) {
+            this._suppressUndefinedError = true;
+        }
+
         this._emit('await env.getTest("' + right + '").call(context, ');
         this.compile(node.left, frame);
         // Compile the arguments for the callable if they exist
@@ -538,6 +547,10 @@ class Compiler {
             this.compile(node.right.args, frame);
         }
         this._emit(') === true');
+
+        if ('defined' === right || 'undefined' === right) {
+            this._suppressUndefinedError = oldSuppress;
+        }
     }
 
     /**
@@ -784,9 +797,19 @@ class Compiler {
     compileFilter(node, frame) {
         const name = node.name;
         this.assertType(name, Node.SymbolNode);
+
+        let oldSuppress = this._suppressUndefinedError;
+        if ('default' === name.value) {
+            this._suppressUndefinedError = true;
+        }
+
         this._emit('await env.getFilter("' + name.value + '").call(context, ');
         this._compileAggregate(node.args, frame);
         this._emit(')');
+
+        if ('default' === name.value) {
+            this._suppressUndefinedError = oldSuppress;
+        }
     }
 
     /**
@@ -866,13 +889,13 @@ class Compiler {
     compileSwitch(node, frame) {
         this._emit('switch (');
         this.compile(node.expr, frame);
-        this._emit(') {');
+        this._emitLine(') {');
         this._addIndent();
 
         node.cases.forEach(c => {
             this._emit('case ');
             this.compile(c.cond, frame);
-            this._emit(': ');
+            this._emitLine(': ');
 
             this._addIndent();
             this.compile(c.body, frame);
@@ -1399,13 +1422,7 @@ class Compiler {
                 }
             } else {
                 this._emit(`${this._buffer} += suppressValue(`);
-                if (this._throwOnUndefined) {
-                    this._emit('Runtime.ensureDefined(');
-                }
                 this.compile(child, frame);
-                if (this._throwOnUndefined) {
-                    this._emit(`,${node.lineno},${node.colno})`);
-                }
                 this._emit(', env.opts.autoescape);\n');
             }
         });
@@ -1489,7 +1506,7 @@ class Compiler {
     }
 
     static compile(src, extensions, name, opts = {}) {
-        const c = new __self(name, opts.throwOnUndefined);
+        const c = new __self(name);
 
         // Run the extension preprocessors against the source.
         const preprocessors = (extensions || []).map(ext => ext.preprocess).filter(f => !!f);

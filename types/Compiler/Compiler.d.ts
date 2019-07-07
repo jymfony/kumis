@@ -3,12 +3,7 @@ declare namespace Kumis.Compiler {
     import Frame = Kumis.Util.Frame;
     import ExtensionInterface = Kumis.Extension.ExtensionInterface;
 
-    export interface CompilerOptions extends ParserOptions {
-        /**
-         * Throws on undefined variable.
-         */
-        throwOnUndefined?: boolean;
-    }
+    export interface CompilerOptions extends ParserOptions { }
 
     export class Compiler {
         /**
@@ -49,13 +44,13 @@ declare namespace Kumis.Compiler {
         /**
          * Whether to throw on undefined variable.
          */
-        private _throwOnUndefined: boolean;
+        private _suppressUndefinedError: boolean;
 
         /**
          * Constructor.
          */
-        __construct(templateName: string, throwOnUndefined: boolean): void;
-        constructor(templateName: string, throwOnUndefined: boolean);
+        __construct(templateName: string): void;
+        constructor(templateName: string);
 
         /**
          * Throws an error.

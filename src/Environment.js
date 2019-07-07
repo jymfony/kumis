@@ -4,6 +4,8 @@ const Template = Kumis.Template;
 const ArrayAdapter = Jymfony.Component.Cache.Adapter.ArrayAdapter;
 
 const path = require('path');
+const Storage = function () {};
+Storage.prototype = {};
 
 /**
  * A no-op template, for use with {% include ignore missing %}
@@ -21,10 +23,9 @@ const noopTmplSrc = {
  * @memberOf Kumis
  */
 class Environment {
-    __construct(loaders, { autoescape = true, throwOnUndefined, trimBlocks, lstripBlocks} = {}) {
+    __construct(loaders, { autoescape = true, trimBlocks, lstripBlocks} = {}) {
         this.opts = {
             autoescape: !! autoescape,
-            throwOnUndefined: !! throwOnUndefined,
             trimBlocks: !! trimBlocks,
             lstripBlocks: !! lstripBlocks,
         };
@@ -35,10 +36,10 @@ class Environment {
         this.loaders = loaders || [ new FilesystemLoader('views', new ArrayAdapter()) ];
         this.loaders = isArray(this.loaders) ? this.loaders : [ this.loaders ];
 
-        this.globals = {};
-        this.filters = {};
-        this.tests = {};
-        this.extensions = {};
+        this.globals = new Storage();
+        this.filters = new Storage();
+        this.tests = new Storage();
+        this.extensions = new Storage();
         this.extensionsList = [];
 
         this.addExtension(new BuiltinExtension());

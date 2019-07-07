@@ -9,6 +9,7 @@
 /// <reference path="Compiler/Parser.d.ts" />
 /// <reference path="Compiler/Tokenizer.d.ts" />
 /// <reference path="Exception/TemplateError.d.ts" />
+/// <reference path="Exception/UndefinedVariableError.d.ts" />
 /// <reference path="Extension/AbstractExtension.d.ts" />
 /// <reference path="Extension/BuiltinExtension.d.ts" />
 /// <reference path="Extension/ExtensionInterface.d.ts" />

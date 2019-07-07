@@ -4,9 +4,8 @@ const { render } = require('./util');
 describe('runtime', function() {
     it('should report the failed function calls to symbols', async () => {
         try {
-            await render('{{ foo("cvan") }}', {}, {
-                noThrow: true,
-            });
+            await render('{{ foo("cvan") }}', { foo: undefined });
+            throw new Error('FAIL');
         } catch (err) {
             expect(err).to.match(/Unable to call `foo`, which is undefined/);
         }
@@ -14,9 +13,8 @@ describe('runtime', function() {
 
     it('should report the failed function calls to lookups', async () => {
         try {
-            await render('{{ foo["bar"]("cvan") }}', {}, {
-                noThrow: true,
-            });
+            await render('{{ foo["bar"]("cvan") }}', { foo: {} });
+            throw new Error('FAIL');
         } catch (err) {
             expect(err).to.match(/foo\["bar"\]/);
         }
@@ -24,9 +22,8 @@ describe('runtime', function() {
 
     it('should report the failed function calls to calls', async () => {
         try {
-            await render('{{ foo.bar("second call") }}', {}, {
-                noThrow: true,
-            });
+            await render('{{ foo.bar("second call") }}', { foo: null });
+            throw new Error('FAIL');
         } catch (err) {
             expect(err).to.match(/foo\["bar"\]/);
         }
@@ -34,9 +31,8 @@ describe('runtime', function() {
 
     it('should report full function name in error', async () => {
         try {
-            await render('{{ foo.barThatIsLongerThanTen() }}', {}, {
-                noThrow: true,
-            });
+            await render('{{ foo.barThatIsLongerThanTen() }}', { foo: null });
+            throw new Error('FAIL');
         } catch (err) {
             expect(err).to.match(/foo\["barThatIsLongerThanTen"\]/);
         }
@@ -44,28 +40,18 @@ describe('runtime', function() {
 
     it('should report the failed function calls w/multiple args', async () => {
         try {
-            await render('{{ foo.bar("multiple", "args") }}', {}, {
-                noThrow: true,
-            });
+            await render('{{ foo.bar("multiple", "args") }}', { foo: null });
+            throw new Error('FAIL');
         } catch (err) {
             expect(err).to.match(/foo\["bar"\]/);
         }
 
         try {
-            await render('{{ foo["bar"]["zip"]("multiple", "args") }}', {}, {
-                noThrow: true,
-            });
+            await render('{{ foo["bar"]["zip"]("multiple", "args") }}', { foo: { bar: null }});
+            throw new Error('FAIL');
         } catch (err) {
             expect(err).to.match(/foo\["bar"\]\["zip"\]/);
         }
-    });
-
-    it('should allow for undefined macro arguments in the last position', async () => {
-        expect(await render('{% macro foo(bar, baz) %}' +
-            '{{ bar }} {{ baz }}{% endmacro %}' +
-            '{{ foo("hello", nosuchvar) }}', {}, {
-            noThrow: true,
-        })).to.be.a('string');
     });
 
     it('should allow for objects without a prototype macro arguments in the last position', async () => {
@@ -76,8 +62,6 @@ describe('runtime', function() {
             '{{ bar }} {{ baz.qux }}{% endmacro %}' +
             '{{ foo("hello", noProto) }}', {
             noProto: noProto,
-        }, {
-            noThrow: true,
         })).to.equal('hello world');
     });
 });

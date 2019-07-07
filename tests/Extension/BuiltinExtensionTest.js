@@ -212,9 +212,8 @@ describe('filter', function () {
         await equal('{{ str | capitalize }}', {
             str: SafeString.markSafe('foo'),
         }, 'Foo');
-        await equal('{{ undefined | capitalize }}', '');
         await equal('{{ null | capitalize }}', '');
-        await equal('{{ nothing | capitalize }}', '');
+        await equal('{{ nothing | capitalize }}', { nothing: undefined }, '');
     });
 
     it('center', async () => {
@@ -223,14 +222,12 @@ describe('filter', function () {
             str: SafeString.markSafe('fooo'),
         }, ' '.repeat(38) + 'fooo' + ' '.repeat(38));
 
-        await equal('{{ undefined | center }}', ' '.repeat(40) + '' + ' '.repeat(40));
         await equal('{{ null | center }}', ' '.repeat(40) + '' + ' '.repeat(40));
-        await equal('{{ nothing | center }}', ' '.repeat(40) + '' + ' '.repeat(40));
+        await equal('{{ nothing | center }}', { nothing: undefined }, ' '.repeat(40) + '' + ' '.repeat(40));
         await equal('{{ "foo" | center }}', ' '.repeat(37) + 'foo' + ' '.repeat(38));
     });
 
     it('default', async () => {
-        await equal('{{ undefined | default("foo") }}', 'foo');
         await equal('{{ bar | default("foo") }}', {
             bar: null,
         }, '');
@@ -391,17 +388,14 @@ describe('filter', function () {
         }, 'one\n    two\n    three\n');
 
         await equal('{{ "" | indent }}', '');
-        await equal('{{ undefined | indent }}', '');
-        await equal('{{ undefined | indent(2) }}', '');
-        await equal('{{ undefined | indent(2, true) }}', '');
 
         await equal('{{ null | indent }}', '');
         await equal('{{ null | indent(2) }}', '');
         await equal('{{ null | indent(2, true) }}', '');
 
-        await equal('{{ nothing | indent }}', '');
-        await equal('{{ nothing | indent(2) }}', '');
-        await equal('{{ nothing | indent(2, true) }}', '');
+        await equal('{{ nothing | indent }}', { nothing: undefined }, '');
+        await equal('{{ nothing | indent(2) }}', { nothing: undefined }, '');
+        await equal('{{ nothing | indent(2, true) }}', { nothing: undefined }, '');
     });
 
     it('join', async () => {
@@ -434,35 +428,35 @@ describe('filter', function () {
         it('should return length of a list literal', async () => {
             await equal('{{ [1,2,3] | length }}', '3');
         });
-        it('should output 0 for a missing context variable', async () => {
-            await equal('{{ blah|length }}', '0');
-        });
+
         it('should output string length for string variables', async () => {
             await equal('{{ str | length }}', {
                 str: 'blah',
             }, '4');
         });
+
         it('should output string length for a SafeString variable', async () => {
             await equal('{{ str | length }}', {
                 str: SafeString.markSafe('<blah>'),
             }, '6');
         });
+
         it('should output the correct length of a string created with new String()', async () => {
             await equal('{{ str | length }}', {
                 str: new String('blah'), // eslint-disable-line no-new-wrappers
             }, '4');
         });
-        it('should output 0 for a literal "undefined"', async () => {
-            await equal('{{ undefined | length }}', '0');
-        });
+
         it('should output 0 for a literal "null"', async () => {
             await equal('{{ null | length }}', '0');
         });
+
         it('should output 0 for an Object with no properties', async () => {
             await equal('{{ obj | length }}', {
                 obj: {},
             }, '0');
         });
+
         it('should output 1 for an Object with 1 property', async () => {
             await equal('{{ obj | length }}', {
                 obj: {
@@ -470,6 +464,7 @@ describe('filter', function () {
                 },
             }, '1');
         });
+
         it('should output the number of properties for a plain Object, not the value of its length property', async () => {
             await equal('{{ obj | length }}', {
                 obj: {
@@ -478,21 +473,25 @@ describe('filter', function () {
                 },
             }, '2');
         });
+
         it('should output the length of an array', async () => {
             await equal('{{ arr | length }}', {
                 arr: [ 0, 1 ],
             }, '2');
         });
+
         it('should output the full length of a sparse array', async () => {
             await equal('{{ arr | length }}', {
                 arr: [0,, 2]  // eslint-disable-line
             }, '3');
         });
+
         it('should output the length of an array created with "new Array"', async () => {
             await equal('{{ arr | length }}', {
                 arr: new Array(0, 1), // eslint-disable-line no-array-constructor
             }, '2');
         });
+
         it('should output the length of an array created with "new Array" with user-defined properties', async () => {
             const arr = new Array(0, 1); // eslint-disable-line no-array-constructor
             arr.key = 'value';
@@ -500,6 +499,7 @@ describe('filter', function () {
                 arr: arr,
             }, '2');
         });
+
         it('should output the length of a Map', async () => {
             /* global Map */
             const map = new Map([ [ 'key1', 'value1' ], [ 'key2', 'value2' ] ]);
@@ -508,6 +508,7 @@ describe('filter', function () {
                 map: map,
             }, '3');
         });
+
         it('should output the length of a Set', async () => {
             /* global Set */
             const set = new Set([ 'value1' ]);
@@ -536,14 +537,12 @@ describe('filter', function () {
             str: SafeString.markSafe('fOObAr'),
         }, 'foobar');
         await equal('{{ null | lower }}', '');
-        await equal('{{ undefined | lower }}', '');
-        await equal('{{ nothing | lower }}', '');
+        await equal('{{ nothing | lower }}', { nothing: undefined }, '');
     });
 
     it('nl2br', async () => {
         await equal('{{ null | nl2br }}', '');
-        await equal('{{ undefined | nl2br }}', '');
-        await equal('{{ nothing | nl2br }}', '');
+        await equal('{{ nothing | nl2br }}', { nothing: undefined }, '');
         await equal('{{ str | nl2br }}', {
             str: SafeString.markSafe('foo\r\nbar'),
         }, 'foo<br />\nbar');
@@ -600,7 +599,6 @@ describe('filter', function () {
         await equal('{{ 123450.6 | replace(0, 7) }}', '123457.6');
         await equal('{{ "aaabbbccc" | replace("", ".") }}', '.a.a.a.b.b.b.c.c.c.');
         await equal('{{ "aaabbbccc" | replace(null, ".") }}', 'aaabbbccc');
-        await equal('{{ "aaabbbccc" | replace(undefined, ".") }}', 'aaabbbccc');
         await equal('{{ "aaabbbccc" | replace({}, ".") }}', 'aaabbbccc');
         await equal('{{ "aaabbbccc" | replace(true, ".") }}', 'aaabbbccc');
         await equal('{{ "aaabbbccc" | replace(false, ".") }}', 'aaabbbccc');
@@ -618,7 +616,6 @@ describe('filter', function () {
 
 
         // Bad initial inputs
-        await equal('{{ undefined | replace("b", "y", 4) }}', '');
         await equal('{{ null | replace("b", "y", 4) }}', '');
         await equal('{{ {} | replace("b", "y", 4) }}', '[object Object]'); // End up with the object passed out of replace, then toString called on it
         await equal('{{ [] | replace("b", "y", 4) }}', '');
@@ -737,9 +734,8 @@ describe('filter', function () {
             html: '  <p>an  \n <a href="#">example</a> link</p>\n<p>to a webpage</p> ' +
                 '<!-- <p>and some comments</p> -->',
         }, 'an example link to a webpage');
-        await equal('{{ undefined | striptags }}', '');
         await equal('{{ null | striptags }}', '');
-        await equal('{{ nothing | striptags }}', '');
+        await equal('{{ nothing | striptags }}', { nothing: undefined }, '');
         await equal('{{ html | striptags(true) }}', {
             html: '<div>\n  row1\nrow2  \n  <strong>row3</strong>\n</div>\n\n' +
             ' HEADER \n\n<ul>\n  <li>option  1</li>\n<li>option  2</li>\n</ul>',
@@ -751,9 +747,8 @@ describe('filter', function () {
         await equal('{{ str | title }}', {
             str: SafeString.markSafe('foo bar baz'),
         }, 'Foo Bar Baz');
-        await equal('{{ undefined | title }}', '');
         await equal('{{ null | title }}', '');
-        await equal('{{ nothing | title }}', '');
+        await equal('{{ nothing | title }}', { nothing: undefined }, '');
     });
 
     it('trim', async () => {
@@ -773,23 +768,17 @@ describe('filter', function () {
             str: SafeString.markSafe('foo bar'),
         }, 'foo...');
 
-        await equal('{{ undefined | truncate(3) }}', '');
-        await equal('{{ undefined | truncate(6) }}', '');
-        await equal('{{ undefined | truncate(7) }}', '');
-        await equal('{{ undefined | truncate(5, true) }}', '');
-        await equal('{{ undefined | truncate(6, true, "?") }}', '');
-
         await equal('{{ null | truncate(3) }}', '');
         await equal('{{ null | truncate(6) }}', '');
         await equal('{{ null | truncate(7) }}', '');
         await equal('{{ null | truncate(5, true) }}', '');
         await equal('{{ null | truncate(6, true, "?") }}', '');
 
-        await equal('{{ nothing | truncate(3) }}', '');
-        await equal('{{ nothing | truncate(6) }}', '');
-        await equal('{{ nothing | truncate(7) }}', '');
-        await equal('{{ nothing | truncate(5, true) }}', '');
-        await equal('{{ nothing | truncate(6, true, "?") }}', '');
+        await equal('{{ nothing | truncate(3) }}', { nothing: undefined }, '');
+        await equal('{{ nothing | truncate(6) }}', { nothing: undefined }, '');
+        await equal('{{ nothing | truncate(7) }}', { nothing: undefined }, '');
+        await equal('{{ nothing | truncate(5, true) }}', { nothing: undefined }, '');
+        await equal('{{ nothing | truncate(6, true, "?") }}', { nothing: undefined }, '');
     });
 
     it('upper', async () => {
@@ -798,8 +787,7 @@ describe('filter', function () {
             str: SafeString.markSafe('foo'),
         }, 'FOO');
         await equal('{{ null | upper }}', '');
-        await equal('{{ undefined | upper }}', '');
-        await equal('{{ nothing | upper }}', '');
+        await equal('{{ nothing | upper }}', { nothing: undefined }, '');
     });
 
     it('urlencode', async () => {
@@ -910,8 +898,7 @@ describe('filter', function () {
         await equal('{{ "foo bar baz" | wordcount }}', '3');
         await equal('{{ str | wordcount }}', { str: SafeString.markSafe('foo bar baz') }, '3');
         await equal('{{ null | wordcount }}', '');
-        await equal('{{ undefined | wordcount }}', '');
-        await equal('{{ nothing | wordcount }}', '');
+        await equal('{{ nothing | wordcount }}', { nothing: undefined }, '');
     });
 });
 
@@ -974,7 +961,7 @@ describe('tests', function() {
         expect(await render('{{ null is null }}')).to.be.equal('true');
         expect(await render('{{ none is none }}')).to.be.equal('true');
         expect(await render('{{ none is null }}')).to.be.equal('true');
-        expect(await render('{{ foo is null }}')).to.be.equal('false');
+        expect(await render('{{ foo is null }}', { foo: undefined })).to.be.equal('false');
         expect(await render('{{ foo is not null }}', {
             foo: null,
         })).to.be.equal('false');

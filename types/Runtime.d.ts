@@ -11,7 +11,6 @@ declare namespace Kumis {
         static numArgs(args: any[]): number;
 
         static suppressValue(val: any, autoescape: boolean): string;
-        static ensureDefined<T>(val: T, lineno: number, colno: number): T;
 
         static memberLookup(obj: any, val: string): any;
         static callWrap(obj: any, name: string, context: any, args: any[]): any;

@@ -1,3 +1,5 @@
+const UndefinedVariableError = Kumis.Exception.UndefinedVariableError;
+
 /**
  * @memberOf Kumis
  */
@@ -25,10 +27,16 @@ class Context {
     }
 
     lookup(name) {
+        const inContext = Object.prototype.hasOwnProperty.call(this.ctx, name);
+
         // This is one of the most called functions, so optimize for
         // The typical case where the name isn't in the globals
-        if (name in this.env.globals && !(name in this.ctx)) {
+        if (name in this.env.globals && ! inContext) {
             return this.env.globals[name];
+        }
+
+        if (! inContext) {
+            throw new UndefinedVariableError(name);
         }
 
         return this.ctx[name];

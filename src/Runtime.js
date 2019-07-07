@@ -1,4 +1,5 @@
 const TemplateError = Kumis.Exception.TemplateError;
+const UndefinedVariableError = Kumis.Exception.UndefinedVariableError;
 const SafeString = Kumis.Util.SafeString;
 
 const kwArgsSymbol = Symbol('keywordArgs');
@@ -90,14 +91,6 @@ class Runtime {
         return val;
     }
 
-    static ensureDefined(val, lineno, colno) {
-        if (val === undefined) {
-            throw new TemplateError('attempted to output undefined value', lineno + 1, colno + 1);
-        }
-
-        return val;
-    }
-
     static memberLookup(obj, val) {
         if (obj === undefined || null === obj) {
             return undefined;
@@ -120,10 +113,34 @@ class Runtime {
         return obj.apply(context, args);
     }
 
-    static contextOrFrameLookup(context, frame, name) {
-        const val = frame.lookup(name);
+    /**
+     * Lookup in frame, context and globals for a given variable.
+     *
+     * @param {Kumis.Context} context
+     * @param {Kumis.Util.Frame} frame
+     * @param {string} name
+     * @param {boolean} suppressUndefined
+     *
+     * @returns {*}
+     */
+    static contextOrFrameLookup(context, frame, name, suppressUndefined = false) {
+        if (frame.has(name)) {
+            return frame.lookup(name);
+        }
 
-        return (val !== undefined) ? val : context.lookup(name);
+        if (suppressUndefined) {
+            try {
+                return context.lookup(name);
+            } catch (e) {
+                if (! (e instanceof UndefinedVariableError)) {
+                    throw e;
+                }
+
+                return undefined;
+            }
+        }
+
+        return context.lookup(name);
     }
 
     static handleError(error, lineno, colno) {

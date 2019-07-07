@@ -58,13 +58,6 @@ describe('Compiler', function() {
         await equal('{{ foo["bar"] }}', context, 'baz');
     });
 
-    it('should fail silently on undefined values', async () => {
-        await equal('{{ foo }}', '');
-        await equal('{{ foo.bar }}', '');
-        await equal('{{ foo.bar.baz }}', '');
-        await equal('{{ foo.bar.baz["biz"].mumble }}', '');
-    });
-
     it('should not treat falsy values the same as undefined', async () => {
         await equal('{{ foo }}', {
             foo: 0,
@@ -112,14 +105,14 @@ describe('Compiler', function() {
         const tpl2 = '{% switch foo %}{% case "bar" %}BAR{% case "baz" %}BAZ{% endswitch %}';
         // Test fall-through cases
         const tpl3 = '{% switch foo %}{% case "bar" %}{% case "baz" %}BAR{% endswitch %}';
-        await equal(tpl1, 'NEITHER FOO NOR BAR');
+        await equal(tpl1, { foo: null }, 'NEITHER FOO NOR BAR');
         await equal(tpl1, {
             foo: 'bar',
         }, 'BAR');
         await equal(tpl1, {
             foo: 'baz',
         }, 'BAZ');
-        await equal(tpl2, '');
+        await equal(tpl2, { foo: null }, '');
         await equal(tpl3, {
             foo: 'bar',
         }, 'BAR');
@@ -179,10 +172,12 @@ describe('Compiler', function() {
         }, 'yum');
 
         await equal('{% if pizza %}yum{% elif anchovies %}yuck{% endif %}', {
+            pizza: null,
             anchovies: true,
         }, 'yuck');
 
         await equal('{% if pizza %}yum{% elseif anchovies %}yuck{% endif %}', {
+            pizza: null,
             anchovies: true,
         }, 'yuck');
 
@@ -195,7 +190,7 @@ describe('Compiler', function() {
     });
 
     it('should compile the ternary operator', async () => {
-        await equal('{{ "foo" if bar else "baz" }}', 'baz');
+        await equal('{{ "foo" if bar else "baz" }}', { bar: null }, 'baz');
         await equal('{{ "foo" if bar else "baz" }}', {
             bar: true,
         }, 'foo');
@@ -245,18 +240,21 @@ describe('Compiler', function() {
                     { arr: [ 1, Promise.resolve(2), 3, 4, 5 ] },
                     '12345');
             });
+
             it('should loop normally with an {% else %} tag and non-empty array', async () => {
                 await equal(
                     '{% ' + block + ' i in arr %}{{ i }}{% else %}empty{% ' + end + ' %}',
                     { arr: [ 1, 2, 3, 4, 5 ] },
                     '12345');
             });
+
             it('should execute the {% else %} block when looping over an empty array', async () => {
                 await equal(
                     '{% ' + block + ' i in arr %}{{ i }}{% else %}empty{% ' + end + ' %}',
                     { arr: [] },
                     'empty');
             });
+
             it('should support destructured looping', async () => {
                 await equal(
                     '{% ' + block + ' a, b, c in arr %}' +
@@ -264,23 +262,29 @@ describe('Compiler', function() {
                     { arr: [ [ 'x', 'y', 'z' ], [ '1', '2', '3' ] ] },
                     'x,y,z.1,2,3.');
             });
+
             it('should do loop over key-values of a literal in-template Object', async () => {
                 await equal(
                     '{% ' + block + ' k, v in { one: 1, two: 2 } %}' +
                     '-{{ k }}:{{ v }}-{% ' + end + ' %}', '-one:1--two:2-');
             });
+
             it('should support loop.index', async () => {
                 await equal('{% ' + block + ' i in [7,3,6] %}{{ loop.index }}{% ' + end + ' %}', '123');
             });
+
             it('should support loop.index0', async () => {
                 await equal('{% ' + block + ' i in [7,3,6] %}{{ loop.index0 }}{% ' + end + ' %}', '012');
             });
+
             it('should support loop.revindex', async () => {
                 await equal('{% ' + block + ' i in [7,3,6] %}{{ loop.revindex }}{% ' + end + ' %}', '321');
             });
+
             it('should support loop.revindex0', async () => {
                 await equal('{% ' + block + ' i in [7,3,6] %}{{ loop.revindex0 }}{% ' + end + ' %}', '210');
             });
+
             it('should support loop.first', async () => {
                 await equal(
                     '{% ' + block + ' i in [7,3,6] %}' +
@@ -288,6 +292,7 @@ describe('Compiler', function() {
                     '{% ' + end + ' %}',
                     '7');
             });
+
             it('should support loop.last', async () => {
                 await equal(
                     '{% ' + block + ' i in [7,3,6] %}' +
@@ -295,18 +300,18 @@ describe('Compiler', function() {
                     '{% ' + end + ' %}',
                     '6');
             });
+
             it('should support loop.length', async () => {
                 await equal('{% ' + block + ' i in [7,3,6] %}{{ loop.length }}{% ' + end + ' %}', '333');
             });
-            it('should fail silently when looping over an undefined variable', async () => {
-                await equal('{% ' + block + ' i in foo %}{{ i }}{% ' + end + ' %}', '');
-            });
+
             it('should fail silently when looping over an undefined property', async () => {
                 await equal(
                     '{% ' + block + ' i in foo.bar %}{{ i }}{% ' + end + ' %}',
                     { foo: {} },
                     '');
             });
+
             // TODO: this behavior differs from jinja2
             it('should fail silently when looping over a null variable', async () => {
                 await equal(
@@ -314,17 +319,20 @@ describe('Compiler', function() {
                     { foo: null },
                     '');
             });
+
             it('should loop over two-dimensional arrays', async () => {
                 await equal('{% ' + block + ' x, y in points %}[{{ x }},{{ y }}]{% ' + end + ' %}',
                     { points: [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ] ] },
                     '[1,2][3,4][5,6]');
             });
+
             it('should loop over four-dimensional arrays', async () => {
                 await equal(
                     '{% ' + block + ' a, b, c, d in arr %}[{{ a }},{{ b }},{{ c }},{{ d }}]{% ' + end + '%}',
                     { arr: [ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ] ] },
                     '[1,2,3,4][5,6,7,8]');
             });
+
             it('should support loop.index with two-dimensional loops', async () => {
                 await equal('{% ' + block + ' x, y in points %}{{ loop.index }}{% ' + end + ' %}',
                     {
@@ -332,6 +340,7 @@ describe('Compiler', function() {
                     },
                     '123');
             });
+
             it('should support loop.revindex with two-dimensional loops', async () => {
                 await equal('{% ' + block + ' x, y in points %}{{ loop.revindex }}{% ' + end + ' %}',
                     {
@@ -339,6 +348,7 @@ describe('Compiler', function() {
                     },
                     '321');
             });
+
             it('should support key-value looping over an Object variable', async () => {
                 await equal('{% ' + block + ' k, v in items %}({{ k }},{{ v }}){% ' + end + ' %}',
                     {
@@ -349,6 +359,7 @@ describe('Compiler', function() {
                     },
                     '(foo,1)(bar,2)');
             });
+
             it('should support loop.index when looping over an Object\'s key-value pairs', async () => {
                 await equal('{% ' + block + ' k, v in items %}{{ loop.index }}{% ' + end + ' %}',
                     {
@@ -359,6 +370,7 @@ describe('Compiler', function() {
                     },
                     '12');
             });
+
             it('should support loop.revindex when looping over an Object\'s key-value pairs', async () => {
                 await equal('{% ' + block + ' k, v in items %}{{ loop.revindex }}{% ' + end + ' %}',
                     {
@@ -369,6 +381,7 @@ describe('Compiler', function() {
                     },
                     '21');
             });
+
             it('should support loop.length when looping over an Object\'s key-value pairs', async () => {
                 await equal('{% ' + block + ' k, v in items %}{{ loop.length }}{% ' + end + ' %}',
                     {
@@ -379,6 +392,7 @@ describe('Compiler', function() {
                     },
                     '22');
             });
+
             it('should support include tags in the body of the loop', async () => {
                 await equal('{% ' + block + ' item, v in items %}{% include "item.kumis" %}{% ' + end + ' %}',
                     {
@@ -389,20 +403,22 @@ describe('Compiler', function() {
                     },
                     'showing fooshowing bar');
             });
+
             it('should work with {% set %} and {% include %} tags', async () => {
                 await equal(
                     '{% set item = passed_var %}' +
-        '{% include "item.kumis" %}\n' +
-        '{% ' + block + ' i in passed_iter %}' +
-        '{% set item = i %}' +
-        '{% include "item.kumis" %}\n' +
-        '{% ' + end + ' %}',
+                    '{% include "item.kumis" %}\n' +
+                    '{% ' + block + ' i in passed_iter %}' +
+                    '{% set item = i %}' +
+                    '{% include "item.kumis" %}\n' +
+                    '{% ' + end + ' %}',
                     {
                         passed_var: 'test',
                         passed_iter: [ '1', '2', '3' ],
                     },
                     'showing test\nshowing 1\nshowing 2\nshowing 3\n');
             });
+
             /* global Set */
             it('should work with Set builtin', async () => {
                 if ('undefined' === typeof Set) {
@@ -421,7 +437,7 @@ describe('Compiler', function() {
                         'empty');
                 }
             });
-            /* global Map */
+
             it('should work with Map builtin', async () => {
                 await equal('{% ' + block + ' k, v in map %}[{{ k }},{{ v }}]{% ' + end + ' %}',
                     { map: new Map([ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ] ]) },
@@ -488,12 +504,13 @@ describe('Compiler', function() {
 
             expect(await render('{% if test %}{{ tmpl | getContents }}{% endif %}oof', {
                 tmpl: 'tests/templates/for-async-content.kumis',
+                test: null,
             }, opts)).to.be.equal('oof');
 
             expect(await render(
                 '{% if tmpl %}' +
-    '{% for i in [0, 1] %}{{ tmpl | getContents }}*{% endfor %}' +
-    '{% endif %}', {
+                '{% for i in [0, 1] %}{{ tmpl | getContents }}*{% endfor %}' +
+                '{% endif %}', {
                     tmpl: 'tests/templates/for-async-content.kumis',
                 }, opts)).to.be.equal('somecontenthere*somecontenthere*');
 
@@ -608,10 +625,7 @@ describe('Compiler', function() {
 
     it('should throw an error when using the "in" operator on unexpected types', async () => {
         try {
-            await render('{% if "a" in 1 %}yes{% endif %}', {}, {
-                noThrow: true,
-            });
-
+            await render('{% if "a" in 1 %}yes{% endif %}', {});
             throw new Error('FAIL');
         } catch (err) {
             expect(err).to.match(
@@ -620,10 +634,7 @@ describe('Compiler', function() {
         }
 
         try {
-            await render('{% if "a" in obj %}yes{% endif %}', {}, {
-                noThrow: true,
-            });
-
+            await render('{% if "a" in obj %}yes{% endif %}', { obj: undefined });
             throw new Error('FAIL');
         } catch (err) {
             expect(err).to.match(
@@ -872,11 +883,15 @@ describe('Compiler', function() {
     });
 
     it('should compile macros that cannot see variables in caller scope', async () => {
-        await equal(
-            '{% macro one(var) %}{{ two() }}{% endmacro %}' +
-            '{% macro two() %}{{ var }}{% endmacro %}' +
-            '{{ one("foo") }}',
-            '');
+        try {
+            await render(
+                '{% macro one(var) %}{{ two() }}{% endmacro %}' +
+                '{% macro two() %}{{ var }}{% endmacro %}' +
+                '{{ one("foo") }}');
+            throw new Error('FAIL');
+        } catch (err) {
+            expect(err).to.match(/Undefined variable "var"/);
+        }
     });
 
     it('should compile call blocks', async () => {
@@ -927,7 +942,7 @@ describe('Compiler', function() {
             'end: {{ num }}' +
             '{% endfor %}' +
             'final: {{ num }}',
-            'start: end: bazstart: bazend: bazfinal: ');
+            { num: undefined }, 'start: end: bazstart: bazend: bazfinal: ');
     });
 
     it('should import templates with context', async () => {
@@ -958,42 +973,62 @@ describe('Compiler', function() {
         await equal(
             '{% set bar = "BAR" %}' +
             '{% import "import-context-set.kumis" as imp with context %}' +
-            '{{ bar }}{{ buzz }}',
-            'FOO');
+            '{{ bar }} {{ buzz is defined }}',
+            'FOO false');
 
         await equal(
             '{% set bar = "BAR" %}' +
             '{% import "import-context-set.kumis" as imp with context %}' +
-            '{{ imp.bar }}{{ buzz }}',
-            'FOO');
+            '{{ imp.bar }} {{ buzz is defined }}',
+            'FOO false');
     });
 
     it('should import templates without context', async () => {
-        await equal(
-            '{% set bar = "BAR" %}' +
-            '{% import "import-context.kumis" as imp without context %}' +
-            '{{ imp.foo() }}',
-            'Here\'s ');
+        try {
+            await render(
+                '{% set bar = "BAR" %}' +
+                '{% import "import-context.kumis" as imp without context %}' +
+                '{{ imp.foo() }}');
 
-        await equal(
-            '{% set bar = "BAR" %}' +
-            '{% from "import-context.kumis" import foo without context %}' +
-            '{{ foo() }}',
-            'Here\'s ');
+            throw new Error('FAIL');
+        } catch (e) {
+            expect(e).to.match(/Undefined variable "bar"/);
+        }
+
+        try {
+            await render(
+                '{% set bar = "BAR" %}' +
+                '{% from "import-context.kumis" import foo without context %}' +
+                '{{ foo() }}');
+
+            throw new Error('FAIL');
+        } catch (e) {
+            expect(e).to.match(/Undefined variable "bar"/);
+        }
     });
 
     it('should default to importing without context', async () => {
-        await equal(
-            '{% set bar = "BAR" %}' +
-            '{% import "import-context.kumis" as imp %}' +
-            '{{ imp.foo() }}',
-            'Here\'s ');
+        try {
+            await render(
+                '{% set bar = "BAR" %}' +
+                '{% import "import-context.kumis" as imp %}' +
+                '{{ imp.foo() }}');
 
-        await equal(
-            '{% set bar = "BAR" %}' +
-            '{% from "import-context.kumis" import foo %}' +
-            '{{ foo() }}',
-            'Here\'s ');
+            throw new Error('FAIL');
+        } catch (e) {
+            expect(e).to.match(/Undefined variable "bar"/);
+        }
+
+        try {
+            await render(
+                '{% set bar = "BAR" %}' +
+                '{% from "import-context.kumis" import foo %}' +
+                '{{ foo() }}');
+
+            throw new Error('FAIL');
+        } catch (e) {
+            expect(e).to.match(/Undefined variable "bar"/);
+        }
     });
 
     it('should inherit templates', async () => {
@@ -1092,10 +1127,15 @@ describe('Compiler', function() {
     });
 
     it('should not let super() see vars from child block', async () => {
-        await equal(
-            '{% extends "base-show.kumis" %}' +
-            '{% block main %}{% set var = "child" %}{{ super() }}{% endblock %}',
-            '');
+        try {
+            await render(
+                '{% extends "base-show.kumis" %}' +
+                '{% block main %}{% set var = "child" %}{{ super() }}{% endblock %}');
+
+            throw new Error('FAIL');
+        } catch (e) {
+            expect(e).to.match(/Undefined variable "var"/);
+        }
     });
 
     it('should let child templates access parent global scope', async () => {
@@ -1106,10 +1146,15 @@ describe('Compiler', function() {
     });
 
     it('should not let super() modify calling scope', async () => {
-        await equal(
-            '{% extends "base-set-inside-block.kumis" %}' +
-            '{% block main %}{{ super() }}{{ var }}{% endblock %}',
-            '');
+        try {
+            await render(
+                '{% extends "base-set-inside-block.kumis" %}' +
+                '{% block main %}{{ super() }}{{ var }}{% endblock %}');
+
+            throw new Error('FAIL');
+        } catch (e) {
+            expect(e).to.match(/Undefined variable "var"/);
+        }
     });
 
     it('should not let child templates set vars in parent scope', async () => {
@@ -1128,11 +1173,11 @@ describe('Compiler', function() {
     });
 
     it('should include templates', async () => {
-        await equal('hello world {% include "include.kumis" %}', 'hello world FooInclude ');
+        await equal('hello world {% include "include.kumis" %}', { name: null }, 'hello world FooInclude ');
     });
 
     it('should include 130 templates without call stack size exceed', async () => {
-        await equal('{% include "includeMany.kumis" %}',
+        await equal('{% include "includeMany.kumis" %}', { name: null },
             new Array(131).join('FooInclude \n'));
     });
 
@@ -1178,11 +1223,10 @@ describe('Compiler', function() {
 
     it('should throw an error when including a file that does not exist', async () => {
         try {
-            await render('{% include "missing.kumis" %}', {}, {
-                noThrow: true,
-            });
+            await render('{% include "missing.kumis" %}', {});
+            throw new Error('FAIL');
         } catch (err) {
-            expect(err).to.match(/Template not found: missing.kumis/);
+            expect(err).to.match(/Template not found: missing\.kumis/);
         }
     });
 
@@ -1235,17 +1279,9 @@ describe('Compiler', function() {
     });
 
     it('should compile a set block', async () => {
-        await equal('{% set username = "foo" %}{{ username }}',
-            {
-                username: 'james',
-            },
-            'foo');
-
-        await equal('{% set x, y = "foo" %}{{ x }}{{ y }}',
-            'foofoo');
-
-        await equal('{% set x = 1 + 2 %}{{ x }}',
-            '3');
+        await equal('{% set username = "foo" %}{{ username }}', { username: 'james' }, 'foo');
+        await equal('{% set x, y = "foo" %}{{ x }}{{ y }}', 'foofoo');
+        await equal('{% set x = 1 + 2 %}{{ x }}', '3');
 
         await equal('{% for i in [1] %}{% set foo=1 %}{% endfor %}{{ foo }}',
             {
@@ -1266,14 +1302,14 @@ describe('Compiler', function() {
             'bastapasta');
 
         // `set` should only set within its current scope
-        await equal('{% for i in [1] %}{% set val=5 %}{% endfor %}{{ val }}', '');
+        await equal('{% for i in [1] %}{% set val=5 %}{% endfor %}{{ val|default(\'\') }}', '');
 
         await equal(
             '{% for i in [1,2,3] %}' +
-            '{% if not val %}{% set val=5 %}{% endif %}' +
+            '{% if val is not defined %}{% set val=5 %}{% endif %}' +
             '{% set val=val+1 %}{{ val }}' +
             '{% endfor %}' +
-            'afterwards: {{ val }}',
+            'afterwards: {{ val|default(\'\') }}',
             '678afterwards: ');
 
         // However, like Python, if a variable has been set in an
@@ -1386,10 +1422,7 @@ describe('Compiler', function() {
 
     it('should throw errors', async () => {
         try {
-            await render('{% from "import.kumis" import boozle %}', {}, {
-                noThrow: true,
-            });
-
+            await render('{% from "import.kumis" import boozle %}', {});
             throw new Error('FAIL');
         } catch (err) {
             expect(err).to.match(/cannot import 'boozle'/);
@@ -1724,7 +1757,8 @@ describe('Compiler', function() {
 
     it('should throw an error when {% call %} is passed an object that is not a function', async () => {
         try {
-            await render('{% call foo() %}{% endcall %}', {foo: 'bar'}, {noThrow: true});
+            await render('{% call foo() %}{% endcall %}', {foo: 'bar'});
+            throw new Error('FAIL');
         } catch (err) {
             expect(err).to.match(/Unable to call `\w+`, which is not a function/);
         }
@@ -1732,29 +1766,28 @@ describe('Compiler', function() {
 
     it('should throw an error when including a file that calls an undefined macro', async () => {
         try {
-            await render('{% include "undefined-macro.kumis" %}', {}, {
-                noThrow: true,
-            });
+            await render('{% include "undefined-macro.kumis" %}', {});
+            throw new Error('FAIL');
         } catch (err) {
-            expect(err).to.match(/Unable to call `\w+`, which is undefined or falsey/);
+            expect(err).to.match(/Undefined variable "\w+"/);
         }
     });
 
     it('should throw an error when including a file that calls an undefined macro even inside {% if %} tag', async () => {
         try {
-            await render('{% if true %}{% include "undefined-macro.kumis" %}{% endif %}', {}, {
-                noThrow: true,
-            });
+            await render('{% if true %}{% include "undefined-macro.kumis" %}{% endif %}', {});
+            throw new Error('FAIL');
         } catch (err) {
-            expect(err).to.match(/Unable to call `\w+`, which is undefined or falsey/);
+            expect(err).to.match(/Undefined variable "\w+"/);
         }
     });
 
     it('should throw an error when including a file that imports macro that calls an undefined macro', async () => {
         try {
-            await render('{% include "import-macro-call-undefined-macro.kumis" %}', { list: [ 1, 2, 3 ] }, { noThrow: true });
+            await render('{% include "import-macro-call-undefined-macro.kumis" %}', { list: [ 1, 2, 3 ] });
+            throw new Error('FAIL');
         } catch (err) {
-            expect(err).to.match(/Unable to call `\w+`, which is undefined or falsey/);
+            expect(err).to.match(/Undefined variable "\w+"/);
         }
     });
 
@@ -1901,7 +1934,8 @@ describe('Compiler', function() {
 
     it('should throw an error when invalid expression whitespaces are used', async () => {
         try {
-            await render(' {{ 2 + 2- }}', {}, { noThrow: true });
+            await render(' {{ 2 + 2- }}');
+            throw new Error('FAIL');
         } catch (err) {
             expect(err).to.match(/unexpected token: }}/);
         }

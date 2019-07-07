@@ -22,6 +22,11 @@ declare namespace Kumis.Util {
         set(name: string, val: any, resolveUp?: boolean): void;
 
         /**
+         * Whether the frame has defined the given variable.
+         */
+        has(name: string): boolean;
+
+        /**
          * Gets a variable from current frame.
          */
         get(name: string): void;
