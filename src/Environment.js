@@ -137,7 +137,7 @@ class Environment {
         return await template.render(ctx);
     }
 
-    renderString(src, ctx, opts = {}) {
+    renderString(src, ctx = {}, opts = {}) {
         const tmpl = new Template(src, this, opts.path);
 
         return tmpl.render(ctx);

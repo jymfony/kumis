@@ -30,6 +30,14 @@ class TemplateError extends RuntimeException {
         return super.message;
     }
 
+    /**
+     * Wraps an error into a TemplateError.
+     *
+     * @param {string} path
+     * @param {Error|Kumis.Exception.TemplateError} previous
+     *
+     * @returns {Kumis.Exception.TemplateError}
+     */
     static create(path, previous) {
         if (previous instanceof __self) {
             previous.path = path;

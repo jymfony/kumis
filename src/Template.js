@@ -65,7 +65,7 @@ class Template {
         }
     }
 
-    async getExported(ctx = {}, parentFrame = null) { // eslint-disable-line consistent-return
+    async getExported(ctx = {}, parentFrame = null) {
         // Catch compile errors for async rendering
         this.compile();
 

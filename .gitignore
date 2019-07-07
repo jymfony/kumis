@@ -1,3 +1,4 @@
+bin
 node_modules
 coverage
 .#*
@@ -7,3 +8,4 @@ docs/files
 .nyc_output
 package-lock.json
 yarn.lock
+tsconfig.json

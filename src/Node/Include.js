@@ -1,11 +1,11 @@
-const Node = Kumis.Node.Node;
+const TemplateRef = Kumis.Node.TemplateRef;
 
 /**
  * @memberOf Kumis.Node
  */
-class Include extends Node {
+class Include extends TemplateRef {
     get fields() {
-        return [ 'template', 'ignoreMissing' ];
+        return [ ...super.fields, 'ignoreMissing' ];
     }
 }
 

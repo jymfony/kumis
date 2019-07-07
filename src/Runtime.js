@@ -1,6 +1,8 @@
 const TemplateError = Kumis.Exception.TemplateError;
 const SafeString = Kumis.Util.SafeString;
 
+const kwArgsSymbol = Symbol('keywordArgs');
+
 /**
  * @memberOf Kumis
  */
@@ -44,12 +46,12 @@ class Runtime {
     }
 
     static makeKeywordArgs(obj) {
-        obj.__keywords = true;
+        obj[kwArgsSymbol] = true;
         return obj;
     }
 
     static isKeywordArgs(obj) {
-        return obj && Object.prototype.hasOwnProperty.call(obj, '__keywords');
+        return obj && Object.prototype.hasOwnProperty.call(obj, kwArgsSymbol);
     }
 
     static getKeywordArgs(args) {
@@ -89,8 +91,8 @@ class Runtime {
     }
 
     static ensureDefined(val, lineno, colno) {
-        if (null === val || val === undefined) {
-            throw new TemplateError('attempted to output null or undefined value', lineno + 1, colno + 1);
+        if (val === undefined) {
+            throw new TemplateError('attempted to output undefined value', lineno + 1, colno + 1);
         }
 
         return val;
@@ -101,7 +103,7 @@ class Runtime {
             return undefined;
         }
 
-        if ('function' === typeof obj[val]) {
+        if (isFunction(obj[val])) {
             return (...args) => obj[val](...args);
         }
 
@@ -125,7 +127,7 @@ class Runtime {
     }
 
     static handleError(error, lineno, colno) {
-        if (error.lineno) {
+        if (error instanceof TemplateError) {
             return error;
         }
 

@@ -6,6 +6,12 @@
  * @memberOf Kumis.Util
  */
 class Frame {
+    /**
+     * Constructor.
+     *
+     * @param {Kumis.Util.Frame} parent
+     * @param {boolean} isolateWrites
+     */
     __construct(parent, isolateWrites) {
         this.variables = {};
         this.parent = parent;
@@ -15,7 +21,14 @@ class Frame {
         this.isolateWrites = isolateWrites;
     }
 
-    set(name, val, resolveUp) {
+    /**
+     * Sets a variable.
+     *
+     * @param {string} name
+     * @param {*} val
+     * @param {boolean} [resolveUp = false]
+     */
+    set(name, val, resolveUp = false) {
         // Allow variables with dots by automatically creating the
         // Nested structure
         const parts = name.split('.');
@@ -25,6 +38,7 @@ class Frame {
         if (resolveUp) {
             if ((frame = this.resolve(parts[0], true))) {
                 frame.set(name, val);
+
                 return;
             }
         }
@@ -35,43 +49,76 @@ class Frame {
             if (!obj[id]) {
                 obj[id] = {};
             }
+
             obj = obj[id];
         }
 
         obj[parts[parts.length - 1]] = val;
     }
 
+    /**
+     * Gets a variable from current frame.
+     *
+     * @param {string} name
+     *
+     * @returns {any}
+     */
     get(name) {
         const val = this.variables[name];
         if (val !== undefined) {
             return val;
         }
+
         return null;
     }
 
+    /**
+     * Looks up a variable with given name recursively
+     * to parent frames.
+     *
+     * @param {string} name
+     *
+     * @returns {*}
+     */
     lookup(name) {
-        const p = this.parent;
-        const val = this.variables[name];
-        if (val !== undefined) {
-            return val;
-        }
-        return p && p.lookup(name);
+        return undefined !== this.variables[name] ?
+            this.variables[name] :
+            this.parent && this.parent.lookup(name);
     }
 
+    /**
+     * Resolves a frame for the variable with the given name.
+     *
+     * @param {string} name
+     * @param {boolean} forWrite
+     *
+     * @returns {Kumis.Util.Frame}
+     */
     resolve(name, forWrite) {
-        const p = (forWrite && this.isolateWrites) ? undefined : this.parent;
-        const val = this.variables[name];
-        if (val !== undefined) {
+        if (this.variables[name] !== undefined) {
             return this;
         }
 
+        const p = (forWrite && this.isolateWrites) ? undefined : this.parent;
         return p && p.resolve(name);
     }
 
+    /**
+     * Creates and gets a new frame child of this frame.
+     *
+     * @param {boolean} isolateWrites
+     *
+     * @returns {Kumis.Util.Frame}
+     */
     push(isolateWrites) {
         return new __self(this, isolateWrites);
     }
 
+    /**
+     * Pops out the parent frame.
+     *
+     * @returns {Kumis.Util.Frame}
+     */
     pop() {
         return this.parent;
     }

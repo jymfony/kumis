@@ -37,12 +37,25 @@ const TOKEN_SPECIAL = 'special';
 const TOKEN_REGEX = 'regex';
 
 /**
+ * Token.
+ *
+ * @public
+ * @typedef {Object} Token
+ * @property {string} type Node type
+ * @property {*} value Value of the token
+ * @property {number} lineno 0-based line number
+ * @property {number} colno 0-base column number
+ */
+
+/**
+ * Creates a token.
+ *
  * @param {string} type
  * @param {*} value
  * @param {int} lineno
  * @param {int} colno
  *
- * @returns {{lineno: int, colno: int, type: string, value: *}}
+ * @returns {Token}
  */
 function token(type, value, lineno, colno) {
     return {
@@ -57,18 +70,64 @@ function token(type, value, lineno, colno) {
  * @memberOf Kumis.Compiler
  */
 class Tokenizer {
-    __construct(str, opts) {
-        this.str = str;
-        this.index = 0;
-        this.len = str.length;
+    __construct(str, opts = {}) {
+        /**
+         * Input string.
+         *
+         * @type {string}
+         *
+         * @private
+         */
+        this._input = str;
+
+        /**
+         * Current input position.
+         *
+         * @type {int}
+         *
+         * @private
+         */
+        this._index = 0;
+
+        /**
+         * Length of input.
+         *
+         * @type {int}
+         *
+         * @private
+         */
+        this._len = str.length;
+
+        /**
+         * Current line number.
+         *
+         * @type {int}
+         */
         this.lineno = 0;
+
+        /**
+         * Current col number.
+         *
+         * @type {int}
+         */
         this.colno = 0;
 
-        this.in_code = false;
-
-        opts = opts || {};
+        /**
+         * Whether we are processing a code block or not.
+         *
+         * @type {boolean}
+         *
+         * @private
+         */
+        this._inCode = false;
 
         const tags = opts.tags || {};
+
+        /**
+         * Custom delimiters.
+         *
+         * @type {Object.<string, string>}
+         */
         this.tags = {
             BLOCK_START: tags.blockStart || BLOCK_START,
             BLOCK_END: tags.blockEnd || BLOCK_END,
@@ -78,21 +137,36 @@ class Tokenizer {
             COMMENT_END: tags.commentEnd || COMMENT_END,
         };
 
-        this.trimBlocks = !!opts.trimBlocks;
-        this.lstripBlocks = !!opts.lstripBlocks;
+        /**
+         * Whether to trim blocks while parsing.
+         *
+         * @type {boolean}
+         *
+         * @private
+         */
+        this._trimBlocks = !! opts.trimBlocks;
+
+        /**
+         * Whether to strip left spaces in blocks.
+         *
+         * @type {boolean}
+         *
+         * @private
+         */
+        this._lstripBlocks = !! opts.lstripBlocks;
     }
 
     /**
      * Gets the next token.
      *
-     * @returns {{lineno: int, colno: int, type: string, value: *}|null}
+     * @returns {Token|null}
      */
     nextToken() {
         const lineno = this.lineno;
         const colno = this.colno;
         let tok;
 
-        if (this.in_code) {
+        if (this._inCode) {
             // Otherwise, if we are in a block parse it as code
             let cur = this.current();
 
@@ -113,8 +187,8 @@ class Tokenizer {
                 // Delimiter characters (%{}[] etc), and our code always
                 // Breaks on delimiters so we can assume the token parsing
                 // Doesn't consume these elsewhere
-                this.in_code = false;
-                if (this.trimBlocks) {
+                this._inCode = false;
+                if (this._trimBlocks) {
                     cur = this.current();
                     if ('\n' === cur) {
                         // Skip newline
@@ -135,9 +209,9 @@ class Tokenizer {
             } else if ((tok = this._extractString(this.tags.VARIABLE_END)) ||
                 (tok = this._extractString('-' + this.tags.VARIABLE_END))) {
                 // Special check for variable end tag (see above)
-                this.in_code = false;
+                this._inCode = false;
                 return token(TOKEN_VARIABLE_END, tok, lineno, colno);
-            } else if ('r' === cur && '/' === this.str.charAt(this.index + 1)) {
+            } else if ('r' === cur && '/' === this._input.charAt(this._index + 1)) {
                 // Skip past 'r/'.
                 this.forwardN(2);
 
@@ -254,9 +328,8 @@ class Tokenizer {
             } else if (tok) {
                 return token(TOKEN_SYMBOL, tok, lineno, colno);
             }
+
             throw new Error('Unexpected value while parsing: ' + tok);
-
-
         } else {
             // Parse out the template text, breaking on tag
             // Delimiters because we need to look for block/variable start
@@ -270,13 +343,14 @@ class Tokenizer {
                 return null;
             } else if ((tok = this._extractString(this.tags.BLOCK_START + '-')) ||
                 (tok = this._extractString(this.tags.BLOCK_START))) {
-                this.in_code = true;
+                this._inCode = true;
                 return token(TOKEN_BLOCK_START, tok, lineno, colno);
             } else if ((tok = this._extractString(this.tags.VARIABLE_START + '-')) ||
                 (tok = this._extractString(this.tags.VARIABLE_START))) {
-                this.in_code = true;
+                this._inCode = true;
                 return token(TOKEN_VARIABLE_START, tok, lineno, colno);
             }
+
             tok = '';
             let data;
             let inComment = false;
@@ -299,7 +373,7 @@ class Tokenizer {
                     this._matches(this.tags.VARIABLE_START) ||
                     this._matches(this.tags.COMMENT_START)) &&
                     !inComment) {
-                    if (this.lstripBlocks &&
+                    if (this._lstripBlocks &&
                         this._matches(this.tags.BLOCK_START) &&
                         0 < this.colno &&
                         this.colno <= tok.length) {
@@ -334,10 +408,7 @@ class Tokenizer {
                 throw new Error('expected end of comment, got end of file');
             }
 
-            return token(inComment ? TOKEN_COMMENT : TOKEN_DATA,
-                tok,
-                lineno,
-                colno);
+            return token(inComment ? TOKEN_COMMENT : TOKEN_DATA, tok, lineno, colno);
         }
     }
 
@@ -347,7 +418,7 @@ class Tokenizer {
      * @returns {boolean}
      */
     isFinished() {
-        return this.index >= this.len;
+        return this._index >= this._len;
     }
 
     /**
@@ -365,7 +436,7 @@ class Tokenizer {
      * Forward
      */
     forward() {
-        this.index++;
+        this._index++;
 
         if ('\n' === this.previous()) {
             this.lineno++;
@@ -390,16 +461,16 @@ class Tokenizer {
      * Go back.
      */
     back() {
-        this.index--;
+        this._index--;
 
         if ('\n' === this.current()) {
             this.lineno--;
 
-            const idx = this.str.lastIndexOf('\n', this.index - 1);
+            const idx = this._input.lastIndexOf('\n', this._index - 1);
             if (-1 === idx) {
-                this.colno = this.index;
+                this.colno = this._index;
             } else {
-                this.colno = this.index - idx;
+                this.colno = this._index - idx;
             }
         } else {
             this.colno--;
@@ -413,7 +484,7 @@ class Tokenizer {
      */
     current() {
         if (!this.isFinished()) {
-            return this.str.charAt(this.index);
+            return this._input.charAt(this._index);
         }
 
         return '';
@@ -426,7 +497,7 @@ class Tokenizer {
      */
     currentStr() {
         if (!this.isFinished()) {
-            return this.str.substr(this.index);
+            return this._input.substr(this._index);
         }
 
         return '';
@@ -438,7 +509,7 @@ class Tokenizer {
      * @returns {string}
      */
     previous() {
-        return this.str.charAt(this.index - 1);
+        return this._input.charAt(this._index - 1);
     }
 
     /**
@@ -492,11 +563,11 @@ class Tokenizer {
      * @private
      */
     _matches(str) {
-        if (this.index + str.length > this.len) {
+        if (this._index + str.length > this._len) {
             return null;
         }
 
-        const m = this.str.slice(this.index, this.index + str.length);
+        const m = this._input.slice(this._index, this._index + str.length);
 
         return m === str;
     }
@@ -594,10 +665,8 @@ class Tokenizer {
      * @param {RegExp} regex
      *
      * @returns {null|RegExpMatchArray}
-     *
-     * @private
      */
-    _extractRegex(regex) {
+    extractRegex(regex) {
         const matches = this.currentStr().match(regex);
         if (! matches) {
             return null;

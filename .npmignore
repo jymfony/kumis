@@ -4,4 +4,4 @@ coverage
 docs
 tests
 bench
-scripts
+tsconfig.json

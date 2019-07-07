@@ -21,8 +21,6 @@ class Node {
          * @type {int}
          */
         this.colno = colno;
-        this.body = undefined;
-        this.value = undefined;
 
         this.fields.forEach((field, i) => {
             // The first two args are line/col numbers, so offset by 2
@@ -38,33 +36,52 @@ class Node {
         });
     }
 
+    /**
+     * The node type name.
+     *
+     * @returns {string}
+     */
     get typename() {
-        return this.constructor.name;
+        return this.constructor.name || 'Node';
     }
 
+    /**
+     * Node fields.
+     *
+     * @returns {string[]}
+     */
     get fields() {
         return [];
     }
 
-    findAll(type, results) {
-        results = results || [];
-
+    /**
+     * Finds all the children node of the given type.
+     *
+     * @param {Newable<Kumis.Node.Node>} type
+     * @param {Kumis.Node.Node[]} [results = []]
+     *
+     * @returns {Kumis.Node.Node[]}
+     */
+    findAll(type, results = []) {
         if (this instanceof NodeList) {
-            this.children.forEach(child => __self.traverseAndCheck(child, type, results));
+            this.children.forEach(child => __self._traverseAndCheck(child, type, results));
         } else {
-            this.fields.forEach(field => __self.traverseAndCheck(this[field], type, results));
+            this.fields.forEach(field => __self._traverseAndCheck(this[field], type, results));
         }
 
         return results;
     }
 
-    iterFields(func) {
-        this.fields.forEach((field) => {
-            func(this[field], field);
-        });
-    }
-
-    static traverseAndCheck(obj, type, results) {
+    /**
+     * Traverses a node, searching for nodes of a given type.
+     *
+     * @param {Kumis.Node.Node} obj
+     * @param {Newable<Kumis.Node.Node>} type
+     * @param {Kumis.Node.Node[]} results
+     *
+     * @private
+     */
+    static _traverseAndCheck(obj, type, results) {
         if (obj instanceof type) {
             results.push(obj);
         }

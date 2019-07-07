@@ -5,7 +5,7 @@ const Node = Kumis.Node.Node;
  */
 class Set extends Node {
     get fields() {
-        return [ 'targets', 'value' ];
+        return [ 'targets', 'value', 'body' ];
     }
 }
 

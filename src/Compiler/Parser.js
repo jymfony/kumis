@@ -14,36 +14,58 @@ class Parser {
     __construct(tokens) {
         /**
          * @type {Kumis.Compiler.Tokenizer}
+         *
+         * @private
          */
-        this.tokens = tokens;
-        this.peeked = null;
-        this.breakOnBlocks = null;
-        this.dropLeadingWhitespace = false;
+        this._tokens = tokens;
+
+        /**
+         * @type {null|Token}
+         *
+         * @private
+         */
+        this._peeked = null;
+
+        /**
+         * @type {null|string[]}
+         *
+         * @private
+         */
+        this._breakOnBlocks = null;
+
+        /**
+         * @type {boolean}
+         *
+         * @private
+         */
+        this._dropLeadingWhitespace = false;
 
         /**
          * @type {Kumis.Extension.ExtensionInterface[]}
+         *
+         * @private
          */
-        this.extensions = [];
+        this._extensions = [];
     }
 
     nextToken(withWhitespace) {
         let tok;
 
-        if (this.peeked) {
-            if (!withWhitespace && this.peeked.type === Tokenizer.TOKEN_WHITESPACE) {
-                this.peeked = null;
+        if (this._peeked) {
+            if (!withWhitespace && this._peeked.type === Tokenizer.TOKEN_WHITESPACE) {
+                this._peeked = null;
             } else {
-                tok = this.peeked;
-                this.peeked = null;
+                tok = this._peeked;
+                this._peeked = null;
                 return tok;
             }
         }
 
-        tok = this.tokens.nextToken();
+        tok = this._tokens.nextToken();
 
         if (! withWhitespace) {
             while (tok && tok.type === Tokenizer.TOKEN_WHITESPACE) {
-                tok = this.tokens.nextToken();
+                tok = this._tokens.nextToken();
             }
         }
 
@@ -51,18 +73,18 @@ class Parser {
     }
 
     peekToken() {
-        this.peeked = this.peeked || this.nextToken();
-        return this.peeked;
+        this._peeked = this._peeked || this.nextToken();
+        return this._peeked;
     }
 
     pushToken(tok) {
-        if (this.peeked) {
+        if (this._peeked) {
             throw new Error('pushToken: can only push one token on between reads');
         }
-        this.peeked = tok;
+        this._peeked = tok;
     }
 
-    error(msg, lineno, colno) {
+    error(msg, lineno = undefined, colno = undefined) {
         if (lineno === undefined || colno === undefined) {
             const tok = this.peekToken() || {};
             lineno = tok.lineno;
@@ -78,7 +100,7 @@ class Parser {
         return new TemplateError(msg, lineno, colno);
     }
 
-    fail(msg, lineno, colno) {
+    fail(msg, lineno = undefined, colno = undefined) {
         throw this.error(msg, lineno, colno);
     }
 
@@ -86,18 +108,19 @@ class Parser {
         const tok = this.nextToken();
         if (!tok || tok.type !== type) {
             this.pushToken(tok);
+
             return false;
         }
+
         return true;
     }
 
     expect(type) {
         const tok = this.nextToken();
         if (tok.type !== type) {
-            this.fail('expected ' + type + ', got ' + tok.type,
-                tok.lineno,
-                tok.colno);
+            this.fail('expected ' + type + ', got ' + tok.type, tok.lineno, tok.colno);
         }
+
         return tok;
     }
 
@@ -105,8 +128,10 @@ class Parser {
         const tok = this.nextToken();
         if (!tok || tok.type !== type || tok.value !== val) {
             this.pushToken(tok);
+
             return false;
         }
+
         return true;
     }
 
@@ -134,7 +159,7 @@ class Parser {
 
         if (tok && tok.type === Tokenizer.TOKEN_BLOCK_END) {
             if ('-' === tok.value.charAt(0)) {
-                this.dropLeadingWhitespace = true;
+                this._dropLeadingWhitespace = true;
             }
         } else {
             this.fail('expected block end in ' + name + ' statement');
@@ -147,8 +172,8 @@ class Parser {
         const tok = this.nextToken();
 
         if (tok && tok.type === Tokenizer.TOKEN_VARIABLE_END) {
-            this.dropLeadingWhitespace = '-' === tok.value.charAt(
-                tok.value.length - this.tokens.tags.VARIABLE_END.length - 1
+            this._dropLeadingWhitespace = '-' === tok.value.charAt(
+                tok.value.length - this._tokens.tags.VARIABLE_END.length - 1
             );
         } else {
             this.pushToken(tok);
@@ -246,15 +271,11 @@ class Parser {
         if (!(args[args.length - 1] instanceof Node.KeywordArgs)) {
             args.push(new Node.KeywordArgs());
         }
-        const kwargs = args[args.length - 1];
-        kwargs.addChild(new Node.Pair(callTok.lineno,
-            callTok.colno,
-            callerName,
-            callerNode));
 
-        return new Node.Output(callTok.lineno,
-            callTok.colno,
-            [ macroCall ]);
+        const kwargs = args[args.length - 1];
+        kwargs.addChild(new Node.Pair(callTok.lineno, callTok.colno, callerName, callerNode));
+
+        return new Node.Output(callTok.lineno, callTok.colno, [ macroCall ]);
     }
 
     parseWithContext() {
@@ -328,7 +349,7 @@ class Parser {
                 // Need to keep track of whitespace control (normally
                 // This is done in `advanceAfterBlockEnd`
                 if ('-' === nextTok.value.charAt(0)) {
-                    this.dropLeadingWhitespace = true;
+                    this._dropLeadingWhitespace = true;
                 }
 
                 this.nextToken();
@@ -558,7 +579,7 @@ class Parser {
             this.fail('tag name expected', tok.lineno, tok.colno);
         }
 
-        if (this.breakOnBlocks && -1 !== this.breakOnBlocks.indexOf(tok.value)) {
+        if (this._breakOnBlocks && -1 !== this._breakOnBlocks.indexOf(tok.value)) {
             return null;
         }
 
@@ -593,7 +614,7 @@ class Parser {
             case 'switch':
                 return this.parseSwitch();
             default:
-                for (const ext of this.extensions) {
+                for (const ext of this._extensions) {
                     for (const tag of ext.tags || []) {
                         if (tag.name === tok.value) {
                             return tag.parse(this, ext);
@@ -620,7 +641,7 @@ class Parser {
 
         // Exit when there's nothing to match
         // Or when we've found the matching "endraw" block
-        while ((matches = this.tokens._extractRegex(rawBlockRegex)) && 0 < rawLevel) {
+        while ((matches = this._tokens.extractRegex(rawBlockRegex)) && 0 < rawLevel) {
             const all = matches[0];
             const pre = matches[1];
             const blockName = matches[2];
@@ -637,7 +658,7 @@ class Parser {
                 // We want to exclude the last "endraw"
                 str += pre;
                 // Move tokenizer to beginning of endraw block
-                this.tokens.backN(all.length - pre.length);
+                this._tokens.backN(all.length - pre.length);
             } else {
                 str += all;
             }
@@ -711,11 +732,9 @@ class Parser {
         let node = this.parseAnd();
         while (this.skipSymbol('or')) {
             const node2 = this.parseAnd();
-            node = new Node.Or(node.lineno,
-                node.colno,
-                node,
-                node2);
+            node = new Node.Or(node.lineno, node.colno, node, node2);
         }
+
         return node;
     }
 
@@ -723,21 +742,18 @@ class Parser {
         let node = this.parseNot();
         while (this.skipSymbol('and')) {
             const node2 = this.parseNot();
-            node = new Node.And(node.lineno,
-                node.colno,
-                node,
-                node2);
+            node = new Node.And(node.lineno, node.colno, node, node2);
         }
+
         return node;
     }
 
     parseNot() {
         const tok = this.peekToken();
         if (this.skipSymbol('not')) {
-            return new Node.Not(tok.lineno,
-                tok.colno,
-                this.parseNot());
+            return new Node.Not(tok.lineno, tok.colno, this.parseNot());
         }
+
         return this.parseIn();
     }
 
@@ -770,6 +786,7 @@ class Parser {
                 break;
             }
         }
+
         return node;
     }
 
@@ -803,7 +820,7 @@ class Parser {
         while (1) { // eslint-disable-line no-constant-condition
             const tok = this.nextToken();
 
-            if (!tok) {
+            if (! tok) {
                 break;
             } else if (-1 !== compareOps.indexOf(tok.value)) {
                 ops.push(new Node.CompareOperand(tok.lineno, tok.colno, this.parseConcat(), tok.value));
@@ -818,7 +835,6 @@ class Parser {
         }
 
         return expr;
-
     }
 
     // Finds the '~' for string concatenation
@@ -1155,12 +1171,12 @@ class Parser {
     }
 
     parseUntilBlocks(...blockNames) {
-        const prev = this.breakOnBlocks;
-        this.breakOnBlocks = blockNames;
+        const prev = this._breakOnBlocks;
+        this._breakOnBlocks = blockNames;
 
         const ret = this.parse();
 
-        this.breakOnBlocks = prev;
+        this._breakOnBlocks = prev;
         return ret;
     }
 
@@ -1177,10 +1193,10 @@ class Parser {
                 // If the last token has "-" we need to trim the
                 // Leading whitespace of the data. This is marked with
                 // The `dropLeadingWhitespace` variable.
-                if (this.dropLeadingWhitespace) {
+                if (this._dropLeadingWhitespace) {
                     // TODO: this could be optimized (don't use regex)
                     data = data.replace(/^\s*/, '');
-                    this.dropLeadingWhitespace = false;
+                    this._dropLeadingWhitespace = false;
                 }
 
                 // Same for the succeeding block start token
@@ -1189,10 +1205,10 @@ class Parser {
                   '-' === nextVal.charAt(nextVal.length - 1)) ||
                   (nextToken.type === Tokenizer.TOKEN_VARIABLE_START &&
                   '-'
-                  === nextVal.charAt(this.tokens.tags.VARIABLE_START.length)) ||
+                  === nextVal.charAt(this._tokens.tags.VARIABLE_START.length)) ||
                   (nextToken.type === Tokenizer.TOKEN_COMMENT &&
                   '-'
-                  === nextVal.charAt(this.tokens.tags.COMMENT_START.length)))) {
+                  === nextVal.charAt(this._tokens.tags.COMMENT_START.length)))) {
                     // TODO: this could be optimized (don't use regex)
                     data = data.replace(/\s*$/, '');
                 }
@@ -1203,7 +1219,7 @@ class Parser {
                         tok.colno,
                         data) ]));
             } else if (tok.type === Tokenizer.TOKEN_BLOCK_START) {
-                this.dropLeadingWhitespace = false;
+                this._dropLeadingWhitespace = false;
                 const n = this.parseStatement();
                 if (! n) {
                     break;
@@ -1212,12 +1228,12 @@ class Parser {
                 buf.push(n);
             } else if (tok.type === Tokenizer.TOKEN_VARIABLE_START) {
                 const e = this.parseExpression();
-                this.dropLeadingWhitespace = false;
+                this._dropLeadingWhitespace = false;
                 this.advanceAfterVariableEnd();
                 buf.push(new Node.Output(tok.lineno, tok.colno, [ e ]));
             } else if (tok.type === Tokenizer.TOKEN_COMMENT) {
-                this.dropLeadingWhitespace = '-' === tok.value.charAt(
-                    tok.value.length - this.tokens.tags.COMMENT_END.length - 1
+                this._dropLeadingWhitespace = '-' === tok.value.charAt(
+                    tok.value.length - this._tokens.tags.COMMENT_END.length - 1
                 );
             } else {
                 // Ignore comments, otherwise this should be an error
@@ -1239,7 +1255,7 @@ class Parser {
     static parse(src, extensions, opts) {
         const p = new __self(new Tokenizer(src, opts));
         if (extensions !== undefined) {
-            p.extensions = extensions;
+            p._extensions = extensions;
         }
 
         return p.parseAsRoot();
