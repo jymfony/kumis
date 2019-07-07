@@ -380,7 +380,7 @@ describe('Compiler', function() {
                     '22');
             });
             it('should support include tags in the body of the loop', async () => {
-                await equal('{% ' + block + ' item, v in items %}{% include "item.njk" %}{% ' + end + ' %}',
+                await equal('{% ' + block + ' item, v in items %}{% include "item.kumis" %}{% ' + end + ' %}',
                     {
                         items: {
                             foo: 1,
@@ -392,10 +392,10 @@ describe('Compiler', function() {
             it('should work with {% set %} and {% include %} tags', async () => {
                 await equal(
                     '{% set item = passed_var %}' +
-        '{% include "item.njk" %}\n' +
+        '{% include "item.kumis" %}\n' +
         '{% ' + block + ' i in passed_iter %}' +
         '{% set item = i %}' +
-        '{% include "item.njk" %}\n' +
+        '{% include "item.kumis" %}\n' +
         '{% ' + end + ' %}',
                     {
                         passed_var: 'test',
@@ -467,58 +467,58 @@ describe('Compiler', function() {
             };
 
             expect(await render('{{ tmpl | getContents }}', {
-                tmpl: 'tests/templates/for-async-content.njk',
+                tmpl: 'tests/templates/for-async-content.kumis',
             }, opts)).to.be.equal('somecontenthere');
 
             expect(await render('{% if tmpl %}{{ tmpl | getContents }}{% endif %}', {
-                tmpl: 'tests/templates/for-async-content.njk',
+                tmpl: 'tests/templates/for-async-content.kumis',
             }, opts)).to.be.equal('somecontenthere');
 
             expect(await render('{% if tmpl | getContents %}yes{% endif %}', {
-                tmpl: 'tests/templates/for-async-content.njk',
+                tmpl: 'tests/templates/for-async-content.kumis',
             }, opts)).to.be.equal('yes');
 
             expect(await render('{% for t in [tmpl, tmpl] %}{{ t | getContents }}*{% endfor %}', {
-                tmpl: 'tests/templates/for-async-content.njk',
+                tmpl: 'tests/templates/for-async-content.kumis',
             }, opts)).to.be.equal('somecontenthere*somecontenthere*');
 
             expect(await render('{% for t in [tmpl, tmpl] | getContentsArr %}{{ t }}{% endfor %}', {
-                tmpl: 'tests/templates/for-async-content.njk',
+                tmpl: 'tests/templates/for-async-content.kumis',
             }, opts)).to.be.equal('somecontenthere');
 
             expect(await render('{% if test %}{{ tmpl | getContents }}{% endif %}oof', {
-                tmpl: 'tests/templates/for-async-content.njk',
+                tmpl: 'tests/templates/for-async-content.kumis',
             }, opts)).to.be.equal('oof');
 
             expect(await render(
                 '{% if tmpl %}' +
     '{% for i in [0, 1] %}{{ tmpl | getContents }}*{% endfor %}' +
     '{% endif %}', {
-                    tmpl: 'tests/templates/for-async-content.njk',
+                    tmpl: 'tests/templates/for-async-content.kumis',
                 }, opts)).to.be.equal('somecontenthere*somecontenthere*');
 
             expect(await render('{% block content %}{{ tmpl | getContents }}{% endblock %}', {
-                tmpl: 'tests/templates/for-async-content.njk',
+                tmpl: 'tests/templates/for-async-content.kumis',
             }, opts)).to.be.equal('somecontenthere');
 
             expect(await render('{% block content %}hello{% endblock %} {{ tmpl | getContents }}', {
-                tmpl: 'tests/templates/for-async-content.njk',
+                tmpl: 'tests/templates/for-async-content.kumis',
             }, opts)).to.be.equal('hello somecontenthere');
 
             expect(await render('{% block content %}{% set foo = tmpl | getContents %}{{ foo }}{% endblock %}', {
-                tmpl: 'tests/templates/for-async-content.njk',
+                tmpl: 'tests/templates/for-async-content.kumis',
             }, opts)).to.be.equal('somecontenthere');
 
-            expect(await render('{% block content %}{% include "async.njk" %}{% endblock %}', {
-                tmpl: 'tests/templates/for-async-content.njk',
+            expect(await render('{% block content %}{% include "async.kumis" %}{% endblock %}', {
+                tmpl: 'tests/templates/for-async-content.kumis',
             }, opts)).to.be.equal('somecontenthere\n');
 
-            expect(await render('{% for i in [0, 1] %}{% include "async.njk" %}{% endfor %}', {
-                tmpl: 'tests/templates/for-async-content.njk',
+            expect(await render('{% for i in [0, 1] %}{% include "async.kumis" %}{% endfor %}', {
+                tmpl: 'tests/templates/for-async-content.kumis',
             }, opts)).to.be.equal('somecontenthere\nsomecontenthere\n');
 
-            expect(await render('{% for i in [0, 1, 2, 3, 4] %}-{{ i }}:{% include "async.njk" %}-{% endfor %}', {
-                tmpl: 'tests/templates/for-async-content.njk',
+            expect(await render('{% for i in [0, 1, 2, 3, 4] %}-{{ i }}:{% include "async.kumis" %}-{% endfor %}', {
+                tmpl: 'tests/templates/for-async-content.kumis',
             }, opts)).to.be.equal('-0:somecontenthere\n-' +
                 '-1:somecontenthere\n-' +
                 '-2:somecontenthere\n-' +
@@ -641,13 +641,13 @@ describe('Compiler', function() {
 
             const loader = new Loader('tests/templates');
             const env = new Environment(loader);
-            const tmpl = new Template(tmplStr, env, 'parse-error.njk');
+            const tmpl = new Template(tmplStr, env, 'parse-error.kumis');
 
             try {
                 await tmpl.render({});
             } catch (err) {
                 expect(err.toString()).to.be.equal([
-                    'TemplateError: (parse-error.njk) [Line 1, Column 26]',
+                    'TemplateError: (parse-error.kumis) [Line 1, Column 26]',
                     '  unexpected token: ,',
                 ].join('\n'));
 
@@ -664,7 +664,7 @@ describe('Compiler', function() {
                 '{% endblock %}',
             ].join('\n');
             const env = new Environment(new Loader('tests/templates'));
-            const tmpl = new Template(tmplStr, env, 'user-error.njk');
+            const tmpl = new Template(tmplStr, env, 'user-error.kumis');
 
             function foo() {
                 throw new Error('ERROR');
@@ -674,7 +674,7 @@ describe('Compiler', function() {
                 await tmpl.render({foo: foo});
             } catch (err) {
                 expect(err.toString()).to.be.equal([
-                    'TemplateError: (user-error.njk) [Line 1, Column 11]',
+                    'TemplateError: (user-error.kumis) [Line 1, Column 11]',
                     '  Error: ERROR',
                 ].join('\n'));
 
@@ -779,7 +779,7 @@ describe('Compiler', function() {
 
     it('should compile macro calls inside blocks', async () => {
         await equal(
-            '{% extends "base.njk" %}' +
+            '{% extends "base.kumis" %}' +
             '{% macro foo(x, y=2, z=5) %}{{ x }}{{ y }}{{ z }}' +
             '{% endmacro %}' +
             '{% block block1 %}' +
@@ -802,7 +802,7 @@ describe('Compiler', function() {
 
     it('should compile macros that include other templates', async () => {
         await equal(
-            '{% macro foo() %}{% include "include.njk" %}{% endmacro %}' +
+            '{% macro foo() %}{% include "include.kumis" %}{% endmacro %}' +
             '{{ foo() }}',
             {
                 name: 'james',
@@ -901,19 +901,19 @@ describe('Compiler', function() {
 
     it('should compile call blocks using imported macros', async () => {
         await equal(
-            '{% import "import.njk" as imp %}' +
+            '{% import "import.kumis" as imp %}' +
             '{% call imp.wrap("span") %}Hey{% endcall %}',
             '<span>Hey</span>');
     });
 
     it('should import templates', async () => {
         await equal(
-            '{% import "import.njk" as imp %}' +
+            '{% import "import.kumis" as imp %}' +
             '{{ imp.foo() }} {{ imp.bar }}',
             'Here\'s a macro baz');
 
         await equal(
-            '{% from "import.njk" import foo as baz, bar %}' +
+            '{% from "import.kumis" import foo as baz, bar %}' +
             '{{ bar }} {{ baz() }}',
             'baz Here\'s a macro');
 
@@ -923,7 +923,7 @@ describe('Compiler', function() {
         await equal(
             '{% for i in [1,2] %}' +
             'start: {{ num }}' +
-            '{% from "import.njk" import bar as num %}' +
+            '{% from "import.kumis" import bar as num %}' +
             'end: {{ num }}' +
             '{% endfor %}' +
             'final: {{ num }}',
@@ -933,37 +933,37 @@ describe('Compiler', function() {
     it('should import templates with context', async () => {
         await equal(
             '{% set bar = "BAR" %}' +
-            '{% import "import-context.njk" as imp with context %}' +
+            '{% import "import-context.kumis" as imp with context %}' +
             '{{ imp.foo() }}',
             'Here\'s BAR');
 
         await equal(
             '{% set bar = "BAR" %}' +
-            '{% from "import-context.njk" import foo with context %}' +
+            '{% from "import-context.kumis" import foo with context %}' +
             '{{ foo() }}',
             'Here\'s BAR');
 
         await equal(
             '{% set bar = "BAR" %}' +
-            '{% import "import-context-set.njk" as imp %}' +
+            '{% import "import-context-set.kumis" as imp %}' +
             '{{ bar }}',
             'BAR');
 
         await equal(
             '{% set bar = "BAR" %}' +
-            '{% import "import-context-set.njk" as imp %}' +
+            '{% import "import-context-set.kumis" as imp %}' +
             '{{ imp.bar }}',
             'FOO');
 
         await equal(
             '{% set bar = "BAR" %}' +
-            '{% import "import-context-set.njk" as imp with context %}' +
+            '{% import "import-context-set.kumis" as imp with context %}' +
             '{{ bar }}{{ buzz }}',
             'FOO');
 
         await equal(
             '{% set bar = "BAR" %}' +
-            '{% import "import-context-set.njk" as imp with context %}' +
+            '{% import "import-context-set.kumis" as imp with context %}' +
             '{{ imp.bar }}{{ buzz }}',
             'FOO');
     });
@@ -971,13 +971,13 @@ describe('Compiler', function() {
     it('should import templates without context', async () => {
         await equal(
             '{% set bar = "BAR" %}' +
-            '{% import "import-context.njk" as imp without context %}' +
+            '{% import "import-context.kumis" as imp without context %}' +
             '{{ imp.foo() }}',
             'Here\'s ');
 
         await equal(
             '{% set bar = "BAR" %}' +
-            '{% from "import-context.njk" import foo without context %}' +
+            '{% from "import-context.kumis" import foo without context %}' +
             '{{ foo() }}',
             'Here\'s ');
     });
@@ -985,38 +985,38 @@ describe('Compiler', function() {
     it('should default to importing without context', async () => {
         await equal(
             '{% set bar = "BAR" %}' +
-            '{% import "import-context.njk" as imp %}' +
+            '{% import "import-context.kumis" as imp %}' +
             '{{ imp.foo() }}',
             'Here\'s ');
 
         await equal(
             '{% set bar = "BAR" %}' +
-            '{% from "import-context.njk" import foo %}' +
+            '{% from "import-context.kumis" import foo %}' +
             '{{ foo() }}',
             'Here\'s ');
     });
 
     it('should inherit templates', async () => {
-        await equal('{% extends "base.njk" %}', 'FooBarBazFizzle');
-        await equal('hola {% extends "base.njk" %} hizzle mumble', 'FooBarBazFizzle');
+        await equal('{% extends "base.kumis" %}', 'FooBarBazFizzle');
+        await equal('hola {% extends "base.kumis" %} hizzle mumble', 'FooBarBazFizzle');
 
-        await equal('{% extends "base.njk" %}{% block block1 %}BAR{% endblock %}',
+        await equal('{% extends "base.kumis" %}{% block block1 %}BAR{% endblock %}',
             'FooBARBazFizzle');
 
         await equal(
-            '{% extends "base.njk" %}' +
+            '{% extends "base.kumis" %}' +
             '{% block block1 %}BAR{% endblock %}' +
             '{% block block2 %}BAZ{% endblock %}',
             'FooBARBAZFizzle');
 
         await equal('hola {% extends tmpl %} hizzle mumble',
-            { tmpl: 'base.njk' },
+            { tmpl: 'base.kumis' },
             'FooBarBazFizzle');
     });
     it('should not call blocks not defined from template inheritance', async () => {
         let count = 0;
         await render(
-            '{% extends "base.njk" %}' +
+            '{% extends "base.kumis" %}' +
             '{% block notReal %}{{ foo() }}{% endblock %}',
             { foo: function() {
                 count++;
@@ -1026,29 +1026,29 @@ describe('Compiler', function() {
 
     it('should conditionally inherit templates', async () => {
         await equal(
-            '{% if false %}{% extends "base.njk" %}{% endif %}' +
+            '{% if false %}{% extends "base.kumis" %}{% endif %}' +
             '{% block block1 %}BAR{% endblock %}',
             'BAR');
 
         await equal(
-            '{% if true %}{% extends "base.njk" %}{% endif %}' +
+            '{% if true %}{% extends "base.kumis" %}{% endif %}' +
             '{% block block1 %}BAR{% endblock %}',
             'FooBARBazFizzle');
 
         await equal(
             '{% if true %}' +
-            '{% extends "base.njk" %}' +
+            '{% extends "base.kumis" %}' +
             '{% else %}' +
-            '{% extends "base2.njk" %}' +
+            '{% extends "base2.kumis" %}' +
             '{% endif %}' +
             '{% block block1 %}HELLO{% endblock %}',
             'FooHELLOBazFizzle');
 
         await equal(
             '{% if false %}' +
-            '{% extends "base.njk" %}' +
+            '{% extends "base.kumis" %}' +
             '{% else %}' +
-            '{% extends "base2.njk" %}' +
+            '{% extends "base2.kumis" %}' +
             '{% endif %}' +
             '{% block item %}hello{{ item }}{% endblock %}',
             'hello1hello2');
@@ -1056,7 +1056,7 @@ describe('Compiler', function() {
 
     it('should error if same block is defined multiple times', async () => {
         try {
-            await render('{% extends "simple-base.njk" %}' +
+            await render('{% extends "simple-base.kumis" %}' +
                 '{% block test %}{% endblock %}' +
                 '{% block test %}{% endblock %}');
         } catch (err) {
@@ -1066,55 +1066,55 @@ describe('Compiler', function() {
 
     it('should render nested blocks in child template', async () => {
         await equal(
-            '{% extends "base.njk" %}' +
+            '{% extends "base.kumis" %}' +
             '{% block block1 %}{% block nested %}BAR{% endblock %}{% endblock %}',
             'FooBARBazFizzle');
     });
 
     it('should render parent blocks with super()', async () => {
         await equal(
-            '{% extends "base.njk" %}' +
+            '{% extends "base.kumis" %}' +
             '{% block block1 %}{{ super() }}BAR{% endblock %}',
             'FooBarBARBazFizzle');
 
         // Two levels of `super` should work
         await equal(
-            '{% extends "base-inherit.njk" %}' +
+            '{% extends "base-inherit.kumis" %}' +
             '{% block block1 %}*{{ super() }}*{% endblock %}',
             'Foo**Bar**BazFizzle');
     });
 
     it('should let super() see global vars from child template', async () => {
         await equal(
-            '{% extends "base-show.njk" %}{% set var = "child" %}' +
+            '{% extends "base-show.kumis" %}{% set var = "child" %}' +
             '{% block main %}{{ super() }}{% endblock %}',
             'child');
     });
 
     it('should not let super() see vars from child block', async () => {
         await equal(
-            '{% extends "base-show.njk" %}' +
+            '{% extends "base-show.kumis" %}' +
             '{% block main %}{% set var = "child" %}{{ super() }}{% endblock %}',
             '');
     });
 
     it('should let child templates access parent global scope', async () => {
         await equal(
-            '{% extends "base-set.njk" %}' +
+            '{% extends "base-set.kumis" %}' +
             '{% block main %}{{ var }}{% endblock %}',
             'parent');
     });
 
     it('should not let super() modify calling scope', async () => {
         await equal(
-            '{% extends "base-set-inside-block.njk" %}' +
+            '{% extends "base-set-inside-block.kumis" %}' +
             '{% block main %}{{ super() }}{{ var }}{% endblock %}',
             '');
     });
 
     it('should not let child templates set vars in parent scope', async () => {
         await equal(
-            '{% extends "base-set-and-show.njk" %}' +
+            '{% extends "base-set-and-show.kumis" %}' +
             '{% block main %}{% set var = "child" %}{% endblock %}',
             'parent');
     });
@@ -1128,16 +1128,16 @@ describe('Compiler', function() {
     });
 
     it('should include templates', async () => {
-        await equal('hello world {% include "include.njk" %}', 'hello world FooInclude ');
+        await equal('hello world {% include "include.kumis" %}', 'hello world FooInclude ');
     });
 
     it('should include 130 templates without call stack size exceed', async () => {
-        await equal('{% include "includeMany.njk" %}',
+        await equal('{% include "includeMany.kumis" %}',
             new Array(131).join('FooInclude \n'));
     });
 
     it('should include templates with context', async () => {
-        await equal('hello world {% include "include.njk" %}',
+        await equal('hello world {% include "include.kumis" %}',
             {
                 name: 'james',
             },
@@ -1145,20 +1145,20 @@ describe('Compiler', function() {
     });
 
     it('should include templates that can see including scope, but not write to it', async () => {
-        await equal('{% set var = 1 %}{% include "include-set.njk" %}{{ var }}', '12\n1');
+        await equal('{% set var = 1 %}{% include "include-set.kumis" %}{{ var }}', '12\n1');
     });
 
     it('should include templates dynamically', async () => {
         await equal('hello world {% include tmpl %}',
             {
                 name: 'thedude',
-                tmpl: 'include.njk',
+                tmpl: 'include.kumis',
             },
             'hello world FooInclude thedude');
     });
 
     it('should include templates dynamically based on a set var', async () => {
-        await equal('hello world {% set tmpl = "include.njk" %}{% include tmpl %}',
+        await equal('hello world {% set tmpl = "include.kumis" %}{% include tmpl %}',
             {
                 name: 'thedude',
             },
@@ -1170,7 +1170,7 @@ describe('Compiler', function() {
             {
                 name: 'thedude',
                 data: {
-                    tmpl: 'include.njk',
+                    tmpl: 'include.kumis',
                 },
             },
             'hello world FooInclude thedude');
@@ -1178,19 +1178,19 @@ describe('Compiler', function() {
 
     it('should throw an error when including a file that does not exist', async () => {
         try {
-            await render('{% include "missing.njk" %}', {}, {
+            await render('{% include "missing.kumis" %}', {}, {
                 noThrow: true,
             });
         } catch (err) {
-            expect(err).to.match(/Template not found: missing.njk/);
+            expect(err).to.match(/Template not found: missing.kumis/);
         }
     });
 
     it('should fail silently on missing templates if requested', async () => {
-        await equal('hello world {% include "missing.njk" ignore missing %}',
+        await equal('hello world {% include "missing.kumis" ignore missing %}',
             'hello world ');
 
-        await equal('hello world {% include "missing.njk" ignore missing %}',
+        await equal('hello world {% include "missing.kumis" ignore missing %}',
             {
                 name: 'thedude',
             },
@@ -1198,10 +1198,10 @@ describe('Compiler', function() {
     });
 
     it('should have access to "loop" inside an include', async () => {
-        await equal('{% for item in [1,2,3] %}{% include "include-in-loop.njk" %}{% endfor %}',
+        await equal('{% for item in [1,2,3] %}{% include "include-in-loop.kumis" %}{% endfor %}',
             '1,0,true\n2,1,false\n3,2,false\n');
 
-        await equal('{% for k,v in items %}{% include "include-in-loop.njk" %}{% endfor %}',
+        await equal('{% for k,v in items %}{% include "include-in-loop.kumis" %}{% endfor %}',
             {
                 items: {
                     a: 'A',
@@ -1221,7 +1221,7 @@ describe('Compiler', function() {
 
     it('should allow blocks in for loops', async () => {
         await equal(
-            '{% extends "base2.njk" %}' +
+            '{% extends "base2.kumis" %}' +
             '{% block item %}hello{{ item }}{% endblock %}',
             'hello1hello2');
     });
@@ -1229,7 +1229,7 @@ describe('Compiler', function() {
     it('should make includes inherit scope', async () => {
         await equal(
             '{% for item in [1,2] %}' +
-            '{% include "item.njk" %}' +
+            '{% include "item.kumis" %}' +
             '{% endfor %}',
             'showing 1showing 2');
     });
@@ -1253,7 +1253,7 @@ describe('Compiler', function() {
             },
             '2');
 
-        await equal('{% include "set.njk" %}{{ foo }}',
+        await equal('{% include "set.kumis" %}{{ foo }}',
             {
                 foo: 'bar',
             },
@@ -1343,7 +1343,7 @@ describe('Compiler', function() {
         await equal(
             '{% set block_content %}' +
             '{% for item in [1, 2, 3] %}' +
-            '{% include "item.njk" %} ' +
+            '{% include "item.kumis" %} ' +
             '{% endfor %}' +
             '{% endset %}' +
             '{{ block_content }}',
@@ -1378,7 +1378,7 @@ describe('Compiler', function() {
 
     it('should compile block-set wrapping an inherited block', async () => {
         await equal(
-            '{% extends "base-set-wraps-block.njk" %}' +
+            '{% extends "base-set-wraps-block.kumis" %}' +
             '{% block somevar %}foo{% endblock %}',
             'foo\n'
         );
@@ -1386,7 +1386,7 @@ describe('Compiler', function() {
 
     it('should throw errors', async () => {
         try {
-            await render('{% from "import.njk" import boozle %}', {}, {
+            await render('{% from "import.kumis" import boozle %}', {}, {
                 noThrow: true,
             });
 
@@ -1666,7 +1666,7 @@ describe('Compiler', function() {
     });
 
     it('should not autoescape super()', async () => {
-        expect(await render('{% extends "base3.njk" %}' +
+        expect(await render('{% extends "base3.kumis" %}' +
             '{% block block1 %}{{ super() }}{% endblock %}',
         null, {
             autoescape: true,
@@ -1732,7 +1732,7 @@ describe('Compiler', function() {
 
     it('should throw an error when including a file that calls an undefined macro', async () => {
         try {
-            await render('{% include "undefined-macro.njk" %}', {}, {
+            await render('{% include "undefined-macro.kumis" %}', {}, {
                 noThrow: true,
             });
         } catch (err) {
@@ -1742,7 +1742,7 @@ describe('Compiler', function() {
 
     it('should throw an error when including a file that calls an undefined macro even inside {% if %} tag', async () => {
         try {
-            await render('{% if true %}{% include "undefined-macro.njk" %}{% endif %}', {}, {
+            await render('{% if true %}{% include "undefined-macro.kumis" %}{% endif %}', {}, {
                 noThrow: true,
             });
         } catch (err) {
@@ -1752,7 +1752,7 @@ describe('Compiler', function() {
 
     it('should throw an error when including a file that imports macro that calls an undefined macro', async () => {
         try {
-            await render('{% include "import-macro-call-undefined-macro.njk" %}', { list: [ 1, 2, 3 ] }, { noThrow: true });
+            await render('{% include "import-macro-call-undefined-macro.kumis" %}', { list: [ 1, 2, 3 ] }, { noThrow: true });
         } catch (err) {
             expect(err).to.match(/Unable to call `\w+`, which is undefined or falsey/);
         }

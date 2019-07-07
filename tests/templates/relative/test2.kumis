@@ -1,3 +1,3 @@
-{% extends "./test1.njk" %}
+{% extends "./test1.kumis" %}
 
 {% block block1 %}Test2{% endblock %}

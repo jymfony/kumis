@@ -182,10 +182,10 @@ describe('Parser', function() {
         n = Parser.parse('{% block foo %}stuff{% endblock foo %}');
         expect(n.children[0].typename).to.be.equal('Block');
 
-        n = Parser.parse('{% extends "test.njk" %}stuff');
+        n = Parser.parse('{% extends "test.kumis" %}stuff');
         expect(n.children[0].typename).to.be.equal('Extends');
 
-        n = Parser.parse('{% include "test.njk" %}');
+        n = Parser.parse('{% include "test.kumis" %}');
         expect(n.children[0].typename).to.be.equal('Include');
     });
 
@@ -212,13 +212,13 @@ describe('Parser', function() {
     });
 
     it('should parse include tags', () => {
-        let n = Parser.parse('{% include "test.njk" %}');
+        let n = Parser.parse('{% include "test.kumis" %}');
         expect(n.children[0].typename).to.be.equal('Include');
 
         n = Parser.parse('{% include "test.html"|replace("html","j2") %}');
         expect(n.children[0].typename).to.be.equal('Include');
 
-        n = Parser.parse('{% include ""|default("test.njk") %}');
+        n = Parser.parse('{% include ""|default("test.kumis") %}');
         expect(n.children[0].typename).to.be.equal('Include');
     });
 
@@ -551,21 +551,21 @@ describe('Parser', function() {
     });
 
     it('should parse imports', () => {
-        expect(Parser.parse('{% import "foo/bar.njk" as baz %}'))
+        expect(Parser.parse('{% import "foo/bar.kumis" as baz %}'))
             .dumpsAs(new Node.Root(0, 0, [
                 new Node.Import(0, 3,
-                    new Node.Literal(0, 10, 'foo/bar.njk'),
-                    new Node.SymbolNode(0, 27, 'baz'),
+                    new Node.Literal(0, 10, 'foo/bar.kumis'),
+                    new Node.SymbolNode(0, 29, 'baz'),
                 )
             ]));
 
-        expect(Parser.parse('{% from "foo/bar.njk" import baz, foobar as foobarbaz %}'))
+        expect(Parser.parse('{% from "foo/bar.kumis" import baz, foobar as foobarbaz %}'))
             .dumpsAs(new Node.Root(0, 0, [
                 new Node.FromImport(0, 3,
-                    new Node.Literal(0, 8, 'foo/bar.njk'),
+                    new Node.Literal(0, 8, 'foo/bar.kumis'),
                     new Node.NodeList(undefined, undefined, [
-                        new Node.SymbolNode(0, 29, 'baz'),
-                        new Node.Pair(0, 34, new Node.SymbolNode(0, 34, 'foobar'), new Node.SymbolNode(0, 44, 'foobarbaz')),
+                        new Node.SymbolNode(0, 31, 'baz'),
+                        new Node.Pair(0, 36, new Node.SymbolNode(0, 36, 'foobar'), new Node.SymbolNode(0, 46, 'foobarbaz')),
                     ])
                 )
             ]));
@@ -585,19 +585,19 @@ describe('Parser', function() {
                 )
             ]));
 
-        expect(Parser.parse('{% from ""|default("foo/bar.njk") import baz, foobar as foobarbaz %}'))
+        expect(Parser.parse('{% from ""|default("foo/bar.kumis") import baz, foobar as foobarbaz %}'))
             .dumpsAs(new Node.Root(0, 0, [
                 new Node.FromImport(0, 3,
                     new Node.Filter(0, 11,
                         new Node.SymbolNode(0, 11, 'default'),
                         new Node.NodeList(0, 11, [
                             new Node.Literal(0, 8, ''),
-                            new Node.Literal(0, 19, 'foo/bar.njk'),
+                            new Node.Literal(0, 19, 'foo/bar.kumis'),
                         ])
                     ),
                     new Node.NodeList(undefined, undefined, [
-                        new Node.SymbolNode(0, 41, 'baz'),
-                        new Node.Pair(0, 46, new Node.SymbolNode(0, 46, 'foobar'), new Node.SymbolNode(0, 56, 'foobarbaz')),
+                        new Node.SymbolNode(0, 43, 'baz'),
+                        new Node.Pair(0, 48, new Node.SymbolNode(0, 48, 'foobar'), new Node.SymbolNode(0, 58, 'foobarbaz')),
                     ])
                 )
             ]));

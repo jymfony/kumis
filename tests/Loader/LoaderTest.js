@@ -31,7 +31,7 @@ describe('Loader', function() {
         }
 
         const env = new Environment(new MyLoader());
-        const parent = await env.getTemplate('fake.njk');
+        const parent = await env.getTemplate('fake.kumis');
         expect(await parent.render()).to.be.equal('Hello World');
     });
 
@@ -48,7 +48,7 @@ describe('Loader', function() {
 
         const env = new Environment(new MyLoader());
         try {
-            await env.getTemplate('fake.njk');
+            await env.getTemplate('fake.kumis');
         } catch(err) {
             expect(err).to.be.instanceOf(Error);
         }
