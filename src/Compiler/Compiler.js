@@ -536,7 +536,7 @@ class Compiler {
         // Otherwise go with the symbol value
         const right = node.right.name ? node.right.name.value : node.right.value;
 
-        let oldSuppress = this._suppressUndefinedError;
+        const oldSuppress = this._suppressUndefinedError;
         if ('defined' === right || 'undefined' === right) {
             this._suppressUndefinedError = true;
         }
@@ -800,7 +800,7 @@ class Compiler {
         const name = node.name;
         this.assertType(name, Node.SymbolNode);
 
-        let oldSuppress = this._suppressUndefinedError;
+        const oldSuppress = this._suppressUndefinedError;
         if ('default' === name.value) {
             this._suppressUndefinedError = true;
         }
