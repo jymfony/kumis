@@ -145,6 +145,11 @@ class Runtime {
 
     static handleError(error, lineno, colno) {
         if (error instanceof TemplateError) {
+            if (error.lineno === undefined && error.colno === undefined) {
+                error.lineno = lineno;
+                error.colno = colno;
+            }
+
             return error;
         }
 

@@ -682,10 +682,10 @@ describe('Compiler', function() {
             }
 
             try {
-                await tmpl.render({foo: foo});
+                await tmpl.render({ foo });
             } catch (err) {
                 expect(err.toString()).to.be.equal([
-                    'TemplateError: (user-error.kumis) [Line 1, Column 11]',
+                    'TemplateError: (user-error.kumis) [Line 1, Column 8]',
                     '  Error: ERROR',
                 ].join('\n'));
 

@@ -430,7 +430,9 @@ class Compiler {
             this._emit(v);
         } else {
             this._emit(__jymfony.sprintf(
-                'await contextOrFrameLookup(context, frame, "%s", %s)',
+                '(lineno = %u, colno = %u, await contextOrFrameLookup(context, frame, "%s", %s))',
+                node.lineno,
+                node.colno,
                 name,
                 this._suppressUndefinedError ? 'true' : 'false'
             ));
@@ -1121,13 +1123,17 @@ class Compiler {
         );
 
         this._addIndent();
+        this._emitLine('try {');
+        this._addIndent();
+
         this._emitLines(
             'var callerFrame = frame;',
             'frame = ' + ((keepFrame) ? 'frame.push(true);' : 'new Frame();'),
             'kwargs = kwargs || {};',
             'if (Object.prototype.hasOwnProperty.call(kwargs, "caller")) {',
             '    frame.set("caller", kwargs.caller);',
-            '}'
+            '}',
+            ''
         );
 
         // Expose the arguments to the template. Don't need to use
@@ -1155,6 +1161,10 @@ class Compiler {
         this.compile(node.body, currFrame);
         this._emitLine('frame = ' + ((keepFrame) ? 'frame.pop();' : 'callerFrame;'));
         this._emitLine(`return new SafeString(${bufferId});`);
+        this._subIndent();
+        this._emitLine('} catch (e) {');
+        this._emitLine('    throw handleError(e, lineno, colno);');
+        this._emitLine('}');
         this._subIndent();
         this._emitLine('});');
         this._popBuffer();
