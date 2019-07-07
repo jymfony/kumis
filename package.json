@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test:instrument": "nyc npm run test:runner",
-    "test:runner": "node ./tests.js tests/*.js tests/**/*.js",
+    "test:runner": "node ./tests.js --timeout 20s tests/*.js tests/**/*.js",
     "test": "npm run test:runner"
   },
   "flat": true,

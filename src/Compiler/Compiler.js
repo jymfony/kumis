@@ -176,11 +176,11 @@ class Compiler {
      * @private
      */
     _emit(code) {
-        if (this._codebuf.length > 0) {
+        if (0 < this._codebuf.length) {
             const lastLine = this._codebuf[this._codebuf.length - 1];
             const lastChar = lastLine.substr(lastLine.length - 1, 1);
 
-            if (lastChar === '\n') {
+            if ('\n' === lastChar) {
                 code = this._indent + code;
             }
         }
@@ -867,7 +867,7 @@ class Compiler {
         this._emit('switch (');
         this.compile(node.expr, frame);
         this._emit(') {');
-        this._addIndent()
+        this._addIndent();
 
         node.cases.forEach(c => {
             this._emit('case ');
