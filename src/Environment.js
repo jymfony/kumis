@@ -23,6 +23,14 @@ const noopTmplSrc = {
  * @memberOf Kumis
  */
 class Environment {
+    /**
+     * Constructor.
+     *
+     * @param {Kumis.Loader.LoaderInterface[]} loaders
+     * @param {boolean} autoescape
+     * @param {boolean} trimBlocks
+     * @param {boolean} lstripBlocks
+     */
     __construct(loaders, { autoescape = true, trimBlocks, lstripBlocks} = {}) {
         this.opts = {
             autoescape: !! autoescape,
@@ -33,16 +41,28 @@ class Environment {
         /**
          * @type {Kumis.Loader.LoaderInterface[]}
          */
-        this.loaders = loaders || [ new FilesystemLoader('views', new ArrayAdapter()) ];
+        this.loaders = loaders || [ new FilesystemLoader(process.cwd() + '/views', new ArrayAdapter()) ];
         this.loaders = isArray(this.loaders) ? this.loaders : [ this.loaders ];
 
         this.globals = new Storage();
         this.filters = new Storage();
         this.tests = new Storage();
         this.extensions = new Storage();
-        this.extensionsList = [];
+        this._extensionsList = [];
+    }
 
-        this.addExtension(new BuiltinExtension());
+    /**
+     * Creates a configured environment.
+     *
+     * @param {Kumis.Loader.LoaderInterface} [loader]
+     *
+     * @returns {Kumis.Environment}
+     */
+    static create(loader = undefined) {
+        const env = new __self(loader, { autoescape: true });
+        env.addExtension(new BuiltinExtension());
+
+        return env;
     }
 
     invalidateCache() {
@@ -52,14 +72,24 @@ class Environment {
     }
 
     /**
+     * Gets the extension list.
+     *
+     * @returns {Kumis.Extension.ExtensionInterface[]}
+     */
+    get extensionsList() {
+        return [ ...this._extensionsList ];
+    }
+
+    /**
      * Adds an extension.
      *
      * @param {Kumis.Extension.ExtensionInterface} extension
-     * @returns {Environment}
+     *
+     * @returns {Kumis.Environment}
      */
     addExtension(extension) {
         this.extensions[extension.name] = extension;
-        this.extensionsList.push(extension);
+        this._extensionsList.push(extension);
         Object.assign(this.globals, extension.globals);
         Object.assign(this.filters, extension.filters);
         Object.assign(this.tests, extension.tests);
@@ -91,12 +121,41 @@ class Environment {
         return this.tests[name];
     }
 
+    /**
+     * Resolves a template.
+     *
+     * @param {Kumis.Loader.LoaderInterface} loader
+     * @param {null|string} parentName
+     * @param {string} filename
+     *
+     * @returns {Promise<string>}
+     */
     resolveTemplate(loader, parentName, filename) {
         if (parentName) {
-            return path.resolve(path.dirname(parentName), filename);
+            filename = path.resolve(path.dirname(parentName), filename);
         }
 
-        return filename;
+        return loader.resolve(filename);
+    }
+
+    /**
+     * Whether a template exists or not.
+     *
+     * @param {string} name
+     *
+     * @returns {Promise<boolean>}
+     */
+    async hasTemplate(name) {
+        for (const loader of this.loaders) {
+            const templName = await this.resolveTemplate(loader, null, name);
+            if (! templName) {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     async getTemplate(name, eagerCompile = false, parentName = null, ignoreMissing = false) {
@@ -117,12 +176,12 @@ class Environment {
         }
 
         for (const loader of this.loaders) {
-            const templName = this.resolveTemplate(loader, parentName, name);
-            const info = await loader.getSource(templName);
-
-            if (! info) {
+            const templName = await this.resolveTemplate(loader, parentName, name);
+            if (! templName) {
                 continue;
             }
+
+            const info = await loader.getSource(templName);
 
             return new Template(info.src, this, info.path, eagerCompile);
         }

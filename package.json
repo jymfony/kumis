@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test:instrument": "nyc npm run test:runner",
-    "test:runner": "node ./tests.js --timeout 20s tests/*.js tests/**/*.js",
+    "test:runner": "node ./tests.js --timeout 20s --recursive tests",
     "test": "npm run test:runner"
   },
   "flat": true,
@@ -23,7 +23,12 @@
   },
   "typings": "types/index.d.ts",
   "devDependencies": {
+    "@jymfony/config": "^0.1.0-alpha.16",
     "@jymfony/debug": "^0.1.0-alpha.16",
+    "@jymfony/dependency-injection": "^0.1.0-alpha.16",
+    "@jymfony/framework-bundle": "^0.1.0-alpha.16",
+    "@jymfony/kernel": "^0.1.0-alpha.16",
+    "@jymfony/templating": "^0.1.0-alpha.16",
     "@jymfony/testing": "^0.1.0-alpha.16",
     "@jymfony/var-dumper": "^0.1.0-alpha.16",
     "chai": "^4.2.0",
@@ -62,6 +67,7 @@
       "**/*Interface.js",
       "**/namespace-stub.js",
       "**/tests/**",
+      "**/Resources/config/**",
       "tests.js"
     ],
     "reporter": [

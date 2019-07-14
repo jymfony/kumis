@@ -5,6 +5,14 @@
  */
 
 /// <reference lib="es2015" />
+/// <reference path="Bundle/CacheWarmer/TemplatesCacheWarmer.d.ts" />
+/// <reference path="Bundle/DependencyInjection/CompilerPass/AddExtensionPass.d.ts" />
+/// <reference path="Bundle/DependencyInjection/Configuration.d.ts" />
+/// <reference path="Bundle/DependencyInjection/KumisExtension.d.ts" />
+/// <reference path="Bundle/Loader/CachedLoader.d.ts" />
+/// <reference path="Bundle/Loader/FilesystemLoader.d.ts" />
+/// <reference path="Bundle/Engine.d.ts" />
+/// <reference path="Bundle/KumisBundle.d.ts" />
 /// <reference path="Compiler/Compiler.d.ts" />
 /// <reference path="Compiler/Parser.d.ts" />
 /// <reference path="Compiler/Tokenizer.d.ts" />
@@ -16,7 +24,6 @@
 /// <reference path="Extension/TagInterface.d.ts" />
 /// <reference path="Loader/FilesystemLoader.d.ts" />
 /// <reference path="Loader/LoaderInterface.d.ts" />
-/// <reference path="Loader/PrecompiledLoader.d.ts" />
 /// <reference path="Node/Add.d.ts" />
 /// <reference path="Node/And.d.ts" />
 /// <reference path="Node/Array.d.ts" />

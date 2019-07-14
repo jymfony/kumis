@@ -9,6 +9,31 @@ Kumis = {
     /**
      * @namespace
      */
+    Bundle: {
+        /**
+         * @namespace
+         */
+        CacheWarmer: {},
+
+        /**
+         * @namespace
+         */
+        DependencyInjection: {
+            /**
+             * @namespace
+             */
+            CompilerPass: {},
+        },
+
+        /**
+         * @namespace
+         */
+        Loader: {},
+    },
+
+    /**
+     * @namespace
+     */
     Compiler: {},
 
     /**

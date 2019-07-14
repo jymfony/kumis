@@ -3,6 +3,15 @@
  */
 class LoaderInterface {
     /**
+     * Resolves a template name to its full path.
+     *
+     * @param {string} name
+     *
+     * @returns {Promise<string>}
+     */
+    async resolve(name) { }
+
+    /**
      * Loads a template from the given name and
      * returns the source code.
      *

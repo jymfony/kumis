@@ -8,8 +8,12 @@ declare namespace Kumis.Loader {
 
     export class LoaderInterface {
         /**
-         * Loads a template from the given name and
-         * returns the source code.
+         * Resolves a template name to its full path.
+         */
+        resolve(name: string): Promise<string>;
+
+        /**
+         * Loads a template from the given name and returns the source code.
          */
         getSource(name: string): Promise<Source>;
 

@@ -7,7 +7,20 @@ const Frame = Kumis.Util.Frame;
  * @memberOf Kumis
  */
 class Template {
+    /**
+     * Constructor.
+     *
+     * @param {string} src
+     * @param {Kumis.Environment} env
+     * @param {string} path
+     * @param {boolean} eagerCompile
+     */
     __construct(src, env, path, eagerCompile) {
+        /**
+         * @type {Kumis.Environment}
+         *
+         * @private
+         */
         this.env = env;
 
         this.blocks = undefined;

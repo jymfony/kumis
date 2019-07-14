@@ -651,7 +651,7 @@ describe('Compiler', function() {
             ].join('\n');
 
             const loader = new Loader('tests/templates');
-            const env = new Environment(loader);
+            const env = Environment.create(loader);
             const tmpl = new Template(tmplStr, env, 'parse-error.kumis');
 
             try {
@@ -674,7 +674,7 @@ describe('Compiler', function() {
                 '<div>{{ foo() }}</div>',
                 '{% endblock %}',
             ].join('\n');
-            const env = new Environment(new Loader('tests/templates'));
+            const env = Environment.create(new Loader('tests/templates'));
             const tmpl = new Template(tmplStr, env, 'user-error.kumis');
 
             function foo() {

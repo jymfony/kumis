@@ -27,10 +27,11 @@ describe('Loader', function() {
                 };
             }
 
+            resolve() { return '/tmp/somewhere'; }
             invalidateCache() { }
         }
 
-        const env = new Environment(new MyLoader());
+        const env = Environment.create(new MyLoader());
         const parent = await env.getTemplate('fake.kumis');
         expect(await parent.render()).to.be.equal('Hello World');
     });
@@ -43,10 +44,11 @@ describe('Loader', function() {
                 throw new Error('test');
             }
 
+            resolve() { return '/tmp/tmp'; }
             invalidateCache() { }
         }
 
-        const env = new Environment(new MyLoader());
+        const env = Environment.create(new MyLoader());
         try {
             await env.getTemplate('fake.kumis');
         } catch(err) {
@@ -56,7 +58,7 @@ describe('Loader', function() {
 
     it('should cache templates', async () => {
         const TemplateLoader = new Kumis.Loader.FilesystemLoader(tempdir, new ArrayAdapter());
-        const e = new Environment(TemplateLoader);
+        const e = Environment.create(TemplateLoader);
 
         fs.writeFileSync(tempdir + '/test.html', '{{ name }}', 'utf-8');
         expect(await e.render('test.html', {name: 'foo'})).to.be.equal('foo');
@@ -69,7 +71,7 @@ describe('Loader', function() {
 
     it('should not cache templates by default', async () => {
         const TemplateLoader = new Kumis.Loader.FilesystemLoader(tempdir);
-        const e = new Environment(TemplateLoader);
+        const e = Environment.create(TemplateLoader);
 
         fs.writeFileSync(tempdir + '/test.html', '{{ name }}', 'utf-8');
         expect(await e.render('test.html', {name: 'foo'})).to.be.equal('foo');

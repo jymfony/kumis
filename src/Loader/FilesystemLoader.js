@@ -42,15 +42,9 @@ class FilesystemLoader extends implementationOf(LoaderInterface) {
     /**
      * @inheritDoc
      */
-    async getSource(name) {
-        let cacheItem;
-        if (this._cache) {
-            const cacheKey = name.replace(/[{}()\/\\@:]/g, '_');
-            cacheItem = await this._cache.getItem(cacheKey);
-
-            if (cacheItem.isHit) {
-                return cacheItem.get();
-            }
+    async resolve(name) {
+        if (undefined !== this._pathsToNames[name]) {
+            return this._pathsToNames[name];
         }
 
         let fullpath = null;
@@ -72,7 +66,27 @@ class FilesystemLoader extends implementationOf(LoaderInterface) {
             return null;
         }
 
-        this._pathsToNames[fullpath] = name;
+        return this._pathsToNames[name] = fullpath;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    async getSource(name) {
+        let cacheItem;
+        if (this._cache) {
+            const cacheKey = name.replace(/[{}()\/\\@:]/g, '_');
+            cacheItem = await this._cache.getItem(cacheKey);
+
+            if (cacheItem.isHit) {
+                return cacheItem.get();
+            }
+        }
+
+        const fullpath = await this.resolve(name);
+        if (! fullpath) {
+            throw new RuntimeException(__jymfony.sprintf('Cannot find template "%s"', name));
+        }
 
         const f = await new File(fullpath).openFile('r');
         const source = {

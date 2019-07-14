@@ -57,7 +57,7 @@ describe('global', function() {
     });
 
     it('should allow addition of globals', async () => {
-        const env = new Environment();
+        const env = Environment.create();
         env.addExtension(new class extends AbstractExtension {
             get name() {
                 return 'test';
@@ -74,7 +74,7 @@ describe('global', function() {
     });
 
     it('should allow chaining of globals', async () => {
-        const env = new Environment();
+        const env = Environment.create();
         env.addExtension(new class extends AbstractExtension {
             get name() {
                 return 'test';
@@ -93,7 +93,7 @@ describe('global', function() {
     });
 
     it('should allow getting of globals', async () => {
-        const env = new Environment();
+        const env = Environment.create();
         const hello = arg1 => 'Hello ' + arg1;
         env.addExtension(new class extends AbstractExtension {
             get name() {
@@ -111,7 +111,7 @@ describe('global', function() {
     });
 
     it('should allow getting boolean globals', async () => {
-        const env = new Environment();
+        const env = Environment.create();
         const hello = false;
         env.addExtension(new class extends AbstractExtension {
             get name() {
@@ -129,7 +129,7 @@ describe('global', function() {
     });
 
     it('should pass context as this to global functions', async () => {
-        const env = new Environment();
+        const env = Environment.create();
         env.addExtension(new class extends AbstractExtension {
             get name() {
                 return 'test';
@@ -150,7 +150,7 @@ describe('global', function() {
     });
 
     it('should be exclusive to each environment', async () => {
-        const env = new Environment();
+        const env = Environment.create();
         env.addExtension(new class extends AbstractExtension {
             get name() {
                 return 'test';
@@ -163,12 +163,12 @@ describe('global', function() {
             }
         }());
 
-        const env2 = new Environment();
+        const env2 = Environment.create();
         expect(env2.globals.hello).to.be.undefined;
     });
 
     it('should return errors from globals', async () => {
-        const env = new Environment();
+        const env = Environment.create();
         env.addExtension(new class extends AbstractExtension {
             get name() {
                 return 'test';

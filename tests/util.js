@@ -34,7 +34,7 @@ async function render(str, ctx = {}, opts = {}, env = undefined) {
     opts = opts || {};
 
     const loader = new Loader(templatesPath);
-    const e = env || new Environment(loader, opts);
+    const e = env || Environment.create(loader, opts);
 
     if (opts.filters) {
         Object.assign(e.filters, opts.filters);
