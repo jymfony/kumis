@@ -37,28 +37,33 @@ describe('KumisExtension', function () {
         }
     });
 
-    // it('should pre-compile templates during warmup', async () => {
-    //     const kernel = new AppKernel({
-    //         paths: __dirname + '/../../templates',
-    //     });
-    //
-    //     try {
-    //         await kernel.boot();
-    //
-    //         const container = kernel.container.get('test.service_container');
-    //         await container.get('cache_warmer').warmUp(kernel.getCacheDir());
-    //         const cached = container.get(Kumis.Bundle.Loader.CachedLoader).resolve('item.kumis');
-    //
-    //         expect(cached).to.be.not.null;
-    //
-    //         const stream = new __jymfony.StreamBuffer();
-    //         await kernel.container.get('templating').render(stream, 'item.kumis', {
-    //             item: 'item',
-    //         });
-    //
-    //         expect(stream.buffer.toString()).to.be.equal('showing item');
-    //     } finally {
-    //         await kernel.shutdown();
-    //     }
-    // });
+    it('should pre-compile templates during warmup', async () => {
+        const kernel = new AppKernel({
+            paths: __dirname + '/../../templates',
+        });
+
+        try {
+            await kernel.boot();
+
+            const container = kernel.container.get('test.service_container');
+            const warmer = await container.get('cache_warmer');
+
+            warmer.enableOptionalWarmers();
+            warmer.warmUp(kernel.getCacheDir());
+
+            // TODO: re-enable this when new release of jf is published
+            // const cached = container.get(Kumis.Bundle.Loader.CachedLoader).resolve('item.kumis');
+            //
+            // expect(cached).to.be.not.null;
+
+            const stream = new __jymfony.StreamBuffer();
+            await kernel.container.get('templating').render(stream, 'item.kumis', {
+                item: 'item',
+            });
+
+            expect(stream.buffer.toString()).to.be.equal('showing item');
+        } finally {
+            await kernel.shutdown();
+        }
+    });
 });

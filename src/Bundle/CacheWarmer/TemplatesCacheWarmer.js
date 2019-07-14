@@ -59,6 +59,10 @@ class TemplatesCacheWarmer extends implementationOf(CacheWarmerInterface) {
 
             for (let [ i, templatePath ] of __jymfony.getEntries(this._paths)) {
                 templatePath = path.normalize(templatePath);
+                if (! existsSync(templatePath)) {
+                    continue;
+                }
+
                 const targetDir = __jymfony.sprintf('%s/kumis/templates/%02d', cacheDir, i);
                 __jymfony.mkdir(targetDir);
 
