@@ -19,6 +19,10 @@ class KumisExtension extends Extension {
         const loader = new JsFileLoader(container, new FileLocator(path.join(__dirname, '..', 'Resources', 'config')));
         loader.load('services.js');
 
+        if (ReflectionClass.exists('Jymfony.Component.Security.Security')) {
+            loader.load('security_extensions.js');
+        }
+
         const fsLoader = container.findDefinition(Kumis.Bundle.Loader.FilesystemLoader);
         fsLoader.replaceArgument(1, config.paths.map(path.normalize));
 

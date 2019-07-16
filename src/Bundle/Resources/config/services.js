@@ -37,3 +37,8 @@ container.register(Kumis.Bundle.CacheWarmer.TemplatesCacheWarmer)
     .addArgument(new Reference(Kumis.Environment))
     .addArgument([])
 ;
+
+container.register(Kumis.Bundle.View.ViewHandler)
+    .addTag('kernel.event_subscriber')
+    .addArgument(new Reference(Kumis.Bundle.Engine))
+;

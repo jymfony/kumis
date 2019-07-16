@@ -28,7 +28,17 @@ Kumis = {
         /**
          * @namespace
          */
+        Extension: {},
+
+        /**
+         * @namespace
+         */
         Loader: {},
+
+        /**
+         * @namespace
+         */
+        View: {},
     },
 
     /**

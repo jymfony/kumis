@@ -16,6 +16,14 @@ class AppKernel extends Kernel {
     async shutdown() {
         const fs = new Filesystem();
         await fs.remove(this.getCacheDir());
+
+        const cache = __jymfony.autoload._finder._require.cache;
+        const cacheDir = this.getCacheDir();
+        for (const path of Object.keys(cache)) {
+            if (path.startsWith(cacheDir)) {
+                delete cache[path];
+            }
+        }
     }
 
     * registerBundles() {
