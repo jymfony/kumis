@@ -35,6 +35,7 @@ class AppKernel extends Kernel {
         container.loadFromExtension('kumis', this._config);
         container.loadFromExtension('framework', {
             test: true,
+            debug: true,
             templating: {
                 engines: [ 'kumis', 'js' ],
             },

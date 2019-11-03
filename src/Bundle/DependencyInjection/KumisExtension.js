@@ -23,6 +23,10 @@ class KumisExtension extends Extension {
             loader.load('security_extensions.js');
         }
 
+        if (ReflectionClass.exists('Jymfony.Component.VarDumper.VarDumper')) {
+            loader.load('var_dumper_extensions.js');
+        }
+
         const fsLoader = container.findDefinition(Kumis.Bundle.Loader.FilesystemLoader);
         fsLoader.replaceArgument(1, config.paths.map(path.normalize));
 
