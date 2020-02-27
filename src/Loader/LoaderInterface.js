@@ -27,4 +27,4 @@ class LoaderInterface {
     invalidateCache() { }
 }
 
-module.exports = getInterface(LoaderInterface);
+export default getInterface(LoaderInterface);

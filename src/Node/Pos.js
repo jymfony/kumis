@@ -3,7 +3,5 @@ const UnaryOp = Kumis.Node.UnaryOp;
 /**
  * @memberOf Kumis.Node
  */
-class Pos extends UnaryOp {
+export default class Pos extends UnaryOp {
 }
-
-module.exports = Pos;

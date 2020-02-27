@@ -1,11 +1,11 @@
-const Response = Jymfony.Component.HttpFoundation.Response;
 const EventSubscriberInterface = Jymfony.Contracts.EventDispatcher.EventSubscriberInterface;
+const Response = Jymfony.Component.HttpFoundation.Response;
 const View = Kumis.Bundle.View.View;
 
 /**
  * @memberOf Kumis.Bundle.View
  */
-class ViewHandler extends implementationOf(EventSubscriberInterface) {
+export default class ViewHandler extends implementationOf(EventSubscriberInterface) {
     /**
      * Constructor.
      *
@@ -50,5 +50,3 @@ class ViewHandler extends implementationOf(EventSubscriberInterface) {
         }
     }
 }
-
-module.exports = ViewHandler;

@@ -1,12 +1,14 @@
+import { Writable } from 'stream';
+import { promisify } from 'util';
+
 const EngineInterface = Jymfony.Component.Templating.Engine.EngineInterface;
 const TemplateReferenceInterface = Jymfony.Component.Templating.TemplateReferenceInterface;
-const { promisify } = require('util');
-const streamOut = promisify(require('stream').Writable.prototype.write);
+const streamOut = promisify(Writable.prototype.write);
 
 /**
  * @memberOf Kumis.Bundle
  */
-class Engine extends implementationOf(EngineInterface) {
+export default class Engine extends implementationOf(EngineInterface) {
     /**
      * Constructor.
      *
@@ -50,5 +52,3 @@ class Engine extends implementationOf(EngineInterface) {
         return name.endsWith('.kumis');
     }
 }
-
-module.exports = Engine;

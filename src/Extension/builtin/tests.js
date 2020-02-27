@@ -9,11 +9,9 @@ const SafeString = Kumis.Util.SafeString;
  *
  * @returns {boolean}
  */
-function callable(value) {
+export function callable(value) {
     return isFunction(value);
 }
-
-exports.callable = callable;
 
 /**
  * Returns `true` if the object is strictly not `undefined`.
@@ -22,11 +20,9 @@ exports.callable = callable;
  *
  * @returns {boolean}
  */
-function defined(value) {
+export function defined(value) {
     return value !== undefined;
 }
-
-exports.defined = defined;
 
 /**
  * Returns `true` if the operand (one) is divisble by the test's argument (two).
@@ -36,11 +32,9 @@ exports.defined = defined;
  *
  * @returns {boolean}
  */
-function divisibleby(one, two) {
+export function divisibleby(one, two) {
     return 0 === (one % two);
 }
-
-exports.divisibleby = divisibleby;
 
 /**
  * Returns true if the string has been escaped (i.e., is a SafeString).
@@ -49,11 +43,9 @@ exports.divisibleby = divisibleby;
  *
  * @returns {boolean}
  */
-function escaped(value) {
+export function escaped(value) {
     return value instanceof SafeString;
 }
-
-exports.escaped = escaped;
 
 /**
  * Returns `true` if the arguments are strictly equal.
@@ -61,15 +53,13 @@ exports.escaped = escaped;
  * @param {*} one
  * @param {*} two
  */
-function equalto(one, two) {
+export function equalto(one, two) {
     return one === two;
 }
 
-exports.equalto = equalto;
-
 // Aliases
-exports.eq = exports.equalto;
-exports.sameas = exports.equalto;
+export const eq = equalto;
+export const sameas = equalto;
 
 /**
  * Returns `true` if the value is evenly divisible by 2.
@@ -78,11 +68,9 @@ exports.sameas = exports.equalto;
  *
  * @returns {boolean}
  */
-function even(value) {
+export function even(value) {
     return 0 === value % 2;
 }
-
-exports.even = even;
 
 /**
  * Returns `true` if the value is falsy - if I recall correctly, '', 0, false,
@@ -94,11 +82,9 @@ exports.even = even;
  *
  * @returns {boolean}
  */
-function falsy(value) {
+export function falsy(value) {
     return !value;
 }
-
-exports.falsy = falsy;
 
 /**
  * Returns `true` if the operand (one) is greater or equal to the test's
@@ -109,11 +95,9 @@ exports.falsy = falsy;
  *
  * @returns {boolean}
  */
-function ge(one, two) {
+export function ge(one, two) {
     return one >= two;
 }
-
-exports.ge = ge;
 
 /**
  * Returns `true` if the operand (one) is greater than the test's argument (two).
@@ -123,14 +107,12 @@ exports.ge = ge;
  *
  * @returns {boolean}
  */
-function greaterthan(one, two) {
+export function greaterthan(one, two) {
     return one > two;
 }
 
-exports.greaterthan = greaterthan;
-
 // Alias
-exports.gt = exports.greaterthan;
+export const gt = greaterthan;
 
 /**
  * Returns `true` if the operand (one) is less than or equal to the test's
@@ -141,11 +123,9 @@ exports.gt = exports.greaterthan;
  *
  * @returns {boolean}
  */
-function le(one, two) {
+export function le(one, two) {
     return one <= two;
 }
-
-exports.le = le;
 
 /**
  * Returns `true` if the operand (one) is less than the test's passed argument (two).
@@ -155,14 +135,12 @@ exports.le = le;
  *
  * @returns {boolean}
  */
-function lessthan(one, two) {
+export function lessthan(one, two) {
     return one < two;
 }
 
-exports.lessthan = lessthan;
-
 // Alias
-exports.lt = exports.lessthan;
+export const lt = lessthan;
 
 /**
  * Returns `true` if the string is lowercased.
@@ -171,11 +149,9 @@ exports.lt = exports.lessthan;
  *
  * @returns {boolean}
  */
-function lower(value) {
+export function lower(value) {
     return value.toLowerCase() === value;
 }
-
-exports.lower = lower;
 
 /**
  * Returns `true` if the operand (one) is less than or equal to the test's
@@ -186,11 +162,9 @@ exports.lower = lower;
  *
  * @returns {boolean}
  */
-function ne(one, two) {
+export function ne(one, two) {
     return one !== two;
 }
-
-exports.ne = ne;
 
 /**
  * Returns true if the value is strictly equal to `null`.
@@ -199,11 +173,9 @@ exports.ne = ne;
  *
  * @returns {boolean}
  */
-function nullTest(value) {
+export function nullTest(value) {
     return null === value;
 }
-
-exports.null = nullTest;
 
 /**
  * Returns true if value is a number.
@@ -212,11 +184,9 @@ exports.null = nullTest;
  *
  * @returns {boolean}
  */
-function number(value) {
+export function number(value) {
     return isNumber(value);
 }
-
-exports.number = number;
 
 /**
  * Returns `true` if the value is *not* evenly divisible by 2.
@@ -225,11 +195,9 @@ exports.number = number;
  *
  * @returns {boolean}
  */
-function odd(value) {
+export function odd(value) {
     return 1 === value % 2;
 }
-
-exports.odd = odd;
 
 /**
  * Returns `true` if the value is a string, `false` if not.
@@ -238,11 +206,9 @@ exports.odd = odd;
  *
  * @returns {boolean}
  */
-function string(value) {
+export function string(value) {
     return isString(value);
 }
-
-exports.string = string;
 
 /**
  * Returns `true` if the value is not in the list of things considered falsy:
@@ -252,11 +218,9 @@ exports.string = string;
  *
  * @returns {boolean}
  */
-function truthy(value) {
+export function truthy(value) {
     return !! value;
 }
-
-exports.truthy = truthy;
 
 /**
  * Returns `true` if the value is undefined.
@@ -265,11 +229,9 @@ exports.truthy = truthy;
  *
  * @returns {boolean}
  */
-function undefinedTest(value) {
+export function undefinedTest(value) {
     return value === undefined;
 }
-
-exports.undefined = undefinedTest;
 
 /**
  * Returns `true` if the string is uppercased.
@@ -278,11 +240,9 @@ exports.undefined = undefinedTest;
  *
  * @returns {boolean}
  */
-function upper(value) {
+export function upper(value) {
     return value.toUpperCase() === value;
 }
-
-exports.upper = upper;
 
 /**
  * Returns `true` if the value implements the `Symbol.iterator` method.
@@ -291,11 +251,9 @@ exports.upper = upper;
  *
  * @returns {boolean}
  */
-function iterable(value) {
+export function iterable(value) {
     return !! value[Symbol.iterator];
 }
-
-exports.iterable = iterable;
 
 /**
  * Returns `true` if the value is an object hash or an ES6 Map.
@@ -305,8 +263,6 @@ exports.iterable = iterable;
  *
  * @returns {boolean}
  */
-function mapping(value) {
+export function mapping(value) {
     return value instanceof Map || isObjectLiteral(value);
 }
-
-exports.mapping = mapping;

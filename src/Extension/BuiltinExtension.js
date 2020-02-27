@@ -1,14 +1,17 @@
+import * as filters from './builtin/filters';
+import * as tests from './builtin/tests';
+
 const AbstractExtension = Kumis.Extension.AbstractExtension;
 
-const filters = require('./builtin/filters');
-const tests = require('./builtin/tests');
+tests['null'] = tests.nullTest;
+tests['undefined'] = tests.undefinedTest;
 
 /**
  * This includes all the builtin globals, filters and tests.
  *
  * @memberOf Kumis.Extension
  */
-class BuiltinExtension extends AbstractExtension {
+export default class BuiltinExtension extends AbstractExtension {
     /**
      * @inheritDoc
      */
@@ -82,5 +85,3 @@ class BuiltinExtension extends AbstractExtension {
         return tests;
     }
 }
-
-module.exports = BuiltinExtension;

@@ -3,7 +3,7 @@ const UndefinedVariableError = Kumis.Exception.UndefinedVariableError;
 /**
  * @memberOf Kumis
  */
-class Context {
+export default class Context {
     /**
      * Constructor.
      *
@@ -88,5 +88,3 @@ class Context {
         return exported;
     }
 }
-
-module.exports = Context;

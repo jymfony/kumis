@@ -1,15 +1,15 @@
-const Compiler = Kumis.Compiler.Compiler;
+import { dirname, normalize, relative } from 'path';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
+
 const CacheWarmerInterface = Jymfony.Component.Kernel.CacheWarmer.CacheWarmerInterface;
+const Compiler = Kumis.Compiler.Compiler;
 const ConfigCacheFactory = Jymfony.Component.Config.ConfigCacheFactory;
-const RecursiveDirectoryIterator = Jymfony.Component.Config.Resource.Iterator.RecursiveDirectoryIterator;
 const FileResource = Jymfony.Component.Config.Resource.FileResource;
-const { readFileSync, writeFileSync, existsSync } = require('fs');
-const path = require('path');
 
 /**
  * @memberOf Kumis.Bundle.CacheWarmer
  */
-class TemplatesCacheWarmer extends implementationOf(CacheWarmerInterface) {
+export default class TemplatesCacheWarmer extends implementationOf(CacheWarmerInterface) {
     /**
      * Constructor.
      *
@@ -58,7 +58,7 @@ class TemplatesCacheWarmer extends implementationOf(CacheWarmerInterface) {
             const resources = [];
 
             for (let [ i, templatePath ] of __jymfony.getEntries(this._paths)) {
-                templatePath = path.normalize(templatePath);
+                templatePath = normalize(templatePath);
                 if (! existsSync(templatePath)) {
                     continue;
                 }
@@ -72,7 +72,7 @@ class TemplatesCacheWarmer extends implementationOf(CacheWarmerInterface) {
                         continue;
                     }
 
-                    const relativePath = path.relative(templatePath, file);
+                    const relativePath = relative(templatePath, file);
                     const code = Compiler.compile(
                         readFileSync(file, { encoding: 'utf-8' }),
                         this._environment.extensionsList,
@@ -81,8 +81,8 @@ class TemplatesCacheWarmer extends implementationOf(CacheWarmerInterface) {
                     );
 
                     const tPath = targetDir + '/' + relativePath + '.js';
-                    if (! existsSync(path.dirname(tPath))) {
-                        __jymfony.mkdir(path.dirname(tPath));
+                    if (! existsSync(dirname(tPath))) {
+                        __jymfony.mkdir(dirname(tPath));
                     }
 
                     writeFileSync(tPath, code);
@@ -103,5 +103,3 @@ class TemplatesCacheWarmer extends implementationOf(CacheWarmerInterface) {
         return true;
     }
 }
-
-module.exports = TemplatesCacheWarmer;

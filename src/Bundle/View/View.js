@@ -3,7 +3,7 @@ const Response = Jymfony.Component.HttpFoundation.Response;
 /**
  * @memberOf Kumis.Bundle.View
  */
-class View {
+export default class View {
     /**
      * Constructor.
      *
@@ -78,5 +78,3 @@ class View {
         return this._headers;
     }
 }
-
-module.exports = View;

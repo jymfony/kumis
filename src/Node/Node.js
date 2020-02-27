@@ -3,7 +3,7 @@ const NodeList = Kumis.Node.NodeList;
 /**
  * @memberOf Kumis.Node
  */
-class Node {
+export default class Node {
     /**
      * Constructor.
      *
@@ -91,5 +91,3 @@ class Node {
         }
     }
 }
-
-module.exports = Node;

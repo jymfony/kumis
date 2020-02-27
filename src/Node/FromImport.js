@@ -1,9 +1,10 @@
 const Node = Kumis.Node.Node;
+const NodeList = Kumis.Node.NodeList;
 
 /**
  * @memberOf Kumis.Node
  */
-class FromImport extends Node {
+export default class FromImport extends Node {
     __construct(lineno, colno, template, names, withContext) {
         super.__construct(lineno, colno, template, names || new NodeList(), withContext);
     }
@@ -12,5 +13,3 @@ class FromImport extends Node {
         return [ 'template', 'names', 'withContext' ];
     }
 }
-
-module.exports = FromImport;

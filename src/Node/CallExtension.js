@@ -4,7 +4,7 @@ const NodeList = Kumis.Node.NodeList;
 /**
  * @memberOf Kumis.Node
  */
-class CallExtension extends Node {
+export default class CallExtension extends Node {
     __construct(ext, prop, args, contentArgs, { autoescape = true } = {}) {
         super.__construct();
 
@@ -19,5 +19,3 @@ class CallExtension extends Node {
         return [ 'extName', 'prop', 'args', 'contentArgs' ];
     }
 }
-
-module.exports = CallExtension;

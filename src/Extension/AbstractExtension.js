@@ -6,7 +6,7 @@ const ExtensionInterface = Kumis.Extension.ExtensionInterface;
  * @memberOf Kumis.Extension
  * @abstract
  */
-class AbstractExtension extends implementationOf(ExtensionInterface) {
+export default class AbstractExtension extends implementationOf(ExtensionInterface) {
     /**
      * @inheritDoc
      */
@@ -46,5 +46,3 @@ class AbstractExtension extends implementationOf(ExtensionInterface) {
         ;
     }
 }
-
-module.exports = AbstractExtension;

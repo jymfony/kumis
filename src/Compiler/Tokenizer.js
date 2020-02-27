@@ -69,7 +69,7 @@ function token(type, value, lineno, colno) {
 /**
  * @memberOf Kumis.Compiler
  */
-class Tokenizer {
+export default class Tokenizer {
     __construct(str, opts = {}) {
         /**
          * Input string.
@@ -705,5 +705,3 @@ Tokenizer.TOKEN_NONE = TOKEN_NONE;
 Tokenizer.TOKEN_SYMBOL = TOKEN_SYMBOL;
 Tokenizer.TOKEN_SPECIAL = TOKEN_SPECIAL;
 Tokenizer.TOKEN_REGEX = TOKEN_REGEX;
-
-module.exports = Tokenizer;

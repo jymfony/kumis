@@ -1,12 +1,12 @@
-const HtmlDumper = Jymfony.Component.VarDumper.Dumper.HtmlDumper;
-const DumpTag = Kumis.Bundle.Extension.DumpTag;
 const AbstractExtension = Kumis.Extension.AbstractExtension;
+const DumpTag = Kumis.Bundle.Extension.DumpTag;
+const HtmlDumper = Jymfony.Component.VarDumper.Dumper.HtmlDumper;
 const SafeString = Kumis.Util.SafeString;
 
 /**
  * @memberOf Kumis.Bundle.Extension
  */
-class VarDumperExtension extends AbstractExtension {
+export default class VarDumperExtension extends AbstractExtension {
     /**
      * Constructor.
      *
@@ -94,5 +94,3 @@ class VarDumperExtension extends AbstractExtension {
         return SafeString.markSafe(buffer.buffer.toString());
     }
 }
-
-module.exports = VarDumperExtension;

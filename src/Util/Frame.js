@@ -8,7 +8,7 @@ Storage.prototype = {};
  *
  * @memberOf Kumis.Util
  */
-class Frame {
+export default class Frame {
     /**
      * Constructor.
      *
@@ -146,5 +146,3 @@ class Frame {
         return this.parent;
     }
 }
-
-module.exports = Frame;

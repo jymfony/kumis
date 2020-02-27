@@ -1,10 +1,10 @@
-const TagInterface = Kumis.Extension.TagInterface;
 const Node = Kumis.Node;
+const TagInterface = Kumis.Extension.TagInterface;
 
 /**
  * @memberOf Kumis.Bundle.Extension
  */
-class DumpTag extends implementationOf(TagInterface) {
+export default class DumpTag extends implementationOf(TagInterface) {
     /**
      * @inheritDoc
      */
@@ -23,5 +23,3 @@ class DumpTag extends implementationOf(TagInterface) {
         return 'dump';
     }
 }
-
-module.exports = DumpTag;

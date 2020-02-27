@@ -1,12 +1,12 @@
 const Compiler = Kumis.Compiler.Compiler;
 const Context = Kumis.Context;
-const TemplateError = Kumis.Exception.TemplateError;
 const Frame = Kumis.Util.Frame;
+const TemplateError = Kumis.Exception.TemplateError;
 
 /**
  * @memberOf Kumis
  */
-class Template {
+export default class Template {
     /**
      * Constructor.
      *
@@ -127,5 +127,3 @@ class Template {
         return blocks;
     }
 }
-
-module.exports = Template;

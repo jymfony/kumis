@@ -3,7 +3,5 @@ const NodeList = Kumis.Node.NodeList;
 /**
  * @memberOf Kumis.Node
  */
-class Output extends NodeList {
+export default class Output extends NodeList {
 }
-
-module.exports = Output;

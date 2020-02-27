@@ -1,9 +1,10 @@
+import { dirname, resolve } from 'path';
+
+const ArrayAdapter = Jymfony.Component.Cache.Adapter.ArrayAdapter;
 const BuiltinExtension = Kumis.Extension.BuiltinExtension;
 const FilesystemLoader = Kumis.Loader.FilesystemLoader;
 const Template = Kumis.Template;
-const ArrayAdapter = Jymfony.Component.Cache.Adapter.ArrayAdapter;
 
-const path = require('path');
 const Storage = function () {};
 Storage.prototype = {};
 
@@ -22,7 +23,7 @@ const noopTmplSrc = {
 /**
  * @memberOf Kumis
  */
-class Environment {
+export default class Environment {
     /**
      * Constructor.
      *
@@ -132,7 +133,7 @@ class Environment {
      */
     resolveTemplate(loader, parentName, filename) {
         if (parentName) {
-            filename = path.resolve(path.dirname(parentName), filename);
+            filename = resolve(dirname(parentName), filename);
         }
 
         return loader.resolve(filename);
@@ -205,5 +206,3 @@ class Environment {
         return tmpl.render(ctx);
     }
 }
-
-module.exports = Environment;

@@ -1,14 +1,14 @@
+import { normalize, resolve } from 'path';
+
 const LoaderInterface = Kumis.Loader.LoaderInterface;
 const File = Jymfony.Component.Filesystem.File;
 const Filesystem = Jymfony.Component.Filesystem.Filesystem;
-
-const fs = new Filesystem();
-const path = require('path');
+const { exists } = new Filesystem();
 
 /**
  * @memberOf Kumis.Loader
  */
-class FilesystemLoader extends implementationOf(LoaderInterface) {
+export default class FilesystemLoader extends implementationOf(LoaderInterface) {
     /**
      * Constructor.
      *
@@ -22,7 +22,7 @@ class FilesystemLoader extends implementationOf(LoaderInterface) {
         if (searchPaths) {
             searchPaths = isArray(searchPaths) ? searchPaths : [ searchPaths ];
             // For windows, convert to forward slashes
-            this._searchPaths = searchPaths.map(path.normalize);
+            this._searchPaths = searchPaths.map(normalize);
         } else {
             this._searchPaths = [ '.' ];
         }
@@ -51,12 +51,12 @@ class FilesystemLoader extends implementationOf(LoaderInterface) {
         const paths = this._searchPaths;
 
         for (let i = 0; i < paths.length; i++) {
-            const basePath = path.resolve(paths[i]);
-            const p = path.resolve(paths[i], name);
+            const basePath = resolve(paths[i]);
+            const p = resolve(paths[i], name);
 
             // Only allow the current directory and anything
             // Underneath it to be searched
-            if (0 === p.indexOf(basePath) && await fs.exists(p)) {
+            if (0 === p.indexOf(basePath) && await exists(p)) {
                 fullpath = p;
                 break;
             }
@@ -104,5 +104,3 @@ class FilesystemLoader extends implementationOf(LoaderInterface) {
         return source;
     }
 }
-
-module.exports = FilesystemLoader;

@@ -20,4 +20,4 @@ class TagInterface {
     get name() { }
 }
 
-module.exports = getInterface(TagInterface);
+export default getInterface(TagInterface);

@@ -4,7 +4,7 @@ const Reference = Jymfony.Component.DependencyInjection.Reference;
 /**
  * @memberOf Kumis.Bundle.DependencyInjection.CompilerPass
  */
-class AddExtensionPass extends implementationOf(CompilerPassInterface) {
+export default class AddExtensionPass extends implementationOf(CompilerPassInterface) {
     /**
      * @param {Jymfony.Component.DependencyInjection.ContainerBuilder} container
      */
@@ -15,5 +15,3 @@ class AddExtensionPass extends implementationOf(CompilerPassInterface) {
         }
     }
 }
-
-module.exports = AddExtensionPass;

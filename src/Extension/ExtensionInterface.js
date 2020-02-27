@@ -40,4 +40,4 @@ class ExtensionInterface {
     get name() { }
 }
 
-module.exports = getInterface(ExtensionInterface);
+export default getInterface(ExtensionInterface);

@@ -5,7 +5,7 @@
  *
  * @memberOf Kumis.Util
  */
-class SafeString extends String {
+export default class SafeString extends String {
     constructor(val) {
         if (! isString(val)) {
             return val;
@@ -59,5 +59,3 @@ class SafeString extends String {
         return target.toString();
     }
 }
-
-module.exports = SafeString;

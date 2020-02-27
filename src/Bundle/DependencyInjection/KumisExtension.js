@@ -1,13 +1,13 @@
+import { join, normalize } from 'path';
+
+const Extension = Jymfony.Component.DependencyInjection.Extension.Extension;
 const FileLocator = Jymfony.Component.Config.FileLocator;
 const JsFileLoader = Jymfony.Component.DependencyInjection.Loader.JsFileLoader;
-const Extension = Jymfony.Component.DependencyInjection.Extension.Extension;
-
-const path = require('path');
 
 /**
  * @memberOf Kumis.Bundle.DependencyInjection
  */
-class KumisExtension extends Extension {
+export default class KumisExtension extends Extension {
     /**
      * Load a configuration
      *
@@ -16,7 +16,7 @@ class KumisExtension extends Extension {
      */
     load(configs, container) {
         const config = this._processConfiguration(this.getConfiguration(configs, container), configs);
-        const loader = new JsFileLoader(container, new FileLocator(path.join(__dirname, '..', 'Resources', 'config')));
+        const loader = new JsFileLoader(container, new FileLocator(join(__dirname, '..', 'Resources', 'config')));
         loader.load('services.js');
 
         if (ReflectionClass.exists('Jymfony.Component.Security.Security')) {
@@ -28,11 +28,9 @@ class KumisExtension extends Extension {
         }
 
         const fsLoader = container.findDefinition(Kumis.Bundle.Loader.FilesystemLoader);
-        fsLoader.replaceArgument(1, config.paths.map(path.normalize));
+        fsLoader.replaceArgument(1, config.paths.map(normalize));
 
         container.findDefinition(Kumis.Bundle.CacheWarmer.TemplatesCacheWarmer)
-            .replaceArgument(2, config.paths.map(path.normalize));
+            .replaceArgument(2, config.paths.map(normalize));
     }
 }
-
-module.exports = KumisExtension;

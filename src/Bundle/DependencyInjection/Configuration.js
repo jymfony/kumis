@@ -1,12 +1,12 @@
 /* eslint-disable indent */
 
-const TreeBuilder = Jymfony.Component.Config.Definition.Builder.TreeBuilder;
 const ConfigurationInterface = Jymfony.Component.Config.Definition.ConfigurationInterface;
+const TreeBuilder = Jymfony.Component.Config.Definition.Builder.TreeBuilder;
 
 /**
  * @memberOf Kumis.Bundle.DependencyInjection
  */
-class Configuration extends implementationOf(ConfigurationInterface) {
+export default class Configuration extends implementationOf(ConfigurationInterface) {
     /**
      * @inheritdoc
      */
@@ -29,5 +29,3 @@ class Configuration extends implementationOf(ConfigurationInterface) {
         return treeBuilder;
     }
 }
-
-module.exports = Configuration;

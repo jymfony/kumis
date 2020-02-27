@@ -1,7 +1,7 @@
 /**
  * @memberOf Kumis.Exception
  */
-class TemplateError extends RuntimeException {
+export default class TemplateError extends RuntimeException {
     /**
      * Constructor
      *
@@ -51,5 +51,3 @@ class TemplateError extends RuntimeException {
         return obj;
     }
 }
-
-module.exports = TemplateError;

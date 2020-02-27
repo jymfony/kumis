@@ -3,8 +3,5 @@ const NodeList = Kumis.Node.NodeList;
 /**
  * @memberOf Kumis.Node
  */
-class Group extends NodeList {
-
+export default class Group extends NodeList {
 }
-
-module.exports = Group;

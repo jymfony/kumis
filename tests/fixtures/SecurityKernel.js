@@ -1,5 +1,4 @@
 const SecurityBundle = Jymfony.Bundle.SecurityBundle.SecurityBundle;
-const Response = Jymfony.Component.HttpFoundation.Response;
 const Route = Jymfony.Component.Routing.Route;
 const RouteCollection = Jymfony.Component.Routing.RouteCollection;
 const View = Kumis.Bundle.View.View;

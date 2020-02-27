@@ -1,12 +1,13 @@
-const LoaderInterface = Kumis.Loader.LoaderInterface;
+import { normalize } from 'path';
+import { runInThisContext } from 'vm';
+
 const File = Jymfony.Component.Filesystem.File;
-const { normalize } = require('path');
-const vm = require('vm');
+const LoaderInterface = Kumis.Loader.LoaderInterface;
 
 /**
  * @memberOf Kumis.Bundle.Loader
  */
-class CachedLoader extends implementationOf(LoaderInterface) {
+export default class CachedLoader extends implementationOf(LoaderInterface) {
     /**
      * Constructor.
      *
@@ -88,7 +89,7 @@ class CachedLoader extends implementationOf(LoaderInterface) {
         const source = {
             src: {
                 type: 'code',
-                obj: vm.runInThisContext('(function () { ' +  await f.fread(await f.getSize()) + ' })')()
+                obj: runInThisContext('(function () { ' +  await f.fread(await f.getSize()) + ' })')()
             },
             path: name,
         };
@@ -103,5 +104,3 @@ class CachedLoader extends implementationOf(LoaderInterface) {
         return source;
     }
 }
-
-module.exports = CachedLoader;

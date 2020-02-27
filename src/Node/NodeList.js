@@ -3,7 +3,7 @@ const Node = Kumis.Node.Node;
 /**
  * @memberOf Kumis.Node
  */
-class NodeList extends Node {
+export default class NodeList extends Node {
     __construct(lineno, colno, nodes = []) {
         super.__construct(lineno, colno, nodes || []);
     }
@@ -16,5 +16,3 @@ class NodeList extends Node {
         this.children.push(node);
     }
 }
-
-module.exports = NodeList;

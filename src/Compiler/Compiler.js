@@ -1,8 +1,9 @@
-const TemplateError = Kumis.Exception.TemplateError;
-const Parser = Kumis.Compiler.Parser;
-const Node = Kumis.Node;
+import { transform } from './transformer';
+
 const Frame = Kumis.Util.Frame;
-const transformer = require('./transformer');
+const Node = Kumis.Node;
+const Parser = Kumis.Compiler.Parser;
+const TemplateError = Kumis.Exception.TemplateError;
 
 // These are all the same for now, but shouldn't be passed straight through
 const compareOps = {
@@ -19,7 +20,7 @@ const compareOps = {
 /**
  * @memberOf Kumis.Compiler
  */
-class Compiler {
+export default class Compiler {
     /**
      * Constructor.
      *
@@ -1522,10 +1523,8 @@ class Compiler {
         const preprocessors = (extensions || []).map(ext => ext.preprocess).filter(f => !!f);
         const processedSrc = preprocessors.reduce((s, processor) => processor(s), src);
 
-        c.compile(transformer.transform(Parser.parse(processedSrc, extensions, opts), name));
+        c.compile(transform(Parser.parse(processedSrc, extensions, opts), name));
 
         return c.getCode();
     }
 }
-
-module.exports = Compiler;

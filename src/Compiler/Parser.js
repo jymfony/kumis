@@ -1,11 +1,11 @@
+const Node = Kumis.Node;
 const TemplateError = Kumis.Exception.TemplateError;
 const Tokenizer = Kumis.Compiler.Tokenizer;
-const Node = Kumis.Node;
 
 /**
  * @memberOf Kumis.Compiler
  */
-class Parser {
+export default class Parser {
     /**
      * Constructor.
      *
@@ -1261,5 +1261,3 @@ class Parser {
         return p.parseAsRoot();
     }
 }
-
-module.exports = Parser;

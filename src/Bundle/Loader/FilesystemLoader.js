@@ -3,7 +3,7 @@ const BaseLoader = Kumis.Loader.FilesystemLoader;
 /**
  * @memberOf Kumis.Bundle.Loader
  */
-class FilesystemLoader extends BaseLoader {
+export default class FilesystemLoader extends BaseLoader {
     /**
      * Constructor.
      *
@@ -37,5 +37,3 @@ class FilesystemLoader extends BaseLoader {
         return super.resolve(name);
     }
 }
-
-module.exports = FilesystemLoader;

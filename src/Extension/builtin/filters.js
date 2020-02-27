@@ -2,22 +2,20 @@ const TemplateError = Kumis.Exception.TemplateError;
 const Runtime = Kumis.Runtime;
 const SafeString = Kumis.Util.SafeString;
 
-exports = module.exports = {};
-
-function normalize(value, defaultValue) {
+export function normalize(value, defaultValue) {
     if (null === value || value === undefined || false === value) {
         return defaultValue;
     }
     return value;
 }
 
-exports.abs = Math.abs;
+export const abs = Math.abs;
 
-function isNaN(num) {
+export function isNaN(num) {
     return num !== num; // eslint-disable-line no-self-compare
 }
 
-function batch(arr, linecount, fillWith) {
+export function batch(arr, linecount, fillWith) {
     let i;
     const res = [];
     let tmp = [];
@@ -44,18 +42,14 @@ function batch(arr, linecount, fillWith) {
     return res;
 }
 
-exports.batch = batch;
-
-function capitalize(str) {
+export function capitalize(str) {
     str = normalize(str, '');
     const ret = str.toLowerCase();
 
     return SafeString.copy(str, ret.charAt(0).toUpperCase() + ret.slice(1));
 }
 
-exports.capitalize = capitalize;
-
-function center(str, width) {
+export function center(str, width) {
     str = normalize(str, '');
     width = width || 80;
 
@@ -70,20 +64,17 @@ function center(str, width) {
     return SafeString.copy(str, pre + str + post);
 }
 
-exports.center = center;
-
-function default_(val, def, bool) {
+export function defaultValue(val, def, bool) {
     if (bool) {
         return val || def;
     }
-    return (val !== undefined) ? val : def;
 
+    return (val !== undefined) ? val : def;
 }
 
-// TODO: it is confusing to export something called 'default'
-exports['default'] = default_; // eslint-disable-line dot-notation
+export default defaultValue;
 
-function dictsort(val, caseSensitive, by) {
+export function dictsort(val, caseSensitive, by) {
     if (! isObjectLiteral(val)) {
         throw new TemplateError('dictsort filter: val must be an object');
     }
@@ -123,15 +114,11 @@ function dictsort(val, caseSensitive, by) {
     return array;
 }
 
-exports.dictsort = dictsort;
-
-function dump(obj, spaces) {
+export function dump(obj, spaces) {
     return JSON.stringify(obj, null, spaces);
 }
 
-exports.dump = dump;
-
-function escape(str) {
+export function escape(str) {
     if (str instanceof SafeString) {
         return str;
     }
@@ -140,9 +127,7 @@ function escape(str) {
     return SafeString.markSafe(__jymfony.htmlentities(str.toString(), 'ENT_QUOTES'));
 }
 
-exports.escape = escape;
-
-function safe(str) {
+export function safe(str) {
     if (str instanceof SafeString) {
         return str;
     }
@@ -151,22 +136,16 @@ function safe(str) {
     return SafeString.markSafe(str.toString());
 }
 
-exports.safe = safe;
-
-function first(arr) {
+export function first(arr) {
     return arr[0];
 }
 
-exports.first = first;
-
-function forceEscape(str) {
+export function forceescape(str) {
     str = (null === str || str === undefined) ? '' : str;
     return SafeString.markSafe(__jymfony.htmlentities(str.toString(), 'ENT_QUOTES'));
 }
 
-exports.forceescape = forceEscape;
-
-function groupBy(obj, val) {
+export function groupby(obj, val) {
     const result = {};
     const iterator = isFunction(val) ? val : (o) => o[val];
 
@@ -179,9 +158,7 @@ function groupBy(obj, val) {
     return result;
 }
 
-exports.groupby = groupBy;
-
-function indent(str, width, indentfirst) {
+export function indent(str, width, indentfirst) {
     str = normalize(str, '');
 
     if ('' === str) {
@@ -200,9 +177,7 @@ function indent(str, width, indentfirst) {
     return SafeString.copy(str, res);
 }
 
-exports.indent = indent;
-
-function join(arr, del, attr) {
+export function join(arr, del, attr) {
     del = del || '';
 
     if (attr) {
@@ -212,15 +187,11 @@ function join(arr, del, attr) {
     return arr.join(del);
 }
 
-exports.join = join;
-
-function last(arr) {
+export function last(arr) {
     return arr[arr.length - 1];
 }
 
-exports.last = last;
-
-function lengthFilter(val) {
+export function length(val) {
     const value = normalize(val, '');
 
     if (value !== undefined) {
@@ -237,9 +208,7 @@ function lengthFilter(val) {
     return 0;
 }
 
-exports.length = lengthFilter;
-
-function list(val) {
+export function list(val) {
     if (isString(val)) {
         return val.split('');
     } else if (isObjectLiteral(val)) {
@@ -251,43 +220,31 @@ function list(val) {
 
 }
 
-exports.list = list;
-
-function lower(str) {
+export function lower(str) {
     str = normalize(str, '');
     return str.toLowerCase();
 }
 
-exports.lower = lower;
-
-function nl2br(str) {
+export function nl2br(str) {
     if (null === str || str === undefined) {
         return '';
     }
     return SafeString.copy(str, str.replace(/\r\n|\n/g, '<br />\n'));
 }
 
-exports.nl2br = nl2br;
-
-function random(arr) {
+export function random(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-exports.random = random;
-
-function rejectattr(arr, attr) {
+export function rejectattr(arr, attr) {
     return arr.filter((item) => !item[attr]);
 }
 
-exports.rejectattr = rejectattr;
-
-function selectattr(arr, attr) {
+export function selectattr(arr, attr) {
     return arr.filter((item) => !!item[attr]);
 }
 
-exports.selectattr = selectattr;
-
-function replace(str, old, new_, maxCount = -1) {
+export function replace(str, old, new_, maxCount = -1) {
     const originalStr = str;
 
     if (old instanceof RegExp) {
@@ -353,9 +310,7 @@ function replace(str, old, new_, maxCount = -1) {
     return SafeString.copy(originalStr, res);
 }
 
-exports.replace = replace;
-
-function reverse(val) {
+export function reverse(val) {
     let arr;
     if (isString(val)) {
         arr = list(val);
@@ -372,9 +327,7 @@ function reverse(val) {
     return arr;
 }
 
-exports.reverse = reverse;
-
-function round(val, precision, method) {
+export function round(val, precision, method) {
     precision = precision || 0;
     const factor = Math.pow(10, precision);
     let rounder;
@@ -390,9 +343,7 @@ function round(val, precision, method) {
     return rounder(val * factor) / factor;
 }
 
-exports.round = round;
-
-function slice(arr, slices, fillWith) {
+export function slice(arr, slices, fillWith) {
     const sliceLength = Math.floor(arr.length / slices);
     const extra = arr.length % slices;
     const res = [];
@@ -415,9 +366,7 @@ function slice(arr, slices, fillWith) {
     return res;
 }
 
-exports.slice = slice;
-
-function sum(arr, attr, start = 0) {
+export function sum(arr, attr, start = 0) {
     if (attr) {
         arr = Object.values(arr).map(v => v[attr]);
     }
@@ -425,9 +374,7 @@ function sum(arr, attr, start = 0) {
     return start + arr.reduce((a, b) => a + b, 0);
 }
 
-exports.sum = sum;
-
-exports.sort = Runtime.makeMacro(
+export const sort = Runtime.makeMacro(
     [ 'value', 'reverse', 'case_sensitive', 'attribute' ], [],
     (arr, reversed, caseSens, attr) => {
         // Copy it
@@ -454,13 +401,11 @@ exports.sort = Runtime.makeMacro(
         return array;
     });
 
-function string(obj) {
+export function string(obj) {
     return SafeString.copy(obj, obj);
 }
 
-exports.string = string;
-
-function striptags(input, preserveLinebreaks) {
+export function striptags(input, preserveLinebreaks) {
     input = normalize(input, '');
     const tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>|<!--[\s\S]*?-->/gi;
     const trimmedInput = trim(input.replace(tags, ''));
@@ -477,23 +422,17 @@ function striptags(input, preserveLinebreaks) {
     return SafeString.copy(input, res);
 }
 
-exports.striptags = striptags;
-
-function title(str) {
+export function title(str) {
     str = normalize(str, '');
     const words = str.split(' ').map(word => capitalize(word));
     return SafeString.copy(str, words.join(' '));
 }
 
-exports.title = title;
-
-function trim(str) {
+export function trim(str) {
     return SafeString.copy(str, str.replace(/^\s*|\s*$/g, ''));
 }
 
-exports.trim = trim;
-
-function truncate(input, length, killwords, end) {
+export function truncate(input, length, killwords, end) {
     const orig = input;
     input = normalize(input, '');
     length = length || 255;
@@ -517,16 +456,12 @@ function truncate(input, length, killwords, end) {
     return SafeString.copy(orig, input);
 }
 
-exports.truncate = truncate;
-
-function upper(str) {
+export function upper(str) {
     str = normalize(str, '');
     return str.toUpperCase();
 }
 
-exports.upper = upper;
-
-function urlencode(obj) {
+export function urlencode(obj) {
     const enc = encodeURIComponent;
     if (isString(obj)) {
         return enc(obj);
@@ -535,8 +470,6 @@ function urlencode(obj) {
     return keyvals.map(([ k, v ]) => `${enc(k)}=${enc(v)}`).join('&');
 
 }
-
-exports.urlencode = urlencode;
 
 // For the jinja regexp, see
 // https://github.com/mitsuhiko/jinja2/blob/f15b814dcba6aa12bc74d1f7d0c881d55f7126be/jinja2/utils.py#L20-L23
@@ -547,7 +480,7 @@ const httpHttpsRe = /^https?:\/\/.*$/;
 const wwwRe = /^www\./;
 const tldRe = /\.(?:org|net|com)(?:\:|\/|$)/;
 
-function urlize(str, length, nofollow) {
+export function urlize(str, length, nofollow) {
     if (isNaN(length)) {
         length = Infinity;
     }
@@ -589,30 +522,22 @@ function urlize(str, length, nofollow) {
     return words.join('');
 }
 
-exports.urlize = urlize;
-
-function wordcount(str) {
+export function wordcount(str) {
     str = normalize(str, '');
     const words = (str) ? str.match(/\w+/g) : null;
     return (words) ? words.length : null;
 }
 
-exports.wordcount = wordcount;
-
-function float(val, def) {
+export function float(val, def) {
     const res = parseFloat(val);
     return (isNaN(res)) ? def : res;
 }
 
-exports.float = float;
-
-function int(val, def) {
+export function int(val, def) {
     const res = parseInt(val, 10);
     return (isNaN(res)) ? def : res;
 }
 
-exports.int = int;
-
 // Aliases
-exports.d = exports.default;
-exports.e = exports.escape;
+export const d = defaultValue;
+export const e = escape;

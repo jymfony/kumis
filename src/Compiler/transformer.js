@@ -1,5 +1,3 @@
-'use strict';
-
 const Node = Kumis.Node;
 
 let sym = 0;
@@ -118,7 +116,7 @@ function liftFilters(ast) {
     });
 }
 
-function transform(ast) {
+export function transform(ast) {
     return walk(liftFilters(ast), (blockNode) => {
         if (!(blockNode instanceof Node.Block)) {
             return;
@@ -141,7 +139,3 @@ function transform(ast) {
         }
     });
 }
-
-module.exports = {
-    transform: transform,
-};

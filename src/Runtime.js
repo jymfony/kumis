@@ -1,13 +1,13 @@
+const SafeString = Kumis.Util.SafeString;
 const TemplateError = Kumis.Exception.TemplateError;
 const UndefinedVariableError = Kumis.Exception.UndefinedVariableError;
-const SafeString = Kumis.Util.SafeString;
 
 const kwArgsSymbol = Symbol('keywordArgs');
 
 /**
  * @memberOf Kumis
  */
-class Runtime {
+export default class Runtime {
     static makeMacro(argNames, kwargNames, func) {
         return (...macroArgs) => {
             const argCount = __self.numArgs(macroArgs);
@@ -176,5 +176,3 @@ class Runtime {
         throw new Error('Cannot use "in" operator to search for "' + key + '" in unexpected types.');
     }
 }
-
-module.exports = Runtime;

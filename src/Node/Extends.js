@@ -3,7 +3,5 @@ const TemplateRef = Kumis.Node.TemplateRef;
 /**
  * @memberOf Kumis.Node
  */
-class Extends extends TemplateRef {
+export default class Extends extends TemplateRef {
 }
-
-module.exports = Extends;

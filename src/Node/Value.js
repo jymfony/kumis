@@ -6,10 +6,8 @@ const Node = Kumis.Node.Node;
  * @memberOf Kumis.Node
  * @abstract
  */
-class Value extends Node {
+export default class Value extends Node {
     get fields() {
         return [ 'value' ];
     }
 }
-
-module.exports = Value;

@@ -3,7 +3,5 @@ const BinOp = Kumis.Node.BinOp;
 /**
  * @memberOf Kumis.Node
  */
-class Or extends BinOp {
+export default class Or extends BinOp {
 }
-
-module.exports = Or;

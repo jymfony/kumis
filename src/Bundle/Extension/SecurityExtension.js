@@ -5,7 +5,7 @@ const TokenInterface = Jymfony.Component.Security.Authentication.Token.TokenInte
 /**
  * @memberOf Kumis.Bundle.Extension
  */
-class SecurityExtension extends mix(AbstractExtension, EventSubscriberInterface, __jymfony.ClsTrait) {
+export default class SecurityExtension extends mix(AbstractExtension, EventSubscriberInterface, __jymfony.ClsTrait) {
     /**
      * Constructor.
      *
@@ -86,5 +86,3 @@ class SecurityExtension extends mix(AbstractExtension, EventSubscriberInterface,
         };
     }
 }
-
-module.exports = SecurityExtension;
