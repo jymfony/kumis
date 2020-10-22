@@ -24,6 +24,10 @@ export default class Configuration extends implementationOf(ConfigurationInterfa
                 .defaultValue([])
                 .scalarPrototype().end()
             .end()
+            .arrayNode('globals')
+                .defaultValue({})
+                .variablePrototype()
+            .end()
         ;
 
         return treeBuilder;

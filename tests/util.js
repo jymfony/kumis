@@ -1,10 +1,11 @@
+import { expect } from 'chai';
+
 const Environment = Kumis.Environment;
 const Loader = Kumis.Loader.FilesystemLoader;
 const Template = Kumis.Template;
 const templatesPath = 'tests/templates';
-const { expect } = require('chai');
 
-async function equal(str, ctx, opts, str2, env) {
+export async function equal(str, ctx, opts, str2, env) {
     if ('string' === typeof ctx) {
         env = opts;
         str2 = ctx;
@@ -22,7 +23,7 @@ async function equal(str, ctx, opts, str2, env) {
     expect(res).to.be.equal(str2);
 }
 
-function normEOL(str) {
+export function normEOL(str) {
     if (!str) {
         return str;
     }
@@ -30,7 +31,7 @@ function normEOL(str) {
     return str.replace(/\r\n|\r/g, '\n');
 }
 
-async function render(str, ctx = {}, opts = {}, env = undefined) {
+export async function render(str, ctx = {}, opts = {}, env = undefined) {
     opts = opts || {};
 
     const loader = new Loader(templatesPath);
@@ -51,7 +52,3 @@ async function render(str, ctx = {}, opts = {}, env = undefined) {
 
     return await t.render(ctx);
 }
-
-module.exports.render = render;
-module.exports.equal = equal;
-module.exports.normEOL = normEOL;

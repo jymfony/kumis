@@ -1,8 +1,8 @@
-import { dirname, normalize, relative } from 'path';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { dirname, normalize, relative } from 'path';
 
-const CacheWarmerInterface = Jymfony.Component.Kernel.CacheWarmer.CacheWarmerInterface;
 const Compiler = Kumis.Compiler.Compiler;
+const CacheWarmerInterface = Jymfony.Component.Kernel.CacheWarmer.CacheWarmerInterface;
 const ConfigCacheFactory = Jymfony.Component.Config.ConfigCacheFactory;
 const FileResource = Jymfony.Component.Config.Resource.FileResource;
 

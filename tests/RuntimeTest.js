@@ -1,5 +1,5 @@
-const { expect } = require('chai');
-const { render } = require('./util');
+import { expect } from 'chai';
+import { render } from './util';
 
 describe('Runtime', function() {
     it('should report the failed function calls to symbols', async () => {

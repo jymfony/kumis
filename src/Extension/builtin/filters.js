@@ -2,16 +2,16 @@ const TemplateError = Kumis.Exception.TemplateError;
 const Runtime = Kumis.Runtime;
 const SafeString = Kumis.Util.SafeString;
 
-export function normalize(value, defaultValue) {
+export const abs = Math.abs;
+
+function normalize(value, defaultValue) {
     if (null === value || value === undefined || false === value) {
         return defaultValue;
     }
     return value;
 }
 
-export const abs = Math.abs;
-
-export function isNaN(num) {
+function isNaN(num) {
     return num !== num; // eslint-disable-line no-self-compare
 }
 
@@ -64,15 +64,13 @@ export function center(str, width) {
     return SafeString.copy(str, pre + str + post);
 }
 
-export function defaultValue(val, def, bool) {
+export function default_(val, def, bool) {
     if (bool) {
         return val || def;
     }
 
     return (val !== undefined) ? val : def;
 }
-
-export default defaultValue;
 
 export function dictsort(val, caseSensitive, by) {
     if (! isObjectLiteral(val)) {
@@ -112,10 +110,6 @@ export function dictsort(val, caseSensitive, by) {
     });
 
     return array;
-}
-
-export function dump(obj, spaces) {
-    return JSON.stringify(obj, null, spaces);
 }
 
 export function escape(str) {
@@ -199,12 +193,15 @@ export function length(val) {
             // ECMAScript 2015 Maps and Sets
             return value.size;
         }
+
         if (isObjectLiteral(value) && ! (value instanceof SafeString)) {
             // Objects (besides SafeStrings), non-primative Arrays
             return __jymfony.keys(value).length;
         }
+
         return value.length;
     }
+
     return 0;
 }
 
@@ -216,19 +213,20 @@ export function list(val) {
     } else if (isArray(val)) {
         return val;
     }
+
     throw new TemplateError('list filter: type not iterable');
 
 }
 
 export function lower(str) {
-    str = normalize(str, '');
-    return str.toLowerCase();
+    return normalize(str, '').toLowerCase();
 }
 
 export function nl2br(str) {
     if (null === str || str === undefined) {
         return '';
     }
+
     return SafeString.copy(str, str.replace(/\r\n|\n/g, '<br />\n'));
 }
 
@@ -311,19 +309,13 @@ export function replace(str, old, new_, maxCount = -1) {
 }
 
 export function reverse(val) {
-    let arr;
-    if (isString(val)) {
-        arr = list(val);
-    } else {
-        // Copy it
-        arr = [ ...val ];
-    }
-
+    const arr = isString(val) ? list(val) : [ ...val ];
     arr.reverse();
 
     if (isString(val)) {
         return SafeString.copy(val, arr.join(''));
     }
+
     return arr;
 }
 
@@ -419,6 +411,7 @@ export function striptags(input, preserveLinebreaks) {
     } else {
         res = trimmedInput.replace(/\s+/gi, ' ');
     }
+
     return SafeString.copy(input, res);
 }
 
@@ -457,8 +450,7 @@ export function truncate(input, length, killwords, end) {
 }
 
 export function upper(str) {
-    str = normalize(str, '');
-    return str.toUpperCase();
+    return normalize(str, '').toUpperCase();
 }
 
 export function urlencode(obj) {
@@ -539,5 +531,5 @@ export function int(val, def) {
 }
 
 // Aliases
-export const d = defaultValue;
+export const d = default_;
 export const e = escape;

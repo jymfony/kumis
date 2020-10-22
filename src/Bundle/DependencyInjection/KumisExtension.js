@@ -1,8 +1,8 @@
 import { join, normalize } from 'path';
 
-const Extension = Jymfony.Component.DependencyInjection.Extension.Extension;
 const FileLocator = Jymfony.Component.Config.FileLocator;
 const JsFileLoader = Jymfony.Component.DependencyInjection.Loader.JsFileLoader;
+const Extension = Jymfony.Component.DependencyInjection.Extension.Extension;
 
 /**
  * @memberOf Kumis.Bundle.DependencyInjection
@@ -26,6 +26,10 @@ export default class KumisExtension extends Extension {
         if (ReflectionClass.exists('Jymfony.Component.VarDumper.VarDumper')) {
             loader.load('var_dumper_extensions.js');
         }
+
+        container.findDefinition(Kumis.Bundle.Extension.GlobalsExtension)
+            .replaceArgument(0, config.globals)
+        ;
 
         const fsLoader = container.findDefinition(Kumis.Bundle.Loader.FilesystemLoader);
         fsLoader.replaceArgument(1, config.paths.map(normalize));

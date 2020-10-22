@@ -14,6 +14,8 @@ class AppKernel extends Kernel {
     }
 
     async shutdown() {
+        await super.shutdown();
+
         const fs = new Filesystem();
         await fs.remove(this.getCacheDir());
 

@@ -2,11 +2,15 @@
 
 require('@jymfony/autoloader');
 
+const Runner = Jymfony.Component.Testing.Framework.Runner;
 const Debug = Jymfony.Component.Debug.Debug;
 Debug.enable();
 
-const Namespace = Jymfony.Component.Autoloader.Namespace;
-global.Tests = new Namespace(__jymfony.autoload, 'Tests', []);
-global.Tests.Fixtures = new Namespace(__jymfony.autoload, 'Tests.Fixtures', [ __dirname + '/tests/fixtures' ]);
+const [ , , ...argv ] = [ ...process.argv ];
+if (0 === argv.length) {
+    argv.push('tests/**/*Test.js');
+}
 
-require('mocha/bin/_mocha');
+process.argv = argv;
+
+new Runner().run();

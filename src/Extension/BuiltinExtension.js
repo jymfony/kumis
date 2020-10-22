@@ -1,10 +1,21 @@
-import * as filters from './builtin/filters';
-import * as tests from './builtin/tests';
+import * as builtinFilters from './builtin/filters';
+import * as builtinTests from './builtin/tests';
 
 const AbstractExtension = Kumis.Extension.AbstractExtension;
+const { default_ } = builtinFilters;
+const { nullTest, undefinedTest } = builtinTests;
 
-tests['null'] = tests.nullTest;
-tests['undefined'] = tests.undefinedTest;
+const filters = {};
+Object.assign(filters, builtinFilters);
+delete filters.default_;
+filters['default'] = default_;
+
+const tests = {};
+Object.assign(tests, builtinTests);
+delete tests.nullTest;
+delete tests.undefinedTest;
+tests['null'] = nullTest;
+tests['undefined'] = undefinedTest;
 
 /**
  * This includes all the builtin globals, filters and tests.

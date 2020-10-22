@@ -15,6 +15,11 @@ container.register(Kumis.Extension.BuiltinExtension)
     .addTag('kumis.extension')
 ;
 
+container.register(Kumis.Bundle.Extension.GlobalsExtension)
+    .addTag('kumis.extension')
+    .addArgument({})
+;
+
 container.register(Kumis.Bundle.Loader.CachedLoader)
     .addArgument('%kernel.cache_dir%/kumis/templates.js')
 ;

@@ -4,42 +4,42 @@
   "version": "0.1.0-dev",
   "author": "Alessandro Chitolina <alekitto@gmail.com>",
   "engines": {
-    "node": ">= 8.10.0"
+    "node": ">= 10"
   },
   "scripts": {
     "test:instrument": "nyc npm run test:runner",
-    "test:runner": "node ./tests.js --timeout 20s --recursive tests",
+    "test:runner": "./tests.js",
     "test": "npm run test:runner"
   },
   "flat": true,
   "main": "index",
   "dependencies": {
-    "@jymfony/autoloader": "^0.1.0-alpha.21",
-    "@jymfony/cache": "^0.1.0-alpha.21",
-    "@jymfony/datastructure": "^0.1.0-alpha.21",
-    "@jymfony/exceptions": "^0.1.0-alpha.21",
-    "@jymfony/filesystem": "^0.1.0-alpha.21",
-    "@jymfony/util": "^0.1.0-alpha.21"
+    "@jymfony/autoloader": "^0.1.0-alpha.28",
+    "@jymfony/cache": "^0.1.0-alpha.28",
+    "@jymfony/datastructure": "^0.1.0-alpha.28",
+    "@jymfony/exceptions": "^0.1.0-alpha.28",
+    "@jymfony/filesystem": "^0.1.0-alpha.28",
+    "@jymfony/util": "^0.1.0-alpha.28"
   },
   "typings": "types/index.d.ts",
   "devDependencies": {
-    "@jymfony/config": "^0.1.0-alpha.21",
-    "@jymfony/contracts": "^0.1.0-alpha.21",
-    "@jymfony/debug": "^0.1.0-alpha.21",
-    "@jymfony/dependency-injection": "^0.1.0-alpha.21",
-    "@jymfony/event-dispatcher": "^0.1.0-alpha.21",
-    "@jymfony/framework-bundle": "^0.1.0-alpha.21",
-    "@jymfony/http-foundation": "^0.1.0-alpha.21",
-    "@jymfony/http-server": "^0.1.0-alpha.21",
-    "@jymfony/kernel": "^0.1.0-alpha.21",
-    "@jymfony/routing": "^0.1.0-alpha.21",
-    "@jymfony/security": "^0.1.0-alpha.21",
-    "@jymfony/security-bundle": "^0.1.0-alpha.21",
-    "@jymfony/templating": "^0.1.0-alpha.21",
-    "@jymfony/testing": "^0.1.0-alpha.21",
-    "@jymfony/var-dumper": "^0.1.0-alpha.21",
+    "@jymfony/config": "^0.1.0-alpha.28",
+    "@jymfony/contracts": "^0.1.0-alpha.28",
+    "@jymfony/debug": "^0.1.0-alpha.28",
+    "@jymfony/dependency-injection": "^0.1.0-alpha.28",
+    "@jymfony/event-dispatcher": "^0.1.0-alpha.28",
+    "@jymfony/framework-bundle": "^0.1.0-alpha.28",
+    "@jymfony/http-foundation": "^0.1.0-alpha.28",
+    "@jymfony/http-server": "^0.1.0-alpha.28",
+    "@jymfony/kernel": "^0.1.0-alpha.28",
+    "@jymfony/routing": "^0.1.0-alpha.28",
+    "@jymfony/security": "^0.1.0-alpha.28",
+    "@jymfony/security-bundle": "^0.1.0-alpha.28",
+    "@jymfony/templating": "^0.1.0-alpha.28",
+    "@jymfony/testing": "^0.1.0-alpha.28",
+    "@jymfony/var-dumper": "^0.1.0-alpha.28",
     "chai": "^4.2.0",
-    "mocha": "*",
+    "mocha": "^6",
     "nyc": "^15.0.0"
   },
   "repository": {
@@ -50,6 +50,11 @@
     "jymfony-autoload": {
       "namespaces": {
         "Kumis": "src/"
+      }
+    },
+    "jymfony-autoload-dev": {
+      "namespaces": {
+        "Tests": "tests/"
       }
     }
   },

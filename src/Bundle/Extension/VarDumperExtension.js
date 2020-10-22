@@ -55,6 +55,15 @@ export default class VarDumperExtension extends AbstractExtension {
     }
 
     /**
+     * @inheritDoc
+     */
+    get filters() {
+        return {
+            dump: (val) => this._dump(val),
+        }
+    }
+
+    /**
      * Dumps variables from dump tag.
      *
      * @param {Kumis.Context} context

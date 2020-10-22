@@ -1,9 +1,8 @@
-import { Writable } from 'stream';
 import { promisify } from 'util';
 
 const EngineInterface = Jymfony.Component.Templating.Engine.EngineInterface;
 const TemplateReferenceInterface = Jymfony.Component.Templating.TemplateReferenceInterface;
-const streamOut = promisify(Writable.prototype.write);
+const streamOut = promisify(require('stream').Writable.prototype.write);
 
 /**
  * @memberOf Kumis.Bundle

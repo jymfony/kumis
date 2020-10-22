@@ -1,3 +1,5 @@
+const path = require("path");
+
 const SecurityBundle = Jymfony.Bundle.SecurityBundle.SecurityBundle;
 const Route = Jymfony.Component.Routing.Route;
 const RouteCollection = Jymfony.Component.Routing.RouteCollection;
@@ -54,6 +56,15 @@ class SecurityKernel extends AppKernel {
         ;
 
         return collection;
+    }
+
+    /**
+     * Get the application cache dir
+     *
+     * @returns {string}
+     */
+    getCacheDir() {
+        return path.normalize(path.join(this.getRootDir(), '..', 'var', 'cache-security', this.environment));
     }
 }
 

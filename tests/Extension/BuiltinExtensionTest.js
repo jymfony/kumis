@@ -1,11 +1,9 @@
+import { render, equal } from '../util';
+import { expect } from 'chai';
+
 const Environment = Kumis.Environment;
 const AbstractExtension = Kumis.Extension.AbstractExtension;
 const SafeString = Kumis.Util.SafeString;
-const { expect } = require('chai');
-const util = require('../util');
-
-render = util.render;
-equal = util.equal;
 
 describe('global', function() {
     it('should have range', async () => {
@@ -235,17 +233,6 @@ describe('filter', function () {
         await equal('{{ false | default("foo", true) }}', 'foo');
         await equal('{{ bar | default("foo") }}', 'foo');
         await equal('{{ "bar" | default("foo") }}', 'bar');
-    });
-
-    it('dump', async () => {
-        await equal('{{ [\'a\', 1, {b: true}] | dump  }}',
-            '[&quot;a&quot;,1,{&quot;b&quot;:true}]');
-        await equal('{{ [\'a\', 1, {b: true}] | dump(2) }}',
-            '[\n  &quot;a&quot;,\n  1,\n  {\n    &quot;b&quot;: true\n  }\n]');
-        await equal('{{ [\'a\', 1, {b: true}] | dump(4) }}',
-            '[\n    &quot;a&quot;,\n    1,\n    {\n        &quot;b&quot;: true\n    }\n]');
-        await equal('{{ [\'a\', 1, {b: true}] | dump(\'\t\') }}',
-            '[\n\t&quot;a&quot;,\n\t1,\n\t{\n\t\t&quot;b&quot;: true\n\t}\n]');
     });
 
     it('escape', async () => {

@@ -1,9 +1,8 @@
 import { transform } from './transformer';
-
-const Frame = Kumis.Util.Frame;
-const Node = Kumis.Node;
-const Parser = Kumis.Compiler.Parser;
 const TemplateError = Kumis.Exception.TemplateError;
+const Parser = Kumis.Compiler.Parser;
+const Node = Kumis.Node;
+const Frame = Kumis.Util.Frame;
 
 // These are all the same for now, but shouldn't be passed straight through
 const compareOps = {

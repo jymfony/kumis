@@ -25,7 +25,7 @@ declare namespace Kumis {
         /**
          * Creates a configured environment.
          */
-        static create(loader: LoaderInterface): Environment;
+        static create(loader?: LoaderInterface): Environment;
 
         invalidateCache(): void;
 

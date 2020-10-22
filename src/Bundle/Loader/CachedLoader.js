@@ -1,8 +1,8 @@
 import { normalize } from 'path';
 import { runInThisContext } from 'vm';
 
-const File = Jymfony.Component.Filesystem.File;
 const LoaderInterface = Kumis.Loader.LoaderInterface;
+const File = Jymfony.Component.Filesystem.File;
 
 /**
  * @memberOf Kumis.Bundle.Loader

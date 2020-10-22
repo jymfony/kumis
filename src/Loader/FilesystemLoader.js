@@ -3,12 +3,12 @@ import { normalize, resolve } from 'path';
 const LoaderInterface = Kumis.Loader.LoaderInterface;
 const File = Jymfony.Component.Filesystem.File;
 const Filesystem = Jymfony.Component.Filesystem.Filesystem;
-const { exists } = new Filesystem();
+const fs = new Filesystem();
 
 /**
  * @memberOf Kumis.Loader
  */
-export default class FilesystemLoader extends implementationOf(LoaderInterface) {
+class FilesystemLoader extends implementationOf(LoaderInterface) {
     /**
      * Constructor.
      *
@@ -56,7 +56,7 @@ export default class FilesystemLoader extends implementationOf(LoaderInterface) 
 
             // Only allow the current directory and anything
             // Underneath it to be searched
-            if (0 === p.indexOf(basePath) && await exists(p)) {
+            if (0 === p.indexOf(basePath) && await fs.exists(p)) {
                 fullpath = p;
                 break;
             }
@@ -104,3 +104,5 @@ export default class FilesystemLoader extends implementationOf(LoaderInterface) 
         return source;
     }
 }
+
+module.exports = FilesystemLoader;

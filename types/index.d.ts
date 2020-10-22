@@ -10,6 +10,7 @@
 /// <reference path="Bundle/DependencyInjection/Configuration.d.ts" />
 /// <reference path="Bundle/DependencyInjection/KumisExtension.d.ts" />
 /// <reference path="Bundle/Extension/DumpTag.d.ts" />
+/// <reference path="Bundle/Extension/GlobalsExtension.d.ts" />
 /// <reference path="Bundle/Extension/SecurityExtension.d.ts" />
 /// <reference path="Bundle/Extension/VarDumperExtension.d.ts" />
 /// <reference path="Bundle/Loader/CachedLoader.d.ts" />

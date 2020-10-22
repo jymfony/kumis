@@ -1,11 +1,12 @@
+import { expect } from 'chai';
+import * as util from './util';
+import * as path from 'path';
+
 const Prophet = Jymfony.Component.Testing.Prophet;
 const FilesystemLoader = Kumis.Loader.FilesystemLoader;
 const LoaderInterface = Kumis.Loader.LoaderInterface;
 const Environment = Kumis.Environment;
-const { expect } = require('chai');
-const util = require('./util');
 const templatesPath = 'tests/templates';
-const path = require('path');
 
 describe('Environment', function () {
     beforeEach(() => {

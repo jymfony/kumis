@@ -1,9 +1,9 @@
 import { dirname, resolve } from 'path';
 
-const ArrayAdapter = Jymfony.Component.Cache.Adapter.ArrayAdapter;
 const BuiltinExtension = Kumis.Extension.BuiltinExtension;
 const FilesystemLoader = Kumis.Loader.FilesystemLoader;
 const Template = Kumis.Template;
+const ArrayAdapter = Jymfony.Component.Cache.Adapter.ArrayAdapter;
 
 const Storage = function () {};
 Storage.prototype = {};
