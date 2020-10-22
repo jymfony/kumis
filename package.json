@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test:instrument": "nyc npm run test:runner",
-    "test:runner": "./tests.js",
+    "test:runner": "node ./tests.js",
     "test": "npm run test:runner"
   },
   "flat": true,
