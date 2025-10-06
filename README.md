@@ -1,6 +1,6 @@
 # Kumis
 
-[![Build Status](https://travis-ci.com/jymfony/kumis.svg?branch=master)](https://travis-ci.com/jymfony/kumis) [![Code Coverage](https://scrutinizer-ci.com/g/jymfony/kumis/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/jymfony/kumis/?branch=master)
+[![CI](https://github.com/jymfony/kumis/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/jymfony/kumis/actions/workflows/ci.yml) [![Code Coverage](https://scrutinizer-ci.com/g/jymfony/kumis/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/jymfony/kumis/?branch=master)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjymfony%2Fkumis.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjymfony%2Fkumis?ref=badge_shield)
 
 [Kumis](https://github.com/jymfony/kumis) is a full featured
