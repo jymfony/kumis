@@ -37,7 +37,7 @@
     "@jymfony/templating": "^0.1.0-alpha.32",
     "@jymfony/testing": "^0.1.0-alpha.32",
     "@jymfony/var-dumper": "^0.1.0-alpha.32",
-    "mocha": "^6",
+    "mocha": "^11",
     "nyc": "^15.0.0"
   },
   "repository": {
