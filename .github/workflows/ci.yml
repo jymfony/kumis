@@ -28,3 +28,17 @@ jobs:
 
       - name: Run test suite
         run: npm test
+        if: matrix.node-version != '22.x'
+
+      - name: Run coverage suite
+        run: npm run test:instrument
+        if: matrix.node-version == '22.x'
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: matrix.node-version == '22.x'
+        with:
+          files: ./coverage/lcov.info
+          flags: node-22
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
