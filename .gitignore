@@ -6,6 +6,5 @@ docs/_site
 docs/files
 /index.js
 .nyc_output
-package-lock.json
 yarn.lock
 tsconfig.json
