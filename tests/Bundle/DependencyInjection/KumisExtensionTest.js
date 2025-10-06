@@ -1,6 +1,7 @@
+import { expect } from 'chai';
+
 const AppKernel = Tests.Fixtures.AppKernel;
 const TestCase = Jymfony.Component.Testing.Framework.TestCase;
-const { expect } = require('chai');
 
 export default class KumisExtensionTest extends TestCase {
     __construct() {

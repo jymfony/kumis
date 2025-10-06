@@ -1,24 +1,30 @@
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import { expect } from 'chai';
+
 const ArrayAdapter = Jymfony.Component.Cache.Adapter.ArrayAdapter;
 const Environment = Kumis.Environment;
 const Filesystem = Jymfony.Component.Filesystem.Filesystem;
 const LoaderInterface = Kumis.Loader.LoaderInterface;
-const { expect } = require('chai');
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
+const TestCase = Jymfony.Component.Testing.Framework.TestCase;
 
-describe('Loader', function() {
-    let tempdir;
+export default class LoaderTest extends TestCase {
+    __construct() {
+        super.__construct();
 
-    before(() => {
-        tempdir = fs.mkdtempSync(path.join(os.tmpdir(), 'templates'));
-    });
+        this._tempdir = undefined;
+    }
 
-    after(async () => {
-        await new Filesystem().remove(tempdir);
-    });
+    before() {
+        this._tempdir = fs.mkdtempSync(path.join(os.tmpdir(), 'templates'));
+    }
 
-    it('should allow a simple loader to be created', async () => {
+    async after() {
+        await new Filesystem().remove(this._tempdir);
+    }
+
+    async testShouldAllowASimpleLoaderToBeCreated() {
         class MyLoader extends implementationOf(LoaderInterface) {
             getSource() {
                 return {
@@ -34,10 +40,9 @@ describe('Loader', function() {
         const env = Environment.create(new MyLoader());
         const parent = await env.getTemplate('fake.kumis');
         expect(await parent.render()).to.be.equal('Hello World');
-    });
+    }
 
-    it('should catch loader error', async () => {
-        // We should be able to create a loader that only exposes getSource
+    async testShouldCatchLoaderError() {
         class MyLoader extends implementationOf(LoaderInterface) {
             async getSource() {
                 await __jymfony.sleep(1);
@@ -51,34 +56,34 @@ describe('Loader', function() {
         const env = Environment.create(new MyLoader());
         try {
             await env.getTemplate('fake.kumis');
-        } catch(err) {
+        } catch (err) {
             expect(err).to.be.instanceOf(Error);
         }
-    });
+    }
 
-    it('should cache templates', async () => {
-        const TemplateLoader = new Kumis.Loader.FilesystemLoader(tempdir, new ArrayAdapter());
-        const e = Environment.create(TemplateLoader);
+    async testShouldCacheTemplates() {
+        const templateLoader = new Kumis.Loader.FilesystemLoader(this._tempdir, new ArrayAdapter());
+        const e = Environment.create(templateLoader);
 
-        fs.writeFileSync(tempdir + '/test.html', '{{ name }}', 'utf-8');
-        expect(await e.render('test.html', {name: 'foo'})).to.be.equal('foo');
-
-        Jymfony.Component.Filesystem.StreamWrapper.FileStreamWrapper.clearStatCache();
-
-        fs.writeFileSync(tempdir + '/test.html', '{{ name }}-changed', 'utf-8');
-        expect(await e.render('test.html', {name: 'foo'})).to.be.equal('foo');
-    });
-
-    it('should not cache templates by default', async () => {
-        const TemplateLoader = new Kumis.Loader.FilesystemLoader(tempdir);
-        const e = Environment.create(TemplateLoader);
-
-        fs.writeFileSync(tempdir + '/test.html', '{{ name }}', 'utf-8');
-        expect(await e.render('test.html', {name: 'foo'})).to.be.equal('foo');
+        fs.writeFileSync(this._tempdir + '/test.html', '{{ name }}', 'utf-8');
+        expect(await e.render('test.html', { name: 'foo' })).to.be.equal('foo');
 
         Jymfony.Component.Filesystem.StreamWrapper.FileStreamWrapper.clearStatCache();
 
-        fs.writeFileSync(tempdir + '/test.html', '{{ name }}-changed', 'utf-8');
-        expect(await e.render('test.html', {name: 'foo'})).to.be.equal('foo-changed');
-    });
-});
+        fs.writeFileSync(this._tempdir + '/test.html', '{{ name }}-changed', 'utf-8');
+        expect(await e.render('test.html', { name: 'foo' })).to.be.equal('foo');
+    }
+
+    async testShouldNotCacheTemplatesByDefault() {
+        const templateLoader = new Kumis.Loader.FilesystemLoader(this._tempdir);
+        const e = Environment.create(templateLoader);
+
+        fs.writeFileSync(this._tempdir + '/test.html', '{{ name }}', 'utf-8');
+        expect(await e.render('test.html', { name: 'foo' })).to.be.equal('foo');
+
+        Jymfony.Component.Filesystem.StreamWrapper.FileStreamWrapper.clearStatCache();
+
+        fs.writeFileSync(this._tempdir + '/test.html', '{{ name }}-changed', 'utf-8');
+        expect(await e.render('test.html', { name: 'foo' })).to.be.equal('foo-changed');
+    }
+}

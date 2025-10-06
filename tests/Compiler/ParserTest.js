@@ -1,11 +1,29 @@
+import chai from 'chai';
+
+const { expect } = chai;
+
 const Parser = Kumis.Compiler.Parser;
 const AbstractExtension = Kumis.Extension.AbstractExtension;
 const TagInterface = Kumis.Extension.TagInterface;
 const Node = Kumis.Node;
-const { expect } = require('chai');
+const TestCase = Jymfony.Component.Testing.Framework.TestCase;
 
-describe('Parser', function() {
-    it('should parse basic types', () => {
+chai.Assertion.addProperty('dump', function () {
+    const obj = this._obj;
+
+    return {
+        as: (expected) => {
+            const actualDump = obj && 'function' === typeof obj.dump ? obj.dump() : obj;
+            const expectedDump = expected && 'function' === typeof expected.dump ? expected.dump() : expected;
+
+            new chai.Assertion(actualDump).to.deep.equal(expectedDump);
+        },
+    };
+});
+
+export default class ParserTest extends TestCase {
+
+    testShouldParseBasicTypes() {
         expect(Parser.parse('{{ 1 }}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, 1) ]) ]));
 
@@ -32,9 +50,10 @@ describe('Parser', function() {
 
         expect(Parser.parse('{{ r/23/gi }}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, /23/gi) ]) ]));
-    });
+    }
 
-    it('should parse aggregate types', () => {
+
+    testShouldParseAggregateTypes() {
         expect(Parser.parse('{{ [1,2,3] }}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Array(0, 3, [
@@ -60,18 +79,20 @@ describe('Parser', function() {
                     new Node.Pair(0, 12, new Node.Literal(0, 12, 'two'), new Node.Literal(0, 19, 2)),
                 ]),
             ]) ]));
-    });
+    }
 
-    it('should parse variables', () => {
+
+    testShouldParseVariables() {
         expect(Parser.parse('hello {{ foo }}, how are you'))
             .dump.as(new Node.Root(0, 0, [
                 new Node.Output(0, 0, [ new Node.TemplateData(0, 0, 'hello ') ]),
                 new Node.Output(0, 6, [ new Node.SymbolNode(0, 9, 'foo') ]),
                 new Node.Output(0, 15, [ new Node.TemplateData(0, 15, ', how are you') ]),
             ]));
-    });
+    }
 
-    it('should parse operators', () => {
+
+    testShouldParseOperators() {
         expect(Parser.parse('{{ x == y }}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Compare(0, 5,
@@ -123,9 +144,10 @@ describe('Parser', function() {
                     )
                 ),
             ]) ]));
-    });
+    }
 
-    it('should parse tilde', () => {
+
+    testShouldParseTilde() {
         expect(Parser.parse('{{ 2 ~ 3 }}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Concat(0, 3,
@@ -133,9 +155,10 @@ describe('Parser', function() {
                     new Node.Literal(0, 7, 3)
                 ),
             ]) ]));
-    });
+    }
 
-    it('should parse operators with correct precedence', () => {
+
+    testShouldParseOperatorsWithCorrectPrecedence() {
         expect(Parser.parse('{{ x in y and z }}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.And(0, 3,
@@ -170,9 +193,10 @@ describe('Parser', function() {
                     ),
                 ),
             ]) ]));
-    });
+    }
 
-    it('should parse blocks', () => {
+
+    testShouldParseBlocks() {
         let n = Parser.parse('want some {% if hungry %}pizza{% else %}water{% endif %}?');
         expect(n.children[1].typename).to.be.equal('If');
 
@@ -187,9 +211,10 @@ describe('Parser', function() {
 
         n = Parser.parse('{% include "test.kumis" %}');
         expect(n.children[0].typename).to.be.equal('Include');
-    });
+    }
 
-    it('should accept attributes and methods of static arrays, objects and primitives', () => {
+
+    testShouldAcceptAttributesAndMethodsOfStaticArraysObjectsAndPrimitives() {
         expect(function() {
             Parser.parse('{{ ([1, 2, 3]).indexOf(1) }}');
         }).to.not.throw();
@@ -209,9 +234,10 @@ describe('Parser', function() {
         expect(function() {
             Parser.parse('{{ 1.618.toFixed(2) }}');
         }).to.not.throw();
-    });
+    }
 
-    it('should parse include tags', () => {
+
+    testShouldParseIncludeTags() {
         let n = Parser.parse('{% include "test.kumis" %}');
         expect(n.children[0].typename).to.be.equal('Include');
 
@@ -220,9 +246,10 @@ describe('Parser', function() {
 
         n = Parser.parse('{% include ""|default("test.kumis") %}');
         expect(n.children[0].typename).to.be.equal('Include');
-    });
+    }
 
-    it('should parse for loops', () => {
+
+    testShouldParseForLoops() {
         expect(Parser.parse('{% for x in [1, 2] %}{{ x }}{% endfor %}'))
             .dump.as(new Node.Root(0, 0, [
                 new Node.For(0, 3,
@@ -238,9 +265,10 @@ describe('Parser', function() {
                     ])
                 ),
             ]));
-    });
+    }
 
-    it('should parse for loops with else', () => {
+
+    testShouldParseForLoopsWithElse() {
         expect(Parser.parse('{% for x in [] %}{{ x }}{% else %}empty{% endfor %}'))
             .dump.as(new Node.Root(0, 0, [
                 new Node.For(0, 3,
@@ -258,9 +286,10 @@ describe('Parser', function() {
                     ])
                 ),
             ]));
-    });
+    }
 
-    it('should parse filters', () => {
+
+    testShouldParseFilters() {
         expect(Parser.parse('{{ foo | bar }}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Filter(0, 9,
@@ -296,9 +325,10 @@ describe('Parser', function() {
                     ])
                 ),
             ]) ]));
-    });
+    }
 
-    it('should parse macro definitions', () => {
+
+    testShouldParseMacroDefinitions() {
         const ast = Parser.parse('{% macro foo(bar, baz="foobar") %}' +
             'This is a macro' +
             '{% endmacro %}');
@@ -317,9 +347,10 @@ describe('Parser', function() {
                 )
             ),
         ]));
-    });
+    }
 
-    it('should parse call blocks', () => {
+
+    testShouldParseCallBlocks() {
         const ast = Parser.parse('{% call foo("bar") %}' +
             'This is the caller' +
             '{% endcall %}');
@@ -346,9 +377,10 @@ describe('Parser', function() {
                 ),
             ]),
         ]));
-    });
+    }
 
-    it('should parse call blocks with args', () => {
+
+    testShouldParseCallBlocksWithArgs() {
         const ast = Parser.parse('{% call(i) foo("bar", baz="foobar") %}' +
             'This is {{ i }}' +
             '{% endcall %}');
@@ -381,61 +413,69 @@ describe('Parser', function() {
                 ),
             ]),
         ]));
-    });
+    }
 
-    it('should parse raw', () => {
+
+    testShouldParseRaw() {
         expect(Parser.parse('{% raw %}hello {{ {% %} }}{% endraw %}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 7, [
                 new Node.TemplateData(0, 7, 'hello {{ {% %} }}'),
             ]) ]));
-    });
+    }
 
-    it('should parse raw with broken variables', () => {
+
+    testShouldParseRawWithBrokenVariables() {
         expect(Parser.parse('{% raw %}{{ x }}{% endraw %}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 7, [
                 new Node.TemplateData(0, 7, '{{ x }}'),
             ]) ]));
-    });
+    }
 
-    it('should parse raw with broken blocks', () => {
+
+    testShouldParseRawWithBrokenBlocks() {
         expect(Parser.parse('{% raw %}{% if i_am_stupid }Still do your job well{% endraw %}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 7, [
                 new Node.TemplateData(0, 7, '{% if i_am_stupid }Still do your job well'),
             ]) ]));
-    });
+    }
 
-    it('should parse raw with pure text', () => {
+
+    testShouldParseRawWithPureText() {
         expect(Parser.parse('{% raw %}abc{% endraw %}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 7, [
                 new Node.TemplateData(0, 7, 'abc'),
             ]) ]));
-    });
+    }
 
 
-    it('should parse raw with raw blocks', () => {
+
+    testShouldParseRawWithRawBlocks() {
         expect(Parser.parse('{% raw %}{% raw %}{{ x }{% endraw %}{% endraw %}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 7, [
                 new Node.TemplateData(0, 7, '{% raw %}{{ x }{% endraw %}'),
             ]) ]));
-    });
+    }
 
-    it('should parse raw with comment blocks', () => {
+
+    testShouldParseRawWithCommentBlocks() {
         expect(Parser.parse('{% raw %}{# test {% endraw %}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 7, [
                 new Node.TemplateData(0, 7, '{# test '),
             ]) ]));
-    });
+    }
 
-    it('should parse multiple raw blocks', () => {
+
+    testShouldParseMultipleRawBlocks() {
         expect(Parser.parse('{% raw %}{{ var }}{% endraw %}{{ var }}{% raw %}{{ var }}{% endraw %}'))
             .dump.as(new Node.Root(0, 0, [
                 new Node.Output(0, 7, [ new Node.TemplateData(0, 7, '{{ var }}') ]),
                 new Node.Output(0, 30, [ new Node.SymbolNode(0, 33, 'var') ]),
                 new Node.Output(0, 46, [ new Node.TemplateData(0, 46, '{{ var }}') ]),
             ]));
-    });
+    }
 
-    it('should parse multiline multiple raw blocks', () => {
+
+    testShouldParseMultilineMultipleRawBlocks() {
         expect(Parser.parse('\n{% raw %}{{ var }}{% endraw %}\n{{ var }}\n{% raw %}{{ var }}{% endraw %}\n'))
             .dump.as(new Node.Root(0, 0, [
                 new Node.Output(0, 0, [ new Node.TemplateData(0, 0, '\n') ]),
@@ -446,61 +486,69 @@ describe('Parser', function() {
                 new Node.Output(3, 7, [ new Node.TemplateData(3, 7, '{{ var }}') ]),
                 new Node.Output(3, 30, [ new Node.TemplateData(3, 30, '\n') ]),
             ]));
-    });
+    }
 
-    it('should parse verbatim', () => {
+
+    testShouldParseVerbatim() {
         expect(Parser.parse('{% verbatim %}hello {{ {% %} }}{% endverbatim %}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 12, [
                 new Node.TemplateData(0, 12, 'hello {{ {% %} }}'),
             ]) ]));
-    });
+    }
 
-    it('should parse verbatim with broken variables', () => {
+
+    testShouldParseVerbatimWithBrokenVariables() {
         expect(Parser.parse('{% verbatim %}{{ x }{% endverbatim %}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 12, [
                 new Node.TemplateData(0, 12, '{{ x }'),
             ]) ]));
-    });
+    }
 
-    it('should parse verbatim with broken blocks', () => {
+
+    testShouldParseVerbatimWithBrokenBlocks() {
         expect(Parser.parse('{% verbatim %}{% if i_am_stupid }Still do your job well{% endverbatim %}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 12, [
                 new Node.TemplateData(0, 12, '{% if i_am_stupid }Still do your job well'),
             ]) ]));
-    });
+    }
 
-    it('should parse verbatim with pure text', () => {
+
+    testShouldParseVerbatimWithPureText() {
         expect(Parser.parse('{% verbatim %}abc{% endverbatim %}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 12, [
                 new Node.TemplateData(0, 12, 'abc'),
             ]) ]));
-    });
+    }
 
 
-    it('should parse verbatim with verbatim blocks', () => {
+
+    testShouldParseVerbatimWithVerbatimBlocks() {
         expect(Parser.parse('{% verbatim %}{% verbatim %}{{ x }{% endverbatim %}{% endverbatim %}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 12, [
                 new Node.TemplateData(0, 12, '{% verbatim %}{{ x }{% endverbatim %}'),
             ]) ]));
-    });
+    }
 
-    it('should parse verbatim with comment blocks', () => {
+
+    testShouldParseVerbatimWithCommentBlocks() {
         expect(Parser.parse('{% verbatim %}{# test {% endverbatim %}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 12, [
                 new Node.TemplateData(0, 12, '{# test '),
             ]) ]));
-    });
+    }
 
-    it('should parse multiple verbatim blocks', () => {
+
+    testShouldParseMultipleVerbatimBlocks() {
         expect(Parser.parse('{% verbatim %}{{ var }}{% endverbatim %}{{ var }}{% verbatim %}{{ var }}{% endverbatim %}'))
             .dump.as(new Node.Root(0, 0, [
                 new Node.Output(0, 12, [ new Node.TemplateData(0, 12, '{{ var }}') ]),
                 new Node.Output(0, 40, [ new Node.SymbolNode(0, 43, 'var') ]),
                 new Node.Output(0, 61, [ new Node.TemplateData(0, 61, '{{ var }}') ]),
             ]));
-    });
+    }
 
-    it('should parse multiline multiple verbatim blocks', () => {
+
+    testShouldParseMultilineMultipleVerbatimBlocks() {
         expect(Parser.parse('\n{% verbatim %}{{ var }}{% endverbatim %}\n{{ var }}\n{% verbatim %}{{ var }}{% endverbatim %}\n'))
             .dump.as(new Node.Root(0, 0, [
                 new Node.Output(0, 0, [ new Node.TemplateData(0, 0, '\n') ]),
@@ -511,9 +559,10 @@ describe('Parser', function() {
                 new Node.Output(3, 12, [ new Node.TemplateData(3, 12, '{{ var }}') ]),
                 new Node.Output(3, 40, [ new Node.TemplateData(3, 40, '\n') ]),
             ]));
-    });
+    }
 
-    it('should parse switch statements', () => {
+
+    testShouldParseSwitchStatements() {
         const tpl = '{% switch foo %}{% case "bar" %}BAR{% case "baz" %}BAZ{% default %}NEITHER FOO NOR BAR{% endswitch %}';
         expect(Parser.parse(tpl))
             .dump.as(new Node.Root(0, 0, [
@@ -532,9 +581,10 @@ describe('Parser', function() {
                     new Node.NodeList(0, 0, [ new Node.Output(0, 67, [ new Node.TemplateData(0, 67, 'NEITHER FOO NOR BAR') ]) ])
                 ),
             ]));
-    });
+    }
 
-    it('should parse keyword and non-keyword arguments', () => {
+
+    testShouldParseKeywordAndNonKeywordArguments() {
         expect(Parser.parse('{{ foo("bar", falalalala, baz="foobar") }}'))
             .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.FunCall(0, 6,
@@ -548,9 +598,10 @@ describe('Parser', function() {
                     ])
                 ),
             ]) ]));
-    });
+    }
 
-    it('should parse imports', () => {
+
+    testShouldParseImports() {
         expect(Parser.parse('{% import "foo/bar.kumis" as baz %}'))
             .dump.as(new Node.Root(0, 0, [
                 new Node.Import(0, 3,
@@ -601,9 +652,10 @@ describe('Parser', function() {
                     ])
                 ),
             ]));
-    });
+    }
 
-    it('should parse whitespace control', () => {
+
+    testShouldParseWhitespaceControl() {
         // Every start/end tag with "-" should trim the whitespace
         // Before or after it
 
@@ -740,9 +792,10 @@ describe('Parser', function() {
                     ])
                 ),
             ]));
-    });
+    }
 
-    it('should throw errors', () => {
+
+    testShouldThrowErrors() {
         expect(function() {
             Parser.parse('hello {{ foo');
         }).to.throw(/expected variable end/);
@@ -794,9 +847,10 @@ describe('Parser', function() {
         expect(function() {
             Parser.parse('{% from "foo" import _bar %}');
         }).to.throw(/names starting with an underscore cannot be imported/);
-    });
+    }
 
-    it('should parse custom tags', () => {
+
+    testShouldParseCustomTags() {
         class TestTagExtension extends AbstractExtension {
             get tags() {
                 return [
@@ -923,5 +977,5 @@ describe('Parser', function() {
             .dump.as(new Node.Root(0, 0, [
                 new Node.CallExtension(extensions[2], 'biz', null),
             ]));
-    });
-});
+    }
+}

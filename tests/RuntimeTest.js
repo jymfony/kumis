@@ -1,44 +1,46 @@
 import { expect } from 'chai';
 import { render } from './util';
 
-describe('Runtime', function() {
-    it('should report the failed function calls to symbols', async () => {
+const TestCase = Jymfony.Component.Testing.Framework.TestCase;
+
+export default class RuntimeTest extends TestCase {
+    async testShouldReportTheFailedFunctionCallsToSymbols() {
         try {
             await render('{{ foo("cvan") }}', { foo: undefined });
             throw new Error('FAIL');
         } catch (err) {
             expect(err).to.match(/Unable to call `foo`, which is undefined/);
         }
-    });
+    }
 
-    it('should report the failed function calls to lookups', async () => {
+    async testShouldReportTheFailedFunctionCallsToLookups() {
         try {
             await render('{{ foo["bar"]("cvan") }}', { foo: {} });
             throw new Error('FAIL');
         } catch (err) {
             expect(err).to.match(/foo\["bar"\]/);
         }
-    });
+    }
 
-    it('should report the failed function calls to calls', async () => {
+    async testShouldReportTheFailedFunctionCallsToCalls() {
         try {
             await render('{{ foo.bar("second call") }}', { foo: null });
             throw new Error('FAIL');
         } catch (err) {
             expect(err).to.match(/foo\["bar"\]/);
         }
-    });
+    }
 
-    it('should report full function name in error', async () => {
+    async testShouldReportFullFunctionNameInError() {
         try {
             await render('{{ foo.barThatIsLongerThanTen() }}', { foo: null });
             throw new Error('FAIL');
         } catch (err) {
             expect(err).to.match(/foo\["barThatIsLongerThanTen"\]/);
         }
-    });
+    }
 
-    it('should report the failed function calls w/multiple args', async () => {
+    async testShouldReportTheFailedFunctionCallsWithMultipleArgs() {
         try {
             await render('{{ foo.bar("multiple", "args") }}', { foo: null });
             throw new Error('FAIL');
@@ -47,14 +49,14 @@ describe('Runtime', function() {
         }
 
         try {
-            await render('{{ foo["bar"]["zip"]("multiple", "args") }}', { foo: { bar: null }});
+            await render('{{ foo["bar"]["zip"]("multiple", "args") }}', { foo: { bar: null } });
             throw new Error('FAIL');
         } catch (err) {
             expect(err).to.match(/foo\["bar"\]\["zip"\]/);
         }
-    });
+    }
 
-    it('should allow for objects without a prototype macro arguments in the last position', async () => {
+    async testShouldAllowForObjectsWithoutAPrototypeMacroArgumentsInTheLastPosition() {
         const noProto = Object.create(null);
         noProto.qux = 'world';
 
@@ -63,5 +65,5 @@ describe('Runtime', function() {
             '{{ foo("hello", noProto) }}', {
             noProto: noProto,
         })).to.equal('hello world');
-    });
-});
+    }
+}
