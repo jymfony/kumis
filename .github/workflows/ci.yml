@@ -36,7 +36,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
-        if: matrix.node-version == '22.x'
+        if: matrix.node-version == '22.x' && github.repository == 'jymfony/kumis'
         with:
           files: ./coverage/lcov.info
           flags: node-22
