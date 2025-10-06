@@ -14,11 +14,13 @@
   "dependencies": {
     "@jymfony/autoloader": "^0.1.0-alpha.32",
     "@jymfony/cache": "^0.1.0-alpha.32",
-    "@jymfony/compiler": "^0.5.0",
     "@jymfony/datastructure": "^0.1.0-alpha.32",
     "@jymfony/exceptions": "^0.1.0-alpha.32",
     "@jymfony/filesystem": "^0.1.0-alpha.32",
     "@jymfony/util": "^0.1.0-alpha.32"
+  },
+  "peerDependencies": {
+    "@jymfony/compiler": "^0.5.0"
   },
   "typings": "types/index.d.ts",
   "devDependencies": {
