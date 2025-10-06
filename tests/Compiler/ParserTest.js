@@ -1,166 +1,127 @@
-import chai from 'chai';
-
-const { expect } = chai;
-
 const Parser = Kumis.Compiler.Parser;
 const AbstractExtension = Kumis.Extension.AbstractExtension;
 const TagInterface = Kumis.Extension.TagInterface;
 const Node = Kumis.Node;
 const TestCase = Jymfony.Component.Testing.Framework.TestCase;
+const VarDumperTestTrait = Jymfony.Component.VarDumper.Test.VarDumperTestTrait;
 
-chai.Assertion.addProperty('dump', function () {
-    const obj = this._obj;
-
-    return {
-        as: (expected) => {
-            const actualDump = obj && 'function' === typeof obj.dump ? obj.dump() : obj;
-            const expectedDump = expected && 'function' === typeof expected.dump ? expected.dump() : expected;
-
-            new chai.Assertion(actualDump).to.deep.equal(expectedDump);
-        },
-    };
-});
-
-export default class ParserTest extends TestCase {
-
+export default class ParserTest extends mix(TestCase, VarDumperTestTrait) {
     testShouldParseBasicTypes() {
-        expect(Parser.parse('{{ 1 }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, 1) ]) ]));
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, 1) ]) ]), Parser.parse('{{ 1 }}'));
 
-        expect(Parser.parse('{{ 4.567 }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, 4.567) ]) ]));
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, 4.567) ]) ]), Parser.parse('{{ 4.567 }}'));
 
-        expect(Parser.parse('{{ "foo" }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, 'foo') ]) ]));
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, 'foo') ]) ]), Parser.parse('{{ "foo" }}'));
 
-        expect(Parser.parse('{{ \'foo\' }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, 'foo') ]) ]));
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, 'foo') ]) ]), Parser.parse('{{ \'foo\' }}'));
 
-        expect(Parser.parse('{{ true }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, true) ]) ]));
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, true) ]) ]), Parser.parse('{{ true }}'));
 
-        expect(Parser.parse('{{ false }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, false) ]) ]));
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, false) ]) ]), Parser.parse('{{ false }}'));
 
-        expect(Parser.parse('{{ none }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, null) ]) ]));
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, null) ]) ]), Parser.parse('{{ none }}'));
 
-        expect(Parser.parse('{{ foo }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.SymbolNode(0, 3, 'foo') ]) ]));
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.SymbolNode(0, 3, 'foo') ]) ]), Parser.parse('{{ foo }}'));
 
-        expect(Parser.parse('{{ r/23/gi }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, /23/gi) ]) ]));
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [ new Node.Literal(0, 3, /23/gi) ]) ]), Parser.parse('{{ r/23/gi }}'));
     }
 
-
     testShouldParseAggregateTypes() {
-        expect(Parser.parse('{{ [1,2,3] }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Array(0, 3, [
                     new Node.Literal(0, 4, 1),
                     new Node.Literal(0, 6, 2),
                     new Node.Literal(0, 8, 3),
                 ]),
-            ]) ]));
+            ]) ]), Parser.parse('{{ [1,2,3] }}'));
 
-        expect(Parser.parse('{{ (1,2,3) }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Group(0, 3, [
                     new Node.Literal(0, 4, 1),
                     new Node.Literal(0, 6, 2),
                     new Node.Literal(0, 8, 3),
                 ]),
-            ]) ]));
+            ]) ]), Parser.parse('{{ (1,2,3) }}'));
 
-        expect(Parser.parse('{{ {foo: 1, \'two\': 2} }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Dict(0, 3, [
                     new Node.Pair(0, 4, new Node.SymbolNode(0, 4, 'foo'), new Node.Literal(0, 9, 1)),
                     new Node.Pair(0, 12, new Node.Literal(0, 12, 'two'), new Node.Literal(0, 19, 2)),
                 ]),
-            ]) ]));
+            ]) ]), Parser.parse('{{ {foo: 1, \'two\': 2} }}'));
     }
 
 
     testShouldParseVariables() {
-        expect(Parser.parse('hello {{ foo }}, how are you'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.Output(0, 0, [ new Node.TemplateData(0, 0, 'hello ') ]),
                 new Node.Output(0, 6, [ new Node.SymbolNode(0, 9, 'foo') ]),
                 new Node.Output(0, 15, [ new Node.TemplateData(0, 15, ', how are you') ]),
-            ]));
+            ]), Parser.parse('hello {{ foo }}, how are you'));
     }
 
 
     testShouldParseOperators() {
-        expect(Parser.parse('{{ x == y }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Compare(0, 5,
                     new Node.SymbolNode(0, 3, 'x'),
                     [ new Node.CompareOperand(0, 5, new Node.SymbolNode(0, 8, 'y'), '==') ]
                 ),
-            ]) ]));
+            ]) ]), Parser.parse('{{ x == y }}'));
 
-        expect(Parser.parse('{{ x or y }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Or(0, 3,
                     new Node.SymbolNode(0, 3, 'x'),
                     new Node.SymbolNode(0, 8, 'y')
                 ),
-            ]) ]));
+            ]) ]), Parser.parse('{{ x or y }}'));
 
-        expect(Parser.parse('{{ x in y }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.In(0, 3,
                     new Node.SymbolNode(0, 3, 'x'),
                     new Node.SymbolNode(0, 8, 'y')
                 ),
-            ]) ]));
+            ]) ]), Parser.parse('{{ x in y }}'));
 
-        expect(Parser.parse('{{ x not in y }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Not(0, 3,
                     new Node.In(0, 3,
                         new Node.SymbolNode(0, 3, 'x'),
                         new Node.SymbolNode(0, 12, 'y')
                     )
                 ),
-            ]) ]));
+            ]) ]), Parser.parse('{{ x not in y }}'));
 
-        expect(Parser.parse('{{ x is callable }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Is(0, 3,
                     new Node.SymbolNode(0, 3, 'x'),
                     new Node.SymbolNode(0, 8, 'callable')
                 ),
-            ]) ]));
+            ]) ]), Parser.parse('{{ x is callable }}'));
 
-        expect(Parser.parse('{{ x is not callable }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Not(0, 3,
                     new Node.Is(0, 3,
                         new Node.SymbolNode(0, 3, 'x'),
                         new Node.SymbolNode(0, 12, 'callable')
                     )
                 ),
-            ]) ]));
+            ]) ]), Parser.parse('{{ x is not callable }}'));
     }
 
 
     testShouldParseTilde() {
-        expect(Parser.parse('{{ 2 ~ 3 }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Concat(0, 3,
                     new Node.Literal(0, 3, 2),
                     new Node.Literal(0, 7, 3)
                 ),
-            ]) ]));
+            ]) ]), Parser.parse('{{ 2 ~ 3 }}'));
     }
 
 
     testShouldParseOperatorsWithCorrectPrecedence() {
-        expect(Parser.parse('{{ x in y and z }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.And(0, 3,
                     new Node.In(0, 3,
                         new Node.SymbolNode(0, 3, 'x'),
@@ -168,10 +129,9 @@ export default class ParserTest extends TestCase {
                     ),
                     new Node.SymbolNode(0, 14, 'z')
                 ),
-            ]) ]));
+            ]) ]), Parser.parse('{{ x in y and z }}'));
 
-        expect(Parser.parse('{{ x not in y or z }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Or(0, 3,
                     new Node.Not(0, 3,
                         new Node.In(0, 3,
@@ -181,10 +141,9 @@ export default class ParserTest extends TestCase {
                     ),
                     new Node.SymbolNode(0, 17, 'z')
                 ),
-            ]) ]));
+            ]) ]), Parser.parse('{{ x not in y or z }}'));
 
-        expect(Parser.parse('{{ x or y and z }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Or(0, 3,
                     new Node.SymbolNode(0, 3, 'x'),
                     new Node.And(0, 8,
@@ -192,66 +151,55 @@ export default class ParserTest extends TestCase {
                         new Node.SymbolNode(0, 14, 'z')
                     ),
                 ),
-            ]) ]));
+            ]) ]), Parser.parse('{{ x or y and z }}'));
     }
 
 
     testShouldParseBlocks() {
         let n = Parser.parse('want some {% if hungry %}pizza{% else %}water{% endif %}?');
-        expect(n.children[1].typename).to.be.equal('If');
+        __self.assertEquals('If', n.children[1].typename);
 
         n = Parser.parse('{% block foo %}stuff{% endblock %}');
-        expect(n.children[0].typename).to.be.equal('Block');
+        __self.assertEquals('Block', n.children[0].typename);
 
         n = Parser.parse('{% block foo %}stuff{% endblock foo %}');
-        expect(n.children[0].typename).to.be.equal('Block');
+        __self.assertEquals('Block', n.children[0].typename);
 
         n = Parser.parse('{% extends "test.kumis" %}stuff');
-        expect(n.children[0].typename).to.be.equal('Extends');
+        __self.assertEquals('Extends', n.children[0].typename);
 
         n = Parser.parse('{% include "test.kumis" %}');
-        expect(n.children[0].typename).to.be.equal('Include');
+        __self.assertEquals('Include', n.children[0].typename);
     }
 
 
     testShouldAcceptAttributesAndMethodsOfStaticArraysObjectsAndPrimitives() {
-        expect(function() {
-            Parser.parse('{{ ([1, 2, 3]).indexOf(1) }}');
-        }).to.not.throw();
+        Parser.parse('{{ ([1, 2, 3]).indexOf(1) }}');
 
-        expect(function() {
-            Parser.parse('{{ [1, 2, 3].length }}');
-        }).to.not.throw();
+        Parser.parse('{{ [1, 2, 3].length }}');
 
-        expect(function() {
-            Parser.parse('{{ "Some String".replace("S", "$") }}');
-        }).to.not.throw();
+        Parser.parse('{{ "Some String".replace("S", "$") }}');
 
-        expect(function() {
-            Parser.parse('{{ ({ name : "Khalid" }).name }}');
-        }).to.not.throw();
+        Parser.parse('{{ ({ name : "Khalid" }).name }}');
 
-        expect(function() {
-            Parser.parse('{{ 1.618.toFixed(2) }}');
-        }).to.not.throw();
+        Parser.parse('{{ 1.618.toFixed(2) }}');
     }
 
 
     testShouldParseIncludeTags() {
         let n = Parser.parse('{% include "test.kumis" %}');
-        expect(n.children[0].typename).to.be.equal('Include');
+        __self.assertEquals('Include', n.children[0].typename);
 
         n = Parser.parse('{% include "test.html"|replace("html","j2") %}');
-        expect(n.children[0].typename).to.be.equal('Include');
+        __self.assertEquals('Include', n.children[0].typename);
 
         n = Parser.parse('{% include ""|default("test.kumis") %}');
-        expect(n.children[0].typename).to.be.equal('Include');
+        __self.assertEquals('Include', n.children[0].typename);
     }
 
 
     testShouldParseForLoops() {
-        expect(Parser.parse('{% for x in [1, 2] %}{{ x }}{% endfor %}'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.For(0, 3,
                     new Node.Array(0, 12, [
                         new Node.Literal(0, 13, 1),
@@ -264,13 +212,12 @@ export default class ParserTest extends TestCase {
                         ]),
                     ])
                 ),
-            ]));
+            ]), Parser.parse('{% for x in [1, 2] %}{{ x }}{% endfor %}'));
     }
 
 
     testShouldParseForLoopsWithElse() {
-        expect(Parser.parse('{% for x in [] %}{{ x }}{% else %}empty{% endfor %}'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.For(0, 3,
                     new Node.Array(0, 12),
                     new Node.SymbolNode(0, 7, 'x'),
@@ -285,23 +232,21 @@ export default class ParserTest extends TestCase {
                         ]),
                     ])
                 ),
-            ]));
+            ]), Parser.parse('{% for x in [] %}{{ x }}{% else %}empty{% endfor %}'));
     }
 
 
     testShouldParseFilters() {
-        expect(Parser.parse('{{ foo | bar }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Filter(0, 9,
                     new Node.SymbolNode(0, 9, 'bar'),
                     new Node.NodeList(0, 9, [
                         new Node.SymbolNode(0, 3, 'foo'),
                     ])
                 ),
-            ]) ]));
+            ]) ]), Parser.parse('{{ foo | bar }}'));
 
-        expect(Parser.parse('{{ foo | bar | baz }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Filter(0, 15,
                     new Node.SymbolNode(0, 15, 'baz'),
                     new Node.NodeList(0, 15, [
@@ -313,10 +258,9 @@ export default class ParserTest extends TestCase {
                         ),
                     ])
                 ),
-            ]) ]));
+            ]) ]), Parser.parse('{{ foo | bar | baz }}'));
 
-        expect(Parser.parse('{{ foo | bar(3) }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.Filter(0, 9,
                     new Node.SymbolNode(0, 9, 'bar'),
                     new Node.NodeList(0, 9, [
@@ -324,7 +268,7 @@ export default class ParserTest extends TestCase {
                         new Node.Literal(0, 13, 3),
                     ])
                 ),
-            ]) ]));
+            ]) ]), Parser.parse('{{ foo | bar(3) }}'));
     }
 
 
@@ -333,7 +277,7 @@ export default class ParserTest extends TestCase {
             'This is a macro' +
             '{% endmacro %}');
 
-        expect(ast).dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
             new Node.Macro(0, 3,
                 new Node.SymbolNode(0, 9, 'foo'),
                 new Node.NodeList(0, 12, [
@@ -346,7 +290,7 @@ export default class ParserTest extends TestCase {
                     [ new Node.Output(0, 34, [ new Node.TemplateData(0, 34, 'This is a macro') ]) ]
                 )
             ),
-        ]));
+        ]), ast);
     }
 
 
@@ -356,7 +300,7 @@ export default class ParserTest extends TestCase {
             '{% endcall %}');
 
         const sym = new Node.SymbolNode(0, 3, 'caller');
-        expect(ast).dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
             new Node.Output(0, 3, [
                 new Node.FunCall(0, 11,
                     new Node.SymbolNode(0, 8, 'foo'),
@@ -376,7 +320,7 @@ export default class ParserTest extends TestCase {
                     ])
                 ),
             ]),
-        ]));
+        ]), ast);
     }
 
 
@@ -386,7 +330,7 @@ export default class ParserTest extends TestCase {
             '{% endcall %}');
 
         const sym = new Node.SymbolNode(0, 3, 'caller');
-        expect(ast).dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
             new Node.Output(0, 3, [
                 new Node.FunCall(0, 14,
                     new Node.SymbolNode(0, 11, 'foo'),
@@ -412,72 +356,64 @@ export default class ParserTest extends TestCase {
                     ])
                 ),
             ]),
-        ]));
+        ]), ast);
     }
 
 
     testShouldParseRaw() {
-        expect(Parser.parse('{% raw %}hello {{ {% %} }}{% endraw %}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 7, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 7, [
                 new Node.TemplateData(0, 7, 'hello {{ {% %} }}'),
-            ]) ]));
+            ]) ]), Parser.parse('{% raw %}hello {{ {% %} }}{% endraw %}'));
     }
 
 
     testShouldParseRawWithBrokenVariables() {
-        expect(Parser.parse('{% raw %}{{ x }}{% endraw %}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 7, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 7, [
                 new Node.TemplateData(0, 7, '{{ x }}'),
-            ]) ]));
+            ]) ]), Parser.parse('{% raw %}{{ x }}{% endraw %}'));
     }
 
 
     testShouldParseRawWithBrokenBlocks() {
-        expect(Parser.parse('{% raw %}{% if i_am_stupid }Still do your job well{% endraw %}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 7, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 7, [
                 new Node.TemplateData(0, 7, '{% if i_am_stupid }Still do your job well'),
-            ]) ]));
+            ]) ]), Parser.parse('{% raw %}{% if i_am_stupid }Still do your job well{% endraw %}'));
     }
 
 
     testShouldParseRawWithPureText() {
-        expect(Parser.parse('{% raw %}abc{% endraw %}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 7, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 7, [
                 new Node.TemplateData(0, 7, 'abc'),
-            ]) ]));
+            ]) ]), Parser.parse('{% raw %}abc{% endraw %}'));
     }
 
 
 
     testShouldParseRawWithRawBlocks() {
-        expect(Parser.parse('{% raw %}{% raw %}{{ x }{% endraw %}{% endraw %}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 7, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 7, [
                 new Node.TemplateData(0, 7, '{% raw %}{{ x }{% endraw %}'),
-            ]) ]));
+            ]) ]), Parser.parse('{% raw %}{% raw %}{{ x }{% endraw %}{% endraw %}'));
     }
 
 
     testShouldParseRawWithCommentBlocks() {
-        expect(Parser.parse('{% raw %}{# test {% endraw %}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 7, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 7, [
                 new Node.TemplateData(0, 7, '{# test '),
-            ]) ]));
+            ]) ]), Parser.parse('{% raw %}{# test {% endraw %}'));
     }
 
 
     testShouldParseMultipleRawBlocks() {
-        expect(Parser.parse('{% raw %}{{ var }}{% endraw %}{{ var }}{% raw %}{{ var }}{% endraw %}'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.Output(0, 7, [ new Node.TemplateData(0, 7, '{{ var }}') ]),
                 new Node.Output(0, 30, [ new Node.SymbolNode(0, 33, 'var') ]),
                 new Node.Output(0, 46, [ new Node.TemplateData(0, 46, '{{ var }}') ]),
-            ]));
+            ]), Parser.parse('{% raw %}{{ var }}{% endraw %}{{ var }}{% raw %}{{ var }}{% endraw %}'));
     }
 
 
     testShouldParseMultilineMultipleRawBlocks() {
-        expect(Parser.parse('\n{% raw %}{{ var }}{% endraw %}\n{{ var }}\n{% raw %}{{ var }}{% endraw %}\n'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.Output(0, 0, [ new Node.TemplateData(0, 0, '\n') ]),
                 new Node.Output(1, 7, [ new Node.TemplateData(1, 7, '{{ var }}') ]),
                 new Node.Output(1, 30, [ new Node.TemplateData(1, 30, '\n') ]),
@@ -485,72 +421,64 @@ export default class ParserTest extends TestCase {
                 new Node.Output(2, 9, [ new Node.TemplateData(2, 9, '\n') ]),
                 new Node.Output(3, 7, [ new Node.TemplateData(3, 7, '{{ var }}') ]),
                 new Node.Output(3, 30, [ new Node.TemplateData(3, 30, '\n') ]),
-            ]));
+            ]), Parser.parse('\n{% raw %}{{ var }}{% endraw %}\n{{ var }}\n{% raw %}{{ var }}{% endraw %}\n'));
     }
 
 
     testShouldParseVerbatim() {
-        expect(Parser.parse('{% verbatim %}hello {{ {% %} }}{% endverbatim %}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 12, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 12, [
                 new Node.TemplateData(0, 12, 'hello {{ {% %} }}'),
-            ]) ]));
+            ]) ]), Parser.parse('{% verbatim %}hello {{ {% %} }}{% endverbatim %}'));
     }
 
 
     testShouldParseVerbatimWithBrokenVariables() {
-        expect(Parser.parse('{% verbatim %}{{ x }{% endverbatim %}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 12, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 12, [
                 new Node.TemplateData(0, 12, '{{ x }'),
-            ]) ]));
+            ]) ]), Parser.parse('{% verbatim %}{{ x }{% endverbatim %}'));
     }
 
 
     testShouldParseVerbatimWithBrokenBlocks() {
-        expect(Parser.parse('{% verbatim %}{% if i_am_stupid }Still do your job well{% endverbatim %}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 12, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 12, [
                 new Node.TemplateData(0, 12, '{% if i_am_stupid }Still do your job well'),
-            ]) ]));
+            ]) ]), Parser.parse('{% verbatim %}{% if i_am_stupid }Still do your job well{% endverbatim %}'));
     }
 
 
     testShouldParseVerbatimWithPureText() {
-        expect(Parser.parse('{% verbatim %}abc{% endverbatim %}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 12, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 12, [
                 new Node.TemplateData(0, 12, 'abc'),
-            ]) ]));
+            ]) ]), Parser.parse('{% verbatim %}abc{% endverbatim %}'));
     }
 
 
 
     testShouldParseVerbatimWithVerbatimBlocks() {
-        expect(Parser.parse('{% verbatim %}{% verbatim %}{{ x }{% endverbatim %}{% endverbatim %}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 12, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 12, [
                 new Node.TemplateData(0, 12, '{% verbatim %}{{ x }{% endverbatim %}'),
-            ]) ]));
+            ]) ]), Parser.parse('{% verbatim %}{% verbatim %}{{ x }{% endverbatim %}{% endverbatim %}'));
     }
 
 
     testShouldParseVerbatimWithCommentBlocks() {
-        expect(Parser.parse('{% verbatim %}{# test {% endverbatim %}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 12, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 12, [
                 new Node.TemplateData(0, 12, '{# test '),
-            ]) ]));
+            ]) ]), Parser.parse('{% verbatim %}{# test {% endverbatim %}'));
     }
 
 
     testShouldParseMultipleVerbatimBlocks() {
-        expect(Parser.parse('{% verbatim %}{{ var }}{% endverbatim %}{{ var }}{% verbatim %}{{ var }}{% endverbatim %}'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.Output(0, 12, [ new Node.TemplateData(0, 12, '{{ var }}') ]),
                 new Node.Output(0, 40, [ new Node.SymbolNode(0, 43, 'var') ]),
                 new Node.Output(0, 61, [ new Node.TemplateData(0, 61, '{{ var }}') ]),
-            ]));
+            ]), Parser.parse('{% verbatim %}{{ var }}{% endverbatim %}{{ var }}{% verbatim %}{{ var }}{% endverbatim %}'));
     }
 
 
     testShouldParseMultilineMultipleVerbatimBlocks() {
-        expect(Parser.parse('\n{% verbatim %}{{ var }}{% endverbatim %}\n{{ var }}\n{% verbatim %}{{ var }}{% endverbatim %}\n'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.Output(0, 0, [ new Node.TemplateData(0, 0, '\n') ]),
                 new Node.Output(1, 12, [ new Node.TemplateData(1, 12, '{{ var }}') ]),
                 new Node.Output(1, 40, [ new Node.TemplateData(1, 40, '\n') ]),
@@ -558,14 +486,13 @@ export default class ParserTest extends TestCase {
                 new Node.Output(2, 9, [ new Node.TemplateData(2, 9, '\n') ]),
                 new Node.Output(3, 12, [ new Node.TemplateData(3, 12, '{{ var }}') ]),
                 new Node.Output(3, 40, [ new Node.TemplateData(3, 40, '\n') ]),
-            ]));
+            ]), Parser.parse('\n{% verbatim %}{{ var }}{% endverbatim %}\n{{ var }}\n{% verbatim %}{{ var }}{% endverbatim %}\n'));
     }
 
 
     testShouldParseSwitchStatements() {
         const tpl = '{% switch foo %}{% case "bar" %}BAR{% case "baz" %}BAZ{% default %}NEITHER FOO NOR BAR{% endswitch %}';
-        expect(Parser.parse(tpl))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.Switch(0, 3,
                     new Node.SymbolNode(0, 10, 'foo'),
                     [
@@ -580,13 +507,12 @@ export default class ParserTest extends TestCase {
                     ],
                     new Node.NodeList(0, 0, [ new Node.Output(0, 67, [ new Node.TemplateData(0, 67, 'NEITHER FOO NOR BAR') ]) ])
                 ),
-            ]));
+            ]), Parser.parse(tpl));
     }
 
 
     testShouldParseKeywordAndNonKeywordArguments() {
-        expect(Parser.parse('{{ foo("bar", falalalala, baz="foobar") }}'))
-            .dump.as(new Node.Root(0, 0, [ new Node.Output(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [ new Node.Output(0, 0, [
                 new Node.FunCall(0, 6,
                     new Node.SymbolNode(0, 3, 'foo'),
                     new Node.NodeList(0, 6, [
@@ -597,21 +523,19 @@ export default class ParserTest extends TestCase {
                         ]),
                     ])
                 ),
-            ]) ]));
+            ]) ]), Parser.parse('{{ foo("bar", falalalala, baz="foobar") }}'));
     }
 
 
     testShouldParseImports() {
-        expect(Parser.parse('{% import "foo/bar.kumis" as baz %}'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.Import(0, 3,
                     new Node.Literal(0, 10, 'foo/bar.kumis'),
                     new Node.SymbolNode(0, 29, 'baz'),
                 ),
-            ]));
+            ]), Parser.parse('{% import "foo/bar.kumis" as baz %}'));
 
-        expect(Parser.parse('{% from "foo/bar.kumis" import baz, foobar as foobarbaz %}'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.FromImport(0, 3,
                     new Node.Literal(0, 8, 'foo/bar.kumis'),
                     new Node.NodeList(undefined, undefined, [
@@ -619,10 +543,9 @@ export default class ParserTest extends TestCase {
                         new Node.Pair(0, 36, new Node.SymbolNode(0, 36, 'foobar'), new Node.SymbolNode(0, 46, 'foobarbaz')),
                     ])
                 ),
-            ]));
+            ]), Parser.parse('{% from "foo/bar.kumis" import baz, foobar as foobarbaz %}'));
 
-        expect(Parser.parse('{% import "foo/bar.html"|replace("html", "j2") as baz %}'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.Import(0, 3,
                     new Node.Filter(0, 25,
                         new Node.SymbolNode(0, 25, 'replace'),
@@ -634,10 +557,9 @@ export default class ParserTest extends TestCase {
                     ),
                     new Node.SymbolNode(0, 50, 'baz')
                 ),
-            ]));
+            ]), Parser.parse('{% import "foo/bar.html"|replace("html", "j2") as baz %}'));
 
-        expect(Parser.parse('{% from ""|default("foo/bar.kumis") import baz, foobar as foobarbaz %}'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.FromImport(0, 3,
                     new Node.Filter(0, 11,
                         new Node.SymbolNode(0, 11, 'default'),
@@ -651,7 +573,7 @@ export default class ParserTest extends TestCase {
                         new Node.Pair(0, 48, new Node.SymbolNode(0, 48, 'foobar'), new Node.SymbolNode(0, 58, 'foobarbaz')),
                     ])
                 ),
-            ]));
+            ]), Parser.parse('{% from ""|default("foo/bar.kumis") import baz, foobar as foobarbaz %}'));
     }
 
 
@@ -659,48 +581,43 @@ export default class ParserTest extends TestCase {
         // Every start/end tag with "-" should trim the whitespace
         // Before or after it
 
-        expect(Parser.parse('{% if x %}\n  hi \n{% endif %}'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.If(0, 3,
                     new Node.SymbolNode(0, 6, 'x'),
                     new Node.NodeList(0, 0, [
                         new Node.Output(0, 10, [ new Node.TemplateData(0, 10, '\n  hi \n') ]),
                     ])
                 ),
-            ]));
+            ]), Parser.parse('{% if x %}\n  hi \n{% endif %}'));
 
-        expect(Parser.parse('{% if x -%}\n  hi \n{% endif %}'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.If(0, 3,
                     new Node.SymbolNode(0, 6, 'x'),
                     new Node.NodeList(0, 0, [
                         new Node.Output(0, 11, [ new Node.TemplateData(0, 11, 'hi \n') ]),
                     ])
                 ),
-            ]));
+            ]), Parser.parse('{% if x -%}\n  hi \n{% endif %}'));
 
-        expect(Parser.parse('{% if x %}\n  hi \n{%- endif %}'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.If(0, 3,
                     new Node.SymbolNode(0, 6, 'x'),
                     new Node.NodeList(0, 0, [
                         new Node.Output(0, 10, [ new Node.TemplateData(0, 10, '\n  hi') ]),
                     ])
                 ),
-            ]));
+            ]), Parser.parse('{% if x %}\n  hi \n{%- endif %}'));
 
-        expect(Parser.parse('{% if x -%}\n  hi \n{%- endif %}'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.If(0, 3,
                     new Node.SymbolNode(0, 6, 'x'),
                     new Node.NodeList(0, 0, [
                         new Node.Output(0, 11, [ new Node.TemplateData(0, 11, 'hi') ]),
                     ])
                 ),
-            ]));
+            ]), Parser.parse('{% if x -%}\n  hi \n{%- endif %}'));
 
-        expect(Parser.parse('poop  \n{%- if x -%}\n  hi \n{%- endif %}'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.Output(0, 0, [ new Node.TemplateData(0, 0, 'poop') ]),
                 new Node.If(1, 4,
                     new Node.SymbolNode(1, 7, 'x'),
@@ -708,51 +625,44 @@ export default class ParserTest extends TestCase {
                         new Node.Output(1, 12, [ new Node.TemplateData(1, 12, 'hi') ]),
                     ])
                 ),
-            ]));
+            ]), Parser.parse('poop  \n{%- if x -%}\n  hi \n{%- endif %}'));
 
-        expect(Parser.parse('hello \n{#- comment #}'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.Output(0, 0, [ new Node.TemplateData(0, 0, 'hello') ]),
-            ]));
+            ]), Parser.parse('hello \n{#- comment #}'));
 
-        expect(Parser.parse('{# comment -#} \n world'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.Output(0, 14, [ new Node.TemplateData(0, 14, 'world') ]),
-            ]));
+            ]), Parser.parse('{# comment -#} \n world'));
 
-        expect(Parser.parse('hello \n{#- comment -#} \n world'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.Output(0, 0, [ new Node.TemplateData(0, 0, 'hello') ]),
                 new Node.Output(1, 15, [ new Node.TemplateData(1, 15, 'world') ]),
-            ]));
+            ]), Parser.parse('hello \n{#- comment -#} \n world'));
 
-        expect(Parser.parse('hello \n{# - comment - #} \n world'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.Output(0, 0, [ new Node.TemplateData(0, 0, 'hello \n') ]),
                 new Node.Output(1, 17, [ new Node.TemplateData(1, 17, ' \n world') ]),
-            ]));
+            ]), Parser.parse('hello \n{# - comment - #} \n world'));
 
         // The from statement required a special case so make sure to test it
-        expect(Parser.parse('{% from x import y %}\n  hi \n'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.FromImport(0, 3,
                     new Node.SymbolNode(0, 8, 'x'),
                     new Node.NodeList(undefined, undefined, [ new Node.SymbolNode(0, 17, 'y') ])
                 ),
                 new Node.Output(0, 21, [ new Node.TemplateData(0, 21, '\n  hi \n') ]),
-            ]));
+            ]), Parser.parse('{% from x import y %}\n  hi \n'));
 
-        expect(Parser.parse('{% from x import y -%}\n  hi \n'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.FromImport(0, 3,
                     new Node.SymbolNode(0, 8, 'x'),
                     new Node.NodeList(undefined, undefined, [ new Node.SymbolNode(0, 17, 'y') ])
                 ),
                 new Node.Output(0, 22, [ new Node.TemplateData(0, 22, 'hi \n') ]),
-            ]));
+            ]), Parser.parse('{% from x import y -%}\n  hi \n'));
 
-        expect(Parser.parse('{% if x -%}{{y}} {{z}}{% endif %}'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.If(0, 3,
                     new Node.SymbolNode(0, 6, 'x'),
                     new Node.NodeList(0, 0, [
@@ -762,10 +672,9 @@ export default class ParserTest extends TestCase {
                         new Node.Output(0, 17, [ new Node.SymbolNode(0, 19, 'z') ]),
                     ])
                 ),
-            ]));
+            ]), Parser.parse('{% if x -%}{{y}} {{z}}{% endif %}'));
 
-        expect(Parser.parse('{% if x -%}{% if y %} {{z}}{% endif %}{% endif %}'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.If(0, 3,
                     new Node.SymbolNode(0, 6, 'x'),
                     new Node.NodeList(0, 0, [
@@ -779,10 +688,9 @@ export default class ParserTest extends TestCase {
                         ),
                     ])
                 ),
-            ]));
+            ]), Parser.parse('{% if x -%}{% if y %} {{z}}{% endif %}{% endif %}'));
 
-        expect(Parser.parse('{% if x -%}{# comment #} {{z}}{% endif %}'))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.If(0, 3,
                     new Node.SymbolNode(0, 6, 'x'),
                     new Node.NodeList(0, 0, [
@@ -791,62 +699,62 @@ export default class ParserTest extends TestCase {
                         new Node.Output(0, 25, [ new Node.SymbolNode(0, 27, 'z') ]),
                     ])
                 ),
-            ]));
+            ]), Parser.parse('{% if x -%}{# comment #} {{z}}{% endif %}'));
     }
 
 
     testShouldThrowErrors() {
-        expect(function() {
+        this.expectExceptionMessageRegex(/expected variable end/);
             Parser.parse('hello {{ foo');
-        }).to.throw(/expected variable end/);
 
-        expect(function() {
+
+        this.expectExceptionMessageRegex(/expected expression/);
             Parser.parse('hello {% if');
-        }).to.throw(/expected expression/);
 
-        expect(function() {
+
+        this.expectExceptionMessageRegex(/expected block end/);
             Parser.parse('hello {% if sdf zxc');
-        }).to.throw(/expected block end/);
 
-        expect(function() {
+
+        this.expectExceptionMessageRegex(/expected block end/);
             Parser.parse('{% include "foo %}');
-        }).to.throw(/expected block end/);
 
-        expect(function() {
+
+        this.expectExceptionMessageRegex(/expected elif, else, or endif/);
             Parser.parse('hello {% if sdf %} data');
-        }).to.throw(/expected elif, else, or endif/);
 
-        expect(function() {
+
+        this.expectExceptionMessageRegex(/expected endblock/);
             Parser.parse('hello {% block sdf %} data');
-        }).to.throw(/expected endblock/);
 
-        expect(function() {
+
+        this.expectExceptionMessageRegex(/expected block end/);
             Parser.parse('hello {% block sdf %} data{% endblock foo %}');
-        }).to.throw(/expected block end/);
 
-        expect(function() {
+
+        this.expectExceptionMessageRegex(/Unknown block tag/);
             Parser.parse('hello {% bar %} dsfsdf');
-        }).to.throw(/Unknown block tag/);
 
-        expect(function() {
+
+        this.expectExceptionMessageRegex(/expected comma after expression/);
             Parser.parse('{{ foo(bar baz) }}');
-        }).to.throw(/expected comma after expression/);
 
-        expect(function() {
+
+        this.expectExceptionMessageRegex(/expected "as" keyword/);
             Parser.parse('{% import "foo" %}');
-        }).to.throw(/expected "as" keyword/);
 
-        expect(function() {
+
+        this.expectExceptionMessageRegex(/expected import/);
             Parser.parse('{% from "foo" %}');
-        }).to.throw(/expected import/);
 
-        expect(function() {
+
+        this.expectExceptionMessageRegex(/expected comma/);
             Parser.parse('{% from "foo" import bar baz %}');
-        }).to.throw(/expected comma/);
 
-        expect(function() {
+
+        this.expectExceptionMessageRegex(/names starting with an underscore cannot be imported/);
             Parser.parse('{% from "foo" import _bar %}');
-        }).to.throw(/names starting with an underscore cannot be imported/);
+
     }
 
 
@@ -935,33 +843,29 @@ export default class ParserTest extends TestCase {
             new TestBlockTagExtension(),
             new TestArgsExtension() ];
 
-        expect(Parser.parse('{% testtag %}', extensions))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.CallExtension(extensions[0], 'foo'),
-            ]));
+            ]), Parser.parse('{% testtag %}', extensions));
 
-        expect(Parser.parse('{% testblocktag %}sdfd{% endtestblocktag %}', extensions))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.CallExtension(extensions[1], 'bar', null, [
                     1,
                     new Node.NodeList(0, 0, [
                         new Node.Output(0, 18, [ new Node.TemplateData(0, 18, 'sdfd') ]),
                     ]),
                 ]),
-            ]));
+            ]), Parser.parse('{% testblocktag %}sdfd{% endtestblocktag %}', extensions));
 
-        expect(Parser.parse('{% testblocktag %}{{ 123 }}{% endtestblocktag %}', extensions))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.CallExtension(extensions[1], 'bar', null, [
                     1,
                     new Node.NodeList(0, 0, [
                         new Node.Output(0, 18, [ new Node.Literal(0, 21, 123) ]),
                     ]),
                 ]),
-            ]));
+            ]), Parser.parse('{% testblocktag %}{{ 123 }}{% endtestblocktag %}', extensions));
 
-        expect(Parser.parse('{% testargs(123, "abc", foo="bar") %}', extensions))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.CallExtension(extensions[2], 'biz',
                     new Node.NodeList(0, 11, [
                         new Node.Literal(0, 12, 123),
@@ -971,11 +875,10 @@ export default class ParserTest extends TestCase {
                         ]),
                     ])
                 ),
-            ]));
+            ]), Parser.parse('{% testargs(123, "abc", foo="bar") %}', extensions));
 
-        expect(Parser.parse('{% testargs %}', extensions))
-            .dump.as(new Node.Root(0, 0, [
+        this.assertDumpEquals(new Node.Root(0, 0, [
                 new Node.CallExtension(extensions[2], 'biz', null),
-            ]));
+            ]), Parser.parse('{% testargs %}', extensions));
     }
 }

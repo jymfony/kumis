@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-
 const AppKernel = Tests.Fixtures.AppKernel;
 const TestCase = Jymfony.Component.Testing.Framework.TestCase;
 
@@ -26,9 +24,9 @@ export default class KumisExtensionTest extends TestCase {
     }
 
     async testShouldBoot() {
-        expect(this.kernel.container.has(Kumis.Bundle.Engine)).to.be.true;
-        expect(await this.kernel.container.get('kumis').exists('async.kumis')).to.be.true;
-        expect(await this.kernel.container.get('templating').exists('async.kumis')).to.be.true;
+        __self.assertTrue(this.kernel.container.has(Kumis.Bundle.Engine));
+        __self.assertTrue(await this.kernel.container.get('kumis').exists('async.kumis'));
+        __self.assertTrue(await this.kernel.container.get('templating').exists('async.kumis'));
     }
 
     async testShouldRenderTheTemplate() {
@@ -37,7 +35,7 @@ export default class KumisExtensionTest extends TestCase {
             item: 'item',
         });
 
-        expect(stream.buffer.toString()).to.be.equal('showing item');
+        __self.assertEquals('showing item', stream.buffer.toString());
     }
 
     async testShouldPrecompileTemplatesDuringWarmup() {
@@ -48,13 +46,13 @@ export default class KumisExtensionTest extends TestCase {
         warmer.warmUp(this.kernel.getCacheDir());
 
         const cached = container.get(Kumis.Bundle.Loader.CachedLoader).resolve('item.kumis');
-        expect(cached).to.be.not.null;
+        __self.assertNotNull(cached);
 
         const stream = new __jymfony.StreamBuffer();
         await this.kernel.container.get('templating').render(stream, 'item.kumis', {
             item: 'item',
         });
 
-        expect(stream.buffer.toString()).to.be.equal('showing item');
+        __self.assertEquals('showing item', stream.buffer.toString());
     }
 }

@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import { readFileSync } from 'fs';
 
 const DumperKernel = Tests.Fixtures.DumperKernel;
@@ -35,7 +34,7 @@ export default class VarDumperExtensionTest extends TestCase {
             app: 'testfoo',
         });
 
-        expect(__jymfony.trim(buffer.buffer.toString())).to.be.equal('TEST');
+        __self.assertEquals('TEST', __jymfony.trim(buffer.buffer.toString()));
     }
 
     async testDumpShouldEmitDump() {
@@ -47,10 +46,11 @@ export default class VarDumperExtensionTest extends TestCase {
             app: 'testfoo',
         });
 
-        expect(__jymfony.trim(
-            buffer.buffer.toString().replace(/jf-dump-\d+/g, 'jf-dump')
-        )).to.be.equal(
-            __jymfony.trim(readFileSync(__dirname + '/../../templates/var_dumper/dumper2.html').toString())
+        __self.assertEquals(
+            __jymfony.trim(readFileSync(__dirname + '/../../templates/var_dumper/dumper2.html').toString()),
+            __jymfony.trim(
+                buffer.buffer.toString().replace(/jf-dump-\d+/g, 'jf-dump')
+            )
         );
     }
 }

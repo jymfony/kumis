@@ -1,9 +1,8 @@
-import { expect } from 'chai';
-
 const Environment = Kumis.Environment;
 const Loader = Kumis.Loader.FilesystemLoader;
 const Template = Kumis.Template;
 const templatesPath = 'tests/templates';
+const Assert = Jymfony.Component.Testing.Framework.Assert;
 
 export async function equal(str, ctx, opts, str2, env) {
     if ('string' === typeof ctx) {
@@ -20,7 +19,7 @@ export async function equal(str, ctx, opts, str2, env) {
 
     opts = opts || {};
     const res = await render(str, ctx, opts, env);
-    expect(res).to.be.equal(str2);
+    Assert.assertEquals(str2, res);
 }
 
 export function normEOL(str) {

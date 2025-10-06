@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import * as util from './util';
 import * as path from 'path';
 
@@ -34,7 +33,7 @@ export default class EnvironmentTest extends TestCase {
         const env = Environment.create(new FilesystemLoader(templatesPath));
 
         const child = await env.getTemplate('base-inherit.kumis');
-        expect(await child.render()).to.be.equal('Foo*Bar*BazFizzle');
+        __self.assertEquals('Foo*Bar*BazFizzle', await child.render());
     }
 
     async testShouldHandleCorrectlyRelativePaths() {
@@ -46,22 +45,22 @@ export default class EnvironmentTest extends TestCase {
         const child1 = await env.getTemplate('relative/test1.kumis');
         const child2 = await env.getTemplate('relative/test2.kumis');
 
-        expect(await child1.render()).to.be.equal('FooTest1BazFizzle');
-        expect(await child2.render()).to.be.equal('FooTest2BazFizzle');
+        __self.assertEquals('FooTest1BazFizzle', await child1.render());
+        __self.assertEquals('FooTest2BazFizzle', await child2.render());
     }
 
     async testShouldHandleCorrectlyCacheForRelativePaths() {
         const env = Environment.create(new FilesystemLoader(templatesPath));
         const test = await env.getTemplate('relative/test-cache.kumis');
 
-        expect(util.normEOL(await test.render())).to.be.equal('Test1\nTest2');
+        __self.assertEquals('Test1\nTest2', util.normEOL(await test.render()));
     }
 
     async testShouldHandleCorrectlyRelativePathsInRenderString() {
         const env = Environment.create(new FilesystemLoader(templatesPath));
-        expect(await env.renderString('{% extends "./relative/test1.kumis" %}{% block block1 %}Test3{% endblock %}', {}, {
+        __self.assertEquals('FooTest3BazFizzle', await env.renderString('{% extends "./relative/test1.kumis" %}{% block block1 %}Test3{% endblock %}', {}, {
             path: path.resolve(templatesPath, 'string.kumis'),
-        })).to.be.equal('FooTest3BazFizzle');
+        }));
     }
 
     testShouldInvalidateLoadersCache() {

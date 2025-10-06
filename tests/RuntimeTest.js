@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import { render } from './util';
 
 const TestCase = Jymfony.Component.Testing.Framework.TestCase;
@@ -9,7 +8,7 @@ export default class RuntimeTest extends TestCase {
             await render('{{ foo("cvan") }}', { foo: undefined });
             throw new Error('FAIL');
         } catch (err) {
-            expect(err).to.match(/Unable to call `foo`, which is undefined/);
+            __self.assertMatchesRegularExpression(/Unable to call `foo`, which is undefined/, err.toString());
         }
     }
 
@@ -18,7 +17,7 @@ export default class RuntimeTest extends TestCase {
             await render('{{ foo["bar"]("cvan") }}', { foo: {} });
             throw new Error('FAIL');
         } catch (err) {
-            expect(err).to.match(/foo\["bar"\]/);
+            __self.assertMatchesRegularExpression(/foo\["bar"\]/, err.toString());
         }
     }
 
@@ -27,7 +26,7 @@ export default class RuntimeTest extends TestCase {
             await render('{{ foo.bar("second call") }}', { foo: null });
             throw new Error('FAIL');
         } catch (err) {
-            expect(err).to.match(/foo\["bar"\]/);
+            __self.assertMatchesRegularExpression(/foo\["bar"\]/, err.toString());
         }
     }
 
@@ -36,7 +35,7 @@ export default class RuntimeTest extends TestCase {
             await render('{{ foo.barThatIsLongerThanTen() }}', { foo: null });
             throw new Error('FAIL');
         } catch (err) {
-            expect(err).to.match(/foo\["barThatIsLongerThanTen"\]/);
+            __self.assertMatchesRegularExpression(/foo\["barThatIsLongerThanTen"\]/, err.toString());
         }
     }
 
@@ -45,14 +44,14 @@ export default class RuntimeTest extends TestCase {
             await render('{{ foo.bar("multiple", "args") }}', { foo: null });
             throw new Error('FAIL');
         } catch (err) {
-            expect(err).to.match(/foo\["bar"\]/);
+            __self.assertMatchesRegularExpression(/foo\["bar"\]/, err.toString());
         }
 
         try {
             await render('{{ foo["bar"]["zip"]("multiple", "args") }}', { foo: { bar: null } });
             throw new Error('FAIL');
         } catch (err) {
-            expect(err).to.match(/foo\["bar"\]\["zip"\]/);
+            __self.assertMatchesRegularExpression(/foo\["bar"\]\["zip"\]/, err.toString());
         }
     }
 
@@ -60,10 +59,10 @@ export default class RuntimeTest extends TestCase {
         const noProto = Object.create(null);
         noProto.qux = 'world';
 
-        expect(await render('{% macro foo(bar, baz) %}' +
+        __self.assertEquals('hello world', await render('{% macro foo(bar, baz) %}' +
             '{{ bar }} {{ baz.qux }}{% endmacro %}' +
             '{{ foo("hello", noProto) }}', {
             noProto: noProto,
-        })).to.equal('hello world');
+        }));
     }
 }

@@ -1,7 +1,5 @@
 import fs from 'fs';
 import { promisify } from 'util';
-import { expect } from 'chai';
-
 const Tokenizer = Kumis.Compiler.Tokenizer;
 const AbstractExtension = Kumis.Extension.AbstractExtension;
 const TagInterface = Kumis.Extension.TagInterface;
@@ -519,66 +517,65 @@ export default class CompilerTest extends TestCase {
                     },
                 };
         
-                expect(await render('{{ tmpl | getContents }}', {
+                __self.assertEquals('somecontenthere', await render('{{ tmpl | getContents }}', {
                     tmpl: 'tests/templates/for-async-content.kumis',
-                }, opts)).to.be.equal('somecontenthere');
+                }, opts));
         
-                expect(await render('{% if tmpl %}{{ tmpl | getContents }}{% endif %}', {
+                __self.assertEquals('somecontenthere', await render('{% if tmpl %}{{ tmpl | getContents }}{% endif %}', {
                     tmpl: 'tests/templates/for-async-content.kumis',
-                }, opts)).to.be.equal('somecontenthere');
+                }, opts));
         
-                expect(await render('{% if tmpl | getContents %}yes{% endif %}', {
+                __self.assertEquals('yes', await render('{% if tmpl | getContents %}yes{% endif %}', {
                     tmpl: 'tests/templates/for-async-content.kumis',
-                }, opts)).to.be.equal('yes');
+                }, opts));
         
-                expect(await render('{% for t in [tmpl, tmpl] %}{{ t | getContents }}*{% endfor %}', {
+                __self.assertEquals('somecontenthere*somecontenthere*', await render('{% for t in [tmpl, tmpl] %}{{ t | getContents }}*{% endfor %}', {
                     tmpl: 'tests/templates/for-async-content.kumis',
-                }, opts)).to.be.equal('somecontenthere*somecontenthere*');
+                }, opts));
         
-                expect(await render('{% for t in [tmpl, tmpl] | getContentsArr %}{{ t }}{% endfor %}', {
+                __self.assertEquals('somecontenthere', await render('{% for t in [tmpl, tmpl] | getContentsArr %}{{ t }}{% endfor %}', {
                     tmpl: 'tests/templates/for-async-content.kumis',
-                }, opts)).to.be.equal('somecontenthere');
+                }, opts));
         
-                expect(await render('{% if test %}{{ tmpl | getContents }}{% endif %}oof', {
+                __self.assertEquals('oof', await render('{% if test %}{{ tmpl | getContents }}{% endif %}oof', {
                     tmpl: 'tests/templates/for-async-content.kumis',
                     test: null,
-                }, opts)).to.be.equal('oof');
+                }, opts));
         
-                expect(await render(
+                __self.assertEquals('somecontenthere*somecontenthere*', await render(
                     '{% if tmpl %}' +
                     '{% for i in [0, 1] %}{{ tmpl | getContents }}*{% endfor %}' +
                     '{% endif %}', {
                         tmpl: 'tests/templates/for-async-content.kumis',
-                    }, opts)).to.be.equal('somecontenthere*somecontenthere*');
+                    }, opts));
         
-                expect(await render('{% block content %}{{ tmpl | getContents }}{% endblock %}', {
+                __self.assertEquals('somecontenthere', await render('{% block content %}{{ tmpl | getContents }}{% endblock %}', {
                     tmpl: 'tests/templates/for-async-content.kumis',
-                }, opts)).to.be.equal('somecontenthere');
+                }, opts));
         
-                expect(await render('{% block content %}hello{% endblock %} {{ tmpl | getContents }}', {
+                __self.assertEquals('hello somecontenthere', await render('{% block content %}hello{% endblock %} {{ tmpl | getContents }}', {
                     tmpl: 'tests/templates/for-async-content.kumis',
-                }, opts)).to.be.equal('hello somecontenthere');
+                }, opts));
         
-                expect(await render('{% block content %}{% set foo = tmpl | getContents %}{{ foo }}{% endblock %}', {
+                __self.assertEquals('somecontenthere', await render('{% block content %}{% set foo = tmpl | getContents %}{{ foo }}{% endblock %}', {
                     tmpl: 'tests/templates/for-async-content.kumis',
-                }, opts)).to.be.equal('somecontenthere');
+                }, opts));
         
-                expect(await render('{% block content %}{% include "async.kumis" %}{% endblock %}', {
+                __self.assertEquals('somecontenthere\n', await render('{% block content %}{% include "async.kumis" %}{% endblock %}', {
                     tmpl: 'tests/templates/for-async-content.kumis',
-                }, opts)).to.be.equal('somecontenthere\n');
+                }, opts));
         
-                expect(await render('{% for i in [0, 1] %}{% include "async.kumis" %}{% endfor %}', {
+                __self.assertEquals('somecontenthere\nsomecontenthere\n', await render('{% for i in [0, 1] %}{% include "async.kumis" %}{% endfor %}', {
                     tmpl: 'tests/templates/for-async-content.kumis',
-                }, opts)).to.be.equal('somecontenthere\nsomecontenthere\n');
+                }, opts));
         
-                expect(await render('{% for i in [0, 1, 2, 3, 4] %}-{{ i }}:{% include "async.kumis" %}-{% endfor %}', {
-                    tmpl: 'tests/templates/for-async-content.kumis',
-                }, opts)).to.be.equal('-0:somecontenthere\n-' +
+                __self.assertEquals('-0:somecontenthere\n-' +
                     '-1:somecontenthere\n-' +
                     '-2:somecontenthere\n-' +
                     '-3:somecontenthere\n-' +
-                    '-4:somecontenthere\n-'
-                );
+                    '-4:somecontenthere\n-', await render('{% for i in [0, 1, 2, 3, 4] %}-{{ i }}:{% include "async.kumis" %}-{% endfor %}', {
+                    tmpl: 'tests/templates/for-async-content.kumis',
+                }, opts));
             }
         
         
@@ -676,18 +673,14 @@ export default class CompilerTest extends TestCase {
                 await render('{% if "a" in 1 %}yes{% endif %}', {});
                 throw new Error('FAIL');
             } catch (err) {
-                expect(err).to.match(
-                    /Cannot use "in" operator to search for "a" in unexpected types\./
-                );
+                __self.assertMatchesRegularExpression(/Cannot use "in" operator to search for "a" in unexpected types\./, String(err));
             }
         
             try {
                 await render('{% if "a" in obj %}yes{% endif %}', { obj: undefined });
                 throw new Error('FAIL');
             } catch (err) {
-                expect(err).to.match(
-                    /Cannot use "in" operator to search for "a" in unexpected types\./
-                );
+                __self.assertMatchesRegularExpression(/Cannot use "in" operator to search for "a" in unexpected types\./, String(err));
             }
         
         
@@ -708,10 +701,10 @@ export default class CompilerTest extends TestCase {
                 try {
                     await tmpl.render({});
                 } catch (err) {
-                    expect(err.toString()).to.be.equal([
+                    __self.assertEquals([
                         'TemplateError: (parse-error.kumis) [Line 1, Column 26]',
                         '  unexpected token: ,',
-                    ].join('\n'));
+                    ].join('\n'), err.toString());
 
                     caught = true;
                 }
@@ -740,10 +733,10 @@ export default class CompilerTest extends TestCase {
                 try {
                     await tmpl.render({ foo });
                 } catch (err) {
-                    expect(err.toString()).to.be.equal([
+                    __self.assertEquals([
                         'TemplateError: (user-error.kumis) [Line 1, Column 8]',
                         '  Error: ERROR',
-                    ].join('\n'));
+                    ].join('\n'), err.toString());
 
                     caught = true;
                 }
@@ -968,7 +961,7 @@ export default class CompilerTest extends TestCase {
                     '{{ one("foo") }}');
                 throw new Error('FAIL');
             } catch (err) {
-                expect(err).to.match(/Undefined variable "var"/);
+                __self.assertMatchesRegularExpression(/Undefined variable "var"/, String(err));
             }
         
         
@@ -1076,7 +1069,7 @@ export default class CompilerTest extends TestCase {
         
                 throw new Error('FAIL');
             } catch (e) {
-                expect(e).to.match(/Undefined variable "bar"/);
+                __self.assertMatchesRegularExpression(/Undefined variable "bar"/, String(e));
             }
         
             try {
@@ -1087,7 +1080,7 @@ export default class CompilerTest extends TestCase {
         
                 throw new Error('FAIL');
             } catch (e) {
-                expect(e).to.match(/Undefined variable "bar"/);
+                __self.assertMatchesRegularExpression(/Undefined variable "bar"/, String(e));
             }
         
         
@@ -1101,7 +1094,7 @@ export default class CompilerTest extends TestCase {
         
                 throw new Error('FAIL');
             } catch (e) {
-                expect(e).to.match(/Undefined variable "bar"/);
+                __self.assertMatchesRegularExpression(/Undefined variable "bar"/, String(e));
             }
         
             try {
@@ -1112,7 +1105,7 @@ export default class CompilerTest extends TestCase {
         
                 throw new Error('FAIL');
             } catch (e) {
-                expect(e).to.match(/Undefined variable "bar"/);
+                __self.assertMatchesRegularExpression(/Undefined variable "bar"/, String(e));
             }
         
         
@@ -1143,7 +1136,7 @@ export default class CompilerTest extends TestCase {
                 { foo: function() {
                     count++;
                 } });
-            expect(count).to.be.equal(0);
+            __self.assertEquals(0, count);
         
         
         // should conditionally inherit templates
@@ -1184,7 +1177,7 @@ export default class CompilerTest extends TestCase {
                     '{% block test %}{% endblock %}' +
                     '{% block test %}{% endblock %}');
             } catch (err) {
-                expect(err).to.match(/Block "test" defined more than once./);
+                __self.assertMatchesRegularExpression(/Block "test" defined more than once./, String(err));
             }
         
         
@@ -1227,7 +1220,7 @@ export default class CompilerTest extends TestCase {
         
                 throw new Error('FAIL');
             } catch (e) {
-                expect(e).to.match(/Undefined variable "var"/);
+                __self.assertMatchesRegularExpression(/Undefined variable "var"/, String(e));
             }
         
         
@@ -1248,7 +1241,7 @@ export default class CompilerTest extends TestCase {
         
                 throw new Error('FAIL');
             } catch (e) {
-                expect(e).to.match(/Undefined variable "var"/);
+                __self.assertMatchesRegularExpression(/Undefined variable "var"/, String(e));
             }
         
         
@@ -1331,7 +1324,7 @@ export default class CompilerTest extends TestCase {
                 await render('{% include "missing.kumis" %}', {});
                 throw new Error('FAIL');
             } catch (err) {
-                expect(err).to.match(/Template not found: missing\.kumis/);
+                __self.assertMatchesRegularExpression(/Template not found: missing\.kumis/, String(err));
             }
         
         
@@ -1541,7 +1534,7 @@ export default class CompilerTest extends TestCase {
                 await render('{% from "import.kumis" import boozle %}', {});
                 throw new Error('FAIL');
             } catch (err) {
-                expect(err).to.match(/cannot import 'boozle'/);
+                __self.assertMatchesRegularExpression(/cannot import 'boozle'/, String(err));
             }
         
         
@@ -1809,26 +1802,26 @@ export default class CompilerTest extends TestCase {
         
         // should not autoescape macros
         
-            expect(await render(
+            __self.assertEquals('&lt;&gt;&amp; and &lt;&gt;', await render(
                 '{% macro foo(x, y) %}{{ x }} and {{ y }}{% endmacro %}' +
                 '{{ foo("<>&", "<>") }}', null, {
                     autoescape: true,
-                })).to.be.equal('&lt;&gt;&amp; and &lt;&gt;');
+                }));
         
-            expect(await render(
+            __self.assertEquals('<>& and &lt;&gt;', await render(
                 '{% macro foo(x, y) %}{{ x|safe }} and {{ y }}{% endmacro %}' +
                 '{{ foo("<>&", "<>") }}', null, {
                     autoescape: true,
-                })).to.be.equal('<>& and &lt;&gt;');
+                }));
         
         
         // should not autoescape super()
         
-            expect(await render('{% extends "base3.kumis" %}' +
+            __self.assertEquals('<b>Foo</b>', await render('{% extends "base3.kumis" %}' +
                 '{% block block1 %}{{ super() }}{% endblock %}',
             null, {
                 autoescape: true,
-            })).to.be.equal('<b>Foo</b>');
+            }));
         
         
         // should not autoescape when extension set false
@@ -1858,15 +1851,15 @@ export default class CompilerTest extends TestCase {
                 }
             }
         
-            expect(await render('{% test "123456" %}', null, {
+            __self.assertEquals('<b>Foo</b>', await render('{% test "123456" %}', null, {
                 extensions: [ new TestExtension() ],
                 autoescape: true,
-            })).to.be.equal('<b>Foo</b>');
+            }));
         
         
         // should pass context as this to filters
         
-            expect(await render(
+            __self.assertEquals('3', await render(
                 '{{ foo | hallo }}',
                 { foo: 1, bar: 2 }, {
                     filters: {
@@ -1874,7 +1867,7 @@ export default class CompilerTest extends TestCase {
                             return foo + this.lookup('bar');
                         },
                     },
-                })).to.be.equal('3');
+                }));
         
         
         // should render regexs
@@ -1889,7 +1882,7 @@ export default class CompilerTest extends TestCase {
                 await render('{% call foo() %}{% endcall %}', {foo: 'bar'});
                 throw new Error('FAIL');
             } catch (err) {
-                expect(err).to.match(/Unable to call `\w+`, which is not a function/);
+                __self.assertMatchesRegularExpression(/Unable to call `\w+`, which is not a function/, String(err));
             }
         
         
@@ -1899,7 +1892,7 @@ export default class CompilerTest extends TestCase {
                 await render('{% include "undefined-macro.kumis" %}', {});
                 throw new Error('FAIL');
             } catch (err) {
-                expect(err).to.match(/Undefined variable "\w+"/);
+                __self.assertMatchesRegularExpression(/Undefined variable "\w+"/, String(err));
             }
         
         
@@ -1909,7 +1902,7 @@ export default class CompilerTest extends TestCase {
                 await render('{% if true %}{% include "undefined-macro.kumis" %}{% endif %}', {});
                 throw new Error('FAIL');
             } catch (err) {
-                expect(err).to.match(/Undefined variable "\w+"/);
+                __self.assertMatchesRegularExpression(/Undefined variable "\w+"/, String(err));
             }
         
         
@@ -1919,7 +1912,7 @@ export default class CompilerTest extends TestCase {
                 await render('{% include "import-macro-call-undefined-macro.kumis" %}', { list: [ 1, 2, 3 ] });
                 throw new Error('FAIL');
             } catch (err) {
-                expect(err).to.match(/Undefined variable "\w+"/);
+                __self.assertMatchesRegularExpression(/Undefined variable "\w+"/, String(err));
             }
         
         
@@ -1954,7 +1947,7 @@ export default class CompilerTest extends TestCase {
         
         // should get right value when macro parameter conflict with global macro name
         
-            expect((await render(
+            __self.assertEquals('this should be outputted', (await render(
                 '{# macro1 and macro2 definition #}' +
                 '{% macro macro1() %}' +
                 '{% endmacro %}' +
@@ -1964,13 +1957,12 @@ export default class CompilerTest extends TestCase {
                 '{% endmacro %}' +
                 '' +
                 '{# calling macro2 #}' +
-                '{{macro2("this should be outputted") }}', {}, {})).trim())
-                .to.eql('this should be outputted');
+                '{{macro2("this should be outputted") }}', {}, {})).trim());
         
         
         // should get right value when macro include macro
         
-            expect((await render(
+            __self.assertEquals('foo', (await render(
                 '{# macro1 and macro2 definition #}' +
                 '{% macro macro1() %} foo' +
                 '{% endmacro %}' +
@@ -1980,13 +1972,12 @@ export default class CompilerTest extends TestCase {
                 '{% endmacro %}' +
                 '' +
                 '{# calling macro2 #}' +
-                '{{macro2("this should not be outputted") }}', {}, {})).trim())
-                .to.eql('foo');
+                '{{macro2("this should not be outputted") }}', {}, {})).trim());
         
         
         // should allow access to outer scope in call blocks
         
-            expect((await render(
+            __self.assertEquals('foobar\nfoobar', (await render(
                 '{% macro inside() %}' +
                 '{{ caller() }}' +
                 '{% endmacro %}' +
@@ -1996,13 +1987,12 @@ export default class CompilerTest extends TestCase {
                 '{{ var }}' +
                 '{% endcall %}' +
                 '{% endmacro %}' +
-                '{{ outside("foobar") }}', {}, {})).trim())
-                .to.eql('foobar\nfoobar');
+                '{{ outside("foobar") }}', {}, {})).trim());
         
         
         // should not leak scope from call blocks to parent
         
-            expect((await render(
+            __self.assertEquals('expected', (await render(
                 '{% set var = "expected" %}' +
                 '{% macro inside() %}' +
                 '{% set var = "incorrect-value" %}' +
@@ -2013,8 +2003,7 @@ export default class CompilerTest extends TestCase {
                 '{% endcall %}' +
                 '{% endmacro %}' +
                 '{{ outside() }}' +
-                '{{ var }}', {}, {})).trim())
-                .to.eql('expected');
+                '{{ var }}', {}, {})).trim());
         
         
         
@@ -2079,7 +2068,7 @@ export default class CompilerTest extends TestCase {
                 await render(' {{ 2 + 2- }}');
                 throw new Error('FAIL');
             } catch (err) {
-                expect(err).to.match(/unexpected token: }}/);
+                __self.assertMatchesRegularExpression(/unexpected token: }}/, String(err));
         
     }
 

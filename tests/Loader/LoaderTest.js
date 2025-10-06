@@ -1,7 +1,6 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { expect } from 'chai';
 
 const ArrayAdapter = Jymfony.Component.Cache.Adapter.ArrayAdapter;
 const Environment = Kumis.Environment;
@@ -39,7 +38,7 @@ export default class LoaderTest extends TestCase {
 
         const env = Environment.create(new MyLoader());
         const parent = await env.getTemplate('fake.kumis');
-        expect(await parent.render()).to.be.equal('Hello World');
+        __self.assertEquals('Hello World', await parent.render());
     }
 
     async testShouldCatchLoaderError() {
@@ -57,7 +56,7 @@ export default class LoaderTest extends TestCase {
         try {
             await env.getTemplate('fake.kumis');
         } catch (err) {
-            expect(err).to.be.instanceOf(Error);
+            __self.assertInstanceOf(Error, err);
         }
     }
 
@@ -66,12 +65,12 @@ export default class LoaderTest extends TestCase {
         const e = Environment.create(templateLoader);
 
         fs.writeFileSync(this._tempdir + '/test.html', '{{ name }}', 'utf-8');
-        expect(await e.render('test.html', { name: 'foo' })).to.be.equal('foo');
+        __self.assertEquals('foo', await e.render('test.html', { name: 'foo' }));
 
         Jymfony.Component.Filesystem.StreamWrapper.FileStreamWrapper.clearStatCache();
 
         fs.writeFileSync(this._tempdir + '/test.html', '{{ name }}-changed', 'utf-8');
-        expect(await e.render('test.html', { name: 'foo' })).to.be.equal('foo');
+        __self.assertEquals('foo', await e.render('test.html', { name: 'foo' }));
     }
 
     async testShouldNotCacheTemplatesByDefault() {
@@ -79,11 +78,11 @@ export default class LoaderTest extends TestCase {
         const e = Environment.create(templateLoader);
 
         fs.writeFileSync(this._tempdir + '/test.html', '{{ name }}', 'utf-8');
-        expect(await e.render('test.html', { name: 'foo' })).to.be.equal('foo');
+        __self.assertEquals('foo', await e.render('test.html', { name: 'foo' }));
 
         Jymfony.Component.Filesystem.StreamWrapper.FileStreamWrapper.clearStatCache();
 
         fs.writeFileSync(this._tempdir + '/test.html', '{{ name }}-changed', 'utf-8');
-        expect(await e.render('test.html', { name: 'foo' })).to.be.equal('foo-changed');
+        __self.assertEquals('foo-changed', await e.render('test.html', { name: 'foo' }));
     }
 }

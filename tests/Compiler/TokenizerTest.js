@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-
 const Tokenizer = Kumis.Compiler.Tokenizer;
 const TestCase = Jymfony.Component.Testing.Framework.TestCase;
 function _hasTokens(ws, tokens, types) {
@@ -17,21 +15,21 @@ function _hasTokens(ws, tokens, types) {
         }
 
         if (isArray(type)) {
-            expect(tok.type).to.be.equal(type[0]);
-            expect(tok.value).to.be.equal(type[1]);
+            TestCase.assertSame(type[0], tok.type);
+            TestCase.assertSame(type[1], tok.value);
         } else if (isObjectLiteral(type)) {
-            expect(tok.type).to.be.equal(type.type);
+            TestCase.assertSame(type.type, tok.type);
             if (null != type.value) {
-                expect(tok.value).to.be.equal(type.value);
+                TestCase.assertSame(type.value, tok.value);
             }
             if (null != type.lineno) {
-                expect(tok.lineno).to.be.equal(type.lineno);
+                TestCase.assertSame(type.lineno, tok.lineno);
             }
             if (null != type.colno) {
-                expect(tok.colno).to.be.equal(type.colno);
+                TestCase.assertSame(type.colno, tok.colno);
             }
         } else {
-            expect(tok.type).to.be.equal(type);
+            TestCase.assertSame(type, tok.type);
         }
     }
 }
@@ -53,13 +51,13 @@ export default class TokenizerTest extends TestCase {
 
     testShouldParseTemplateData() {
         tok = new Tokenizer('3').nextToken();
-        expect(tok.type).to.be.equal(Tokenizer.TOKEN_DATA);
-        expect(tok.value).to.be.equal('3');
+        __self.assertEquals(Tokenizer.TOKEN_DATA, tok.type);
+        __self.assertEquals('3', tok.value);
 
         const tmpl = 'foo bar bizzle 3 [1,2] !@#$%^&*()<>?:"{}|';
         tok = new Tokenizer(tmpl).nextToken();
-        expect(tok.type).to.be.equal(Tokenizer.TOKEN_DATA);
-        expect(tok.value).to.be.equal(tmpl);
+        __self.assertEquals(Tokenizer.TOKEN_DATA, tok.type);
+        __self.assertEquals(tmpl, tok.value);
     }
 
 
@@ -183,8 +181,8 @@ export default class TokenizerTest extends TestCase {
         tok = tokens.nextToken();
         tok = tokens.nextToken();
         tok = tokens.nextToken();
-        expect(tok.type).to.be.equal(Tokenizer.TOKEN_SYMBOL);
-        expect(tok.value).to.be.equal('foo');
+        __self.assertEquals(Tokenizer.TOKEN_SYMBOL, tok.type);
+        __self.assertEquals('foo', tok.value);
     }
 
 
@@ -759,21 +757,21 @@ function _hasTokens(ws, tokens, types) {
         }
 
         if (isArray(type)) {
-            expect(tok.type).to.be.equal(type[0]);
-            expect(tok.value).to.be.equal(type[1]);
+            __self.assertEquals(type[0], tok.type);
+            __self.assertEquals(type[1], tok.value);
         } else if (isObjectLiteral(type)) {
-            expect(tok.type).to.be.equal(type.type);
+            __self.assertEquals(type.type, tok.type);
             if (null != type.value) {
-                expect(tok.value).to.be.equal(type.value);
+                __self.assertEquals(type.value, tok.value);
             }
             if (null != type.lineno) {
-                expect(tok.lineno).to.be.equal(type.lineno);
+                __self.assertEquals(type.lineno, tok.lineno);
             }
             if (null != type.colno) {
-                expect(tok.colno).to.be.equal(type.colno);
+                __self.assertEquals(type.colno, tok.colno);
             }
         } else {
-            expect(tok.type).to.be.equal(type);
+            __self.assertEquals(type, tok.type);
         }
     }
 }
@@ -791,13 +789,13 @@ export default class TokenizerTest extends TestCase {
 
     testShouldParseTemplateData() {
         tok = new Tokenizer('3').nextToken();
-        expect(tok.type).to.be.equal(Tokenizer.TOKEN_DATA);
-        expect(tok.value).to.be.equal('3');
+        __self.assertEquals(Tokenizer.TOKEN_DATA, tok.type);
+        __self.assertEquals('3', tok.value);
 
         const tmpl = 'foo bar bizzle 3 [1,2] !@#$%^&*()<>?:"{}|';
         tok = new Tokenizer(tmpl).nextToken();
-        expect(tok.type).to.be.equal(Tokenizer.TOKEN_DATA);
-        expect(tok.value).to.be.equal(tmpl);
+        __self.assertEquals(Tokenizer.TOKEN_DATA, tok.type);
+        __self.assertEquals(tmpl, tok.value);
     }
 
 
@@ -921,8 +919,8 @@ export default class TokenizerTest extends TestCase {
         tok = tokens.nextToken();
         tok = tokens.nextToken();
         tok = tokens.nextToken();
-        expect(tok.type).to.be.equal(Tokenizer.TOKEN_SYMBOL);
-        expect(tok.value).to.be.equal('foo');
+        __self.assertEquals(Tokenizer.TOKEN_SYMBOL, tok.type);
+        __self.assertEquals('foo', tok.value);
     }
 
 

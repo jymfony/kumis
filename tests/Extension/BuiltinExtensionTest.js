@@ -1,5 +1,4 @@
 import { render, equal } from '../util';
-import { expect } from 'chai';
 
 const Environment = Kumis.Environment;
 const AbstractExtension = Kumis.Extension.AbstractExtension;
@@ -114,7 +113,7 @@ export default class BuiltinExtensionTest extends TestCase {
             }
         }());
 
-        expect(env.globals.hello).to.be.equal(hello);
+        __self.assertSame(hello, env.globals.hello);
         }
 
         // should allow getting boolean globals
@@ -133,7 +132,7 @@ export default class BuiltinExtensionTest extends TestCase {
             }
         }());
 
-        expect(env.globals.hello).to.be.equal(hello);
+        __self.assertSame(hello, env.globals.hello);
         }
 
         // should pass context as this to global functions
@@ -174,7 +173,7 @@ export default class BuiltinExtensionTest extends TestCase {
         }());
 
         const env2 = Environment.create();
-        expect(env2.globals.hello).to.be.undefined;
+        __self.assertUndefined(env2.globals.hello);
         }
 
         // should return errors from globals
@@ -197,7 +196,7 @@ export default class BuiltinExtensionTest extends TestCase {
         try {
             await render('{{ err() }}', null, {}, env);
         } catch (e) {
-            expect(e).to.be.instanceOf(Error);
+            __self.assertInstanceOf(Error, e);
         }
         }
 

@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-
 const ContainerControllerResolver = Jymfony.Component.HttpFoundation.Controller.ContainerControllerResolver;
 const Request = Jymfony.Component.HttpFoundation.Request;
 const RequestHandler = Jymfony.Component.HttpServer.RequestHandler;
@@ -54,9 +52,9 @@ export default class SecurityExtensionTest extends TestCase {
         const handler = new RequestHandler(this.kernel.container.get('event_dispatcher'), resolver);
 
         let response = await handler.handle(new Request('/'));
-        expect(__jymfony.trim(response.content)).to.be.equal('false');
+        __self.assertEquals('false', __jymfony.trim(response.content));
 
         response = await handler.handle(new Request('/anonymous'));
-        expect(__jymfony.trim(response.content)).to.be.equal('true');
+        __self.assertEquals('true', __jymfony.trim(response.content));
     }
 }

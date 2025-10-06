@@ -4,7 +4,7 @@
   "version": "0.1.0-dev",
   "author": "Alessandro Chitolina <alekitto@gmail.com>",
   "engines": {
-    "node": ">= 10"
+    "node": ">= 18"
   },
   "scripts": {
     "test:instrument": "nyc npm run test:runner",
@@ -39,7 +39,6 @@
     "@jymfony/templating": "^0.1.0-alpha.32",
     "@jymfony/testing": "^0.1.0-alpha.32",
     "@jymfony/var-dumper": "^0.1.0-alpha.32",
-    "chai": "^4.2.0",
     "mocha": "^6",
     "nyc": "^15.0.0"
   },
