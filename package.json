@@ -11,8 +11,6 @@
     "test:runner": "node ./tests.js",
     "test": "npm run test:runner"
   },
-  "flat": true,
-  "main": "index",
   "dependencies": {
     "@jymfony/autoloader": "^0.1.0-alpha.32",
     "@jymfony/cache": "^0.1.0-alpha.32",
