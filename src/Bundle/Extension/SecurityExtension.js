@@ -1,11 +1,12 @@
 const AbstractExtension = Kumis.Extension.AbstractExtension;
+const ClsTrait = Jymfony.Contracts.Async.ClsTrait;
 const EventSubscriberInterface = Jymfony.Contracts.EventDispatcher.EventSubscriberInterface;
 const TokenInterface = Jymfony.Component.Security.Authentication.Token.TokenInterface;
 
 /**
  * @memberOf Kumis.Bundle.Extension
  */
-export default class SecurityExtension extends mix(AbstractExtension, EventSubscriberInterface, __jymfony.ClsTrait) {
+export default class SecurityExtension extends mix(AbstractExtension, EventSubscriberInterface, ClsTrait) {
     /**
      * Constructor.
      *
@@ -54,7 +55,7 @@ export default class SecurityExtension extends mix(AbstractExtension, EventSubsc
         if (args[0] instanceof TokenInterface) {
             token = args.shift();
         } else {
-            const currentRequest = this._activeContext[__jymfony.ClsTrait.REQUEST_SYMBOL];
+            const currentRequest = this._activeContext[ClsTrait.REQUEST_SYMBOL];
             if (!! currentRequest) {
                 token = this._tokenStorage.getToken(currentRequest);
             }

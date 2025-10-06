@@ -1,3 +1,5 @@
+import { compile } from '@jymfony/compiler';
+
 const Compiler = Kumis.Compiler.Compiler;
 const Context = Kumis.Context;
 const Frame = Kumis.Util.Frame;
@@ -104,7 +106,7 @@ export default class Template {
         if (this.tmplProps) {
             props = this.tmplProps;
         } else {
-            const source = Compiler.compile(this.tmplStr, this.env.extensionsList, this.path, this.env.opts);
+            const source = compile(Compiler.compile(this.tmplStr, this.env.extensionsList, this.path, this.env.opts));
 
             const func = new Function(source); // eslint-disable-line no-new-func
             props = func();

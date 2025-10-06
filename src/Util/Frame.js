@@ -1,6 +1,3 @@
-const Storage = function () {};
-Storage.prototype = {};
-
 /**
  * Frames keep track of scoping both at compile-time and run-time so
  * we know how to access variables. Block tags can introduce special
@@ -16,7 +13,7 @@ export default class Frame {
      * @param {boolean} isolateWrites
      */
     __construct(parent, isolateWrites) {
-        this.variables = new Storage();
+        this.variables = Object.create(null);
 
         /**
          * @type {Kumis.Util.Frame}
